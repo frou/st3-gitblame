@@ -25,9 +25,12 @@ Last updated: {date} {time} | [{sha}]
 </span>
 '''
 
-si = subprocess.STARTUPINFO()
-si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-
+# Sometimes this fails on other OS, just error silently
+try:
+    si = subprocess.STARTUPINFO()
+    si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+except:
+    si = None
 
 class BlameCommand(sublime_plugin.TextCommand):
 
