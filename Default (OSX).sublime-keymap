@@ -1,6 +1,6 @@
 [
 {
-    "keys": ["ctrl+shift+q"],
+    "keys": ["ctrl+alt+b"],
     "command": "blame"
 }
 ]
