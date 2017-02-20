@@ -17,9 +17,10 @@ a {{
     text-decoration: none;
 }}
 </style>
-<a href="close">
 <strong>Git Blame:</strong> ({user})
-Last updated: {date} {time} | [{sha}]
+Updated: {date} {time} | 
+<a href="copy-{sha}">[{sha}]</a> |
+<a href="close">
 <close>X</close>&nbsp;
 </a>
 </span>
@@ -56,9 +57,20 @@ class BlameCommand(sublime_plugin.TextCommand):
             user, date, time, tz_offset = file_path, user, date, time
             file_path = None
 
+        # Fix an issue where the username has a space
+        # Im going to need to do something better though if people 
+        # start to have multiple spaces in their names.
+        if not isinstance(date[0], int):
+            user = "{0} {1}".format(user, date)
+            date, time = time, tz_offset
+
         return(sha, user[1:], date, time)
 
     def on_phantom_close(self, href):
+        if href.startswith('copy'):
+            sha = href.replace('copy-','')
+            sublime.set_clipboard(sha)
+            
         self.view.erase_phantoms('git-blame')
 
 
