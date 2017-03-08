@@ -6,19 +6,35 @@ import subprocess
 from subprocess import check_output as shell
 
 
-blame_cache = {}
+template_scheme = {}
+template_scheme['light'] = '''
+<style>
+span {
+    background-color: #aee;
+    color: #444;
+}
+strong, a {
+    text-decoration: none;
+    color: #000;
+}
+</style>
+'''
+template_scheme['dark'] = '''
+<style>
+span {
+    background-color: brown;
+}
+a {
+    text-decoration: none;
+}
+</style>
+'''
+
 template = '''
 <span>
-<style>
-span {{
-    background-color: brown;
-}}
-a {{
-    text-decoration: none;
-}}
-</style>
+{scheme}
 <strong>Git Blame:</strong> ({user})
-Updated: {date} {time} | 
+Updated: {date} {time} |
 <a href="copy-{sha}">[{sha}]</a> |
 <a href="close">
 <close>X</close>&nbsp;
@@ -58,7 +74,7 @@ class BlameCommand(sublime_plugin.TextCommand):
             file_path = None
 
         # Fix an issue where the username has a space
-        # Im going to need to do something better though if people 
+        # Im going to need to do something better though if people
         # start to have multiple spaces in their names.
         if not isinstance(date[0], int):
             user = "{0} {1}".format(user, date)
@@ -70,7 +86,7 @@ class BlameCommand(sublime_plugin.TextCommand):
         if href.startswith('copy'):
             sha = href.replace('copy-','')
             sublime.set_clipboard(sha)
-            
+
         self.view.erase_phantoms('git-blame')
 
 
@@ -82,13 +98,18 @@ class BlameCommand(sublime_plugin.TextCommand):
             line = self.view.line(region)
             (row, col) = self.view.rowcol(region.begin())
             full_path = self.view.file_name()
-            result = self.get_blame(int(row)+1, full_path)
+            result = self.get_blame(int(row) + 1, full_path)
             if not result:
                 # Unable to get blame
                 return
 
             sha, user, date, time = self.parse_blame(result)
-            body = template.format(sha=sha, user=user, date=date, time=time)
+
+            settings = sublime.load_settings('Preferences.sublime-settings')
+            scheme_color = settings.get('gitblame.scheme') or 'dark'
+
+            body = template.format(sha=sha, user=user, date=date, time=time,
+                scheme=template_scheme.get(scheme_color, ''))
 
             phantom = sublime.Phantom(line, body, sublime.LAYOUT_BLOCK, self.on_phantom_close)
             phantoms.append(phantom)
