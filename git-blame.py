@@ -37,7 +37,7 @@ template = '''
 Updated: {date} {time} |
 <a href="copy-{sha}">[{sha}]</a> |
 <a href="close">
-<close>X</close>&nbsp;
+<close>&#10006;</close>&nbsp;
 </a>
 </span>
 '''
