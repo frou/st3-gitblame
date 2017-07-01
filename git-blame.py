@@ -33,12 +33,12 @@ a {
 template = '''
 <span>
 {scheme}
-<strong>Git Blame:</strong> ({user})
+&nbsp;<strong>Git Blame:</strong> ({user})
 Updated: {date} {time} |
-<a href="copy-{sha}">[{sha}]</a> |
-<a href="close">
-<close>&#10006;</close>&nbsp;
-</a>
+{sha}
+<a href="copy-{sha}">[Copy]</a>
+<a href="show-{sha}">[Show]</a>
+<a href="close"><close>[X]</close></a>&nbsp;
 </span>
 '''
 
@@ -82,10 +82,23 @@ class BlameCommand(sublime_plugin.TextCommand):
 
         return(sha, user[1:], date, time)
 
+    def get_commit(self, sha, path):
+        try:
+            return shell(["git", "show", sha],
+                cwd=os.path.dirname(os.path.realpath(path)),
+                startupinfo=si)
+        except Exception as e:
+            return
+
     def on_phantom_close(self, href):
         if href.startswith('copy'):
             sha = href.replace('copy-','')
             sublime.set_clipboard(sha)
+        elif href.startswith('show'):
+            sha = href.replace('show-', '')
+            desc = self.get_commit(sha, self.view.file_name()).decode('utf-8')
+            buf = self.view.window().new_file()
+            buf.run_command('insert_commit_description', {'desc': desc})
 
         self.view.erase_phantoms('git-blame')
 
@@ -114,3 +127,13 @@ class BlameCommand(sublime_plugin.TextCommand):
             phantom = sublime.Phantom(line, body, sublime.LAYOUT_BLOCK, self.on_phantom_close)
             phantoms.append(phantom)
         self.phantom_set.update(phantoms)
+
+
+class InsertCommitDescriptionCommand(sublime_plugin.TextCommand):
+
+    def run(self, edit, desc):
+        view = self.view
+        view.set_scratch(True)
+        view.set_syntax_file('Packages/Diff/Diff.sublime-syntax')
+        view.insert(edit, 0, desc)
+
