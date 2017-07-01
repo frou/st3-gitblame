@@ -91,14 +91,23 @@ class BlameCommand(sublime_plugin.TextCommand):
             return
 
     def on_phantom_close(self, href):
-        if href.startswith('copy'):
-            sha = href.replace('copy-','')
-            sublime.set_clipboard(sha)
-        elif href.startswith('show'):
-            sha = href.replace('show-', '')
-            desc = self.get_commit(sha, self.view.file_name()).decode('utf-8')
-            buf = self.view.window().new_file()
-            buf.run_command('insert_commit_description', {'desc': desc})
+        href_parts = href.split('-')
+
+        if len(href_parts) > 1:
+            intent = href_parts[0]
+            sha = href_parts[1]
+            # The SHA output by git-blame may have a leading caret to indicate
+            # that it is a "boundary commit". That useful information has
+            # already been shown in the phantom, so strip it before going on to
+            # use the SHA programmatically.
+            sha = sha.strip('^')
+
+            if intent == "copy":
+                sublime.set_clipboard(sha)
+            elif intent == "show":
+                desc = self.get_commit(sha, self.view.file_name()).decode('utf-8')
+                buf = self.view.window().new_file()
+                buf.run_command('insert_commit_description', {'desc': desc})
 
         self.view.erase_phantoms('git-blame')
 
