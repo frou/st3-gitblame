@@ -61,9 +61,12 @@ class BlameCommand(sublime_plugin.TextCommand):
             return shell(["git", "blame", "--minimal", "-w",
                 "-L {0},{0}".format(line), path],
                 cwd=os.path.dirname(os.path.realpath(path)),
-                startupinfo=si)
+                startupinfo=si,
+                stderr=subprocess.STDOUT)
+        except subprocess.CalledProcessError as e:
+            print("Git blame: git error {}:\n{}".format(e.returncode, e.output.decode("UTF-8")))
         except Exception as e:
-            return
+            print("Git blame: Unexpected error:", e)
 
     def parse_blame(self, blame):
         sha, file_path, user, date, time, tz_offset, *_ = blame.decode('utf-8').split()
