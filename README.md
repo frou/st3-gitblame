@@ -16,17 +16,6 @@ View on [packagecontrol.io](https://packagecontrol.io/packages/Git%20blame)
  
  > Right click > Git blame
  
+## Example
 
-## Examples
-
-
-### Light scheme
-![image](https://cloud.githubusercontent.com/assets/1134201/23709870/bcde89cc-0412-11e7-9464-3f97713bf747.png)
-
-Light: (with a light theme)
-
-![image](https://cloud.githubusercontent.com/assets/1134201/23709882/ce0c2ea2-0412-11e7-9bac-e5297629a15a.png)
-
-
-### Dark scheme
-![image](https://cloud.githubusercontent.com/assets/1134201/23709854/acfe8ed0-0412-11e7-8329-3aa51e530d19.png)
+ ![image](https://user-images.githubusercontent.com/2543659/28410198-331b1ec8-6d3d-11e7-9ac1-57d43fb6ab60.png)
