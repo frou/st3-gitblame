@@ -16,3 +16,4 @@ View on [packagecontrol.io](https://packagecontrol.io/packages/Git%20blame)
  
  > Right click > Git blame
  
+ ![image](https://user-images.githubusercontent.com/2543659/28410198-331b1ec8-6d3d-11e7-9ac1-57d43fb6ab60.png)
