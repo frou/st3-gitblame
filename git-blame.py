@@ -107,13 +107,15 @@ class BlameCommand(sublime_plugin.TextCommand):
 
             if intent == "copy":
                 sublime.set_clipboard(sha)
+                sublime.status_message('Git SHA copied to clipboard')
             elif intent == "show":
                 desc = self.get_commit(sha, self.view.file_name()).decode('utf-8')
                 buf = self.view.window().new_file()
                 buf.run_command('insert_commit_description', {'desc': desc})
-
-        self.view.erase_phantoms('git-blame')
-
+            else:
+                self.view.erase_phantoms('git-blame')
+        else:
+            self.view.erase_phantoms('git-blame')
 
     def run(self, edit):
         phantoms = []
