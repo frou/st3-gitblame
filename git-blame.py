@@ -5,41 +5,57 @@ import functools
 import subprocess
 from subprocess import check_output as shell
 
-
-template_scheme = {}
-template_scheme['light'] = '''
-<style>
-span {
-    background-color: #aee;
-    color: #444;
-}
-strong, a {
-    text-decoration: none;
-    color: #000;
-}
-</style>
-'''
-template_scheme['dark'] = '''
-<style>
-span {
-    background-color: brown;
-}
-a {
-    text-decoration: none;
-}
-</style>
+stylesheet = '''
+    <style>
+        div.blame-arrow {
+            border-top: 0.4rem solid transparent;
+            border-left: 0.5rem solid color(var(--greenish) blend(var(--background) 30%));
+            width: 0;
+            height: 0;
+        }
+        div.blame {
+            padding: 0.4rem 0 0.4rem 0.7rem;
+            margin: 0 0 0.2rem;
+            border-radius: 0 0.2rem 0.2rem 0.2rem;
+            background-color: color(var(--greenish) blend(var(--background) 30%));
+        }
+        div.blame span.message {
+            padding-right: 0.7rem;
+        }
+        div.blame a {
+            text-decoration: inherit;
+        }
+        div.blame a.close {
+            padding: 0.35rem 0.7rem 0.45rem 0.8rem;
+            position: relative;
+            bottom: 0.05rem;
+            border-radius: 0 0.2rem 0.2rem 0;
+            font-weight: bold;
+        }
+        html.dark div.blame a.close {
+            background-color: #00000018;
+        }
+        html.light div.blame a.close {
+            background-color: #ffffff18;
+        }
+    </style>
 '''
 
 template = '''
-<span>
-{scheme}
-&nbsp;<strong>Git Blame:</strong> ({user})
+<body>
+{stylesheet}
+<div class="blame-arrow"></div>
+<div class="blame">
+<span class="message">
+<strong>Git Blame:</strong> ({user})
 Updated: {date} {time} |
 {sha}
 <a href="copy-{sha}">[Copy]</a>
 <a href="show-{sha}">[Show]</a>
-<a href="close"><close>[X]</close></a>&nbsp;
+<a class="close" href="close">''' + chr(0x00D7) + '''</a>
 </span>
+</div>
+</body>
 '''
 
 # Sometimes this fails on other OS, just error silently
@@ -130,11 +146,7 @@ class BlameCommand(sublime_plugin.TextCommand):
 
             sha, user, date, time = self.parse_blame(result)
 
-            settings = sublime.load_settings('Preferences.sublime-settings')
-            scheme_color = settings.get('gitblame.scheme') or 'dark'
-
-            body = template.format(sha=sha, user=user, date=date, time=time,
-                scheme=template_scheme.get(scheme_color, ''))
+            body = template.format(sha=sha, user=user, date=date, time=time, stylesheet=stylesheet)
 
             phantom = sublime.Phantom(line, body, sublime.LAYOUT_BLOCK, self.on_phantom_close)
             phantoms.append(phantom)
