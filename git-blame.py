@@ -9,7 +9,7 @@ stylesheet = '''
     <style>
         div.blame-arrow {
             border-top: 0.4rem solid transparent;
-            border-left: 0.5rem solid color(var(--greenish) blend(var(--background) 30%));
+            border-left: 0.5rem solid color(var(--bluish) blend(var(--background) 30%));
             width: 0;
             height: 0;
         }
@@ -17,7 +17,7 @@ stylesheet = '''
             padding: 0.4rem 0 0.4rem 0.7rem;
             margin: 0 0 0.2rem;
             border-radius: 0 0.2rem 0.2rem 0.2rem;
-            background-color: color(var(--greenish) blend(var(--background) 30%));
+            background-color: color(var(--bluish) blend(var(--background) 30%));
         }
         div.blame span.message {
             padding-right: 0.7rem;
