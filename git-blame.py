@@ -42,20 +42,20 @@ stylesheet = '''
 '''
 
 template = '''
-<body>
-{stylesheet}
-<div class="blame-arrow"></div>
-<div class="blame">
-<span class="message">
-<strong>Git Blame:</strong> ({user})
-Updated: {date} {time} |
-{sha}
-<a href="copy-{sha}">[Copy]</a>
-<a href="show-{sha}">[Show]</a>
-<a class="close" href="close">''' + chr(0x00D7) + '''</a>
-</span>
-</div>
-</body>
+    <body>
+        {stylesheet}
+        <div class="blame-arrow"></div>
+        <div class="blame">
+            <span class="message">
+                <strong>Git Blame:</strong> ({user})
+                Updated: {date} {time} |
+                {sha}
+                <a href="copy-{sha}">[Copy]</a>
+                <a href="show-{sha}">[Show]</a>
+                <a class="close" href="close">''' + chr(0x00D7) + '''</a>
+            </span>
+        </div>
+    </body>
 '''
 
 # Sometimes this fails on other OS, just error silently
