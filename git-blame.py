@@ -7,55 +7,55 @@ from subprocess import check_output as shell
 
 stylesheet = '''
     <style>
-        div.blame-arrow {
+        div.phantom-arrow {
             border-top: 0.4rem solid transparent;
-            border-left: 0.5rem solid color(var(--greenish) blend(var(--background) 30%));
+            border-left: 0.5rem solid color(var(--bluish) blend(var(--background) 30%));
             width: 0;
             height: 0;
         }
-        div.blame {
+        div.phantom {
             padding: 0.4rem 0 0.4rem 0.7rem;
             margin: 0 0 0.2rem;
             border-radius: 0 0.2rem 0.2rem 0.2rem;
-            background-color: color(var(--greenish) blend(var(--background) 30%));
+            background-color: color(var(--bluish) blend(var(--background) 30%));
         }
-        div.blame span.message {
+        div.phantom span.message {
             padding-right: 0.7rem;
         }
-        div.blame a {
+        div.phantom a {
             text-decoration: inherit;
         }
-        div.blame a.close {
+        div.phantom a.close {
             padding: 0.35rem 0.7rem 0.45rem 0.8rem;
             position: relative;
             bottom: 0.05rem;
             border-radius: 0 0.2rem 0.2rem 0;
             font-weight: bold;
         }
-        html.dark div.blame a.close {
+        html.dark div.phantom a.close {
             background-color: #00000018;
         }
-        html.light div.blame a.close {
+        html.light div.phantom a.close {
             background-color: #ffffff18;
         }
     </style>
 '''
 
 template = '''
-<body>
-{stylesheet}
-<div class="blame-arrow"></div>
-<div class="blame">
-<span class="message">
-<strong>Git Blame:</strong> ({user})
-Updated: {date} {time} |
-{sha}
-<a href="copy-{sha}">[Copy]</a>
-<a href="show-{sha}">[Show]</a>
-<a class="close" href="close">''' + chr(0x00D7) + '''</a>
-</span>
-</div>
-</body>
+    <body id="inline-git-blame">
+        {stylesheet}
+        <div class="phantom-arrow"></div>
+        <div class="phantom">
+            <span class="message">
+                <strong>Git Blame:</strong> ({user})
+                Updated: {date} {time} |
+                {sha}
+                <a href="copy-{sha}">[Copy]</a>
+                <a href="show-{sha}">[Show]</a>
+                <a class="close" href="close">''' + chr(0x00D7) + '''</a>
+            </span>
+        </div>
+    </body>
 '''
 
 # Sometimes this fails on other OS, just error silently
