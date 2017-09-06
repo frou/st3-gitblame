@@ -95,7 +95,7 @@ class BlameCommand(sublime_plugin.TextCommand):
         # Fix an issue where the username has a space
         # Im going to need to do something better though if people
         # start to have multiple spaces in their names.
-        if not isinstance(date[0], int):
+        if not date[0].isdigit():
             user = "{0} {1}".format(user, date)
             date, time = time, tz_offset
 
@@ -162,4 +162,3 @@ class InsertCommitDescriptionCommand(sublime_plugin.TextCommand):
         view.set_scratch(True)
         view.set_syntax_file('Packages/Diff/Diff.sublime-syntax')
         view.insert(edit, 0, desc)
-
