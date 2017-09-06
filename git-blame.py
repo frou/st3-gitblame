@@ -47,8 +47,8 @@ template = '''
         <div class="phantom-arrow"></div>
         <div class="phantom">
             <span class="message">
-                <strong>Git Blame:</strong> ({user})
-                Updated: {date} {time} |
+                <strong>Git Blame</strong> ({user})
+                {date} {time} |
                 {sha}
                 <a href="copy-{sha}">[Copy]</a>
                 <a href="show-{sha}">[Show]</a>
@@ -162,4 +162,3 @@ class InsertCommitDescriptionCommand(sublime_plugin.TextCommand):
         view.set_scratch(True)
         view.set_syntax_file('Packages/Diff/Diff.sublime-syntax')
         view.insert(edit, 0, desc)
-
