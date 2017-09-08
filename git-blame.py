@@ -47,8 +47,8 @@ template = '''
         <div class="phantom-arrow"></div>
         <div class="phantom">
             <span class="message">
-                <strong>Git Blame:</strong> ({user})
-                Updated: {date} {time} |
+                <strong>Git Blame</strong> ({user})
+                {date} {time} |
                 {sha}
                 <a href="copy-{sha}">[Copy]</a>
                 <a href="show-{sha}">[Show]</a>
