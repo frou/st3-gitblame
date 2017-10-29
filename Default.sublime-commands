@@ -1,6 +1,14 @@
 [
-{
-    "caption": "Git Blame",
-    "command": "blame"
-}
+    {
+        "caption": "Git Blame",
+        "command": "blame"
+    },
+    {
+        "caption": "Git Blame Show All",
+        "command": "blame_show_all"
+    },
+    {
+        "caption": "Git Blame Erase All",
+        "command": "blame_erase_all"
+    }
 ]
