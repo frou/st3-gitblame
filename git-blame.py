@@ -68,9 +68,20 @@ stylesheet_all = '''
             margin: 0;
             background-color: color(var(--bluish) blend(var(--background) 30%));
         }
-
         div.phantom .user {
             width: 10em;
+        }
+        div.phantom a.close {
+            padding: 0.35rem 0.7rem 0.45rem 0.8rem;
+            position: relative;
+            bottom: 0.05rem;
+            font-weight: bold;
+        }
+        html.dark div.phantom a.close {
+            background-color: #00000018;
+        }
+        html.light div.phantom a.close {
+            background-color: #ffffff18;
         }
     </style>
 '''
@@ -81,6 +92,7 @@ template_all = '''
         <div class="phantom">
             <span class="message">
                 {sha} (<span class="user">{user}</span> {date} {time})
+                <a class="close" href="close">''' + chr(0x00D7) + '''</a>
             </span>
         </div>
     </body>
@@ -221,7 +233,10 @@ class BlameShowAllCommand(sublime_plugin.TextCommand):
                                        stylesheet=stylesheet_all)
 
             line_point = self.get_line_point(line_number - 1)
-            phantom = sublime.Phantom(line_point, body, sublime.LAYOUT_INLINE)
+            phantom = sublime.Phantom(line_point,
+                                      body,
+                                      sublime.LAYOUT_INLINE,
+                                      self.on_phantom_close)
             phantoms.append(phantom)
 
         self.phantom_set.update(phantoms)
@@ -286,6 +301,12 @@ class BlameShowAllCommand(sublime_plugin.TextCommand):
         '''
         return self.view.line(self.view.text_point(line, 0))
 
+    def on_phantom_close(self, href):
+        '''Closes opened phantoms.
+        '''
+        if href == 'close':
+            self.view.run_command('blame_erase_all')
+
 
 class BlameEraseAllCommand(sublime_plugin.TextCommand):
 
@@ -301,8 +322,7 @@ class BlameEraseAllListener(sublime_plugin.ViewEventListener):
     def on_modified(self):
         '''Automatically erases the blame results to prevent mismatches.
         '''
-        sublime.status_message("The git blame result is cleared.")
-        self.view.erase_phantoms(PHANTOM_KEY_ALL)
+        self.view.run_command('blame_erase_all')
 
 
 class InsertCommitDescriptionCommand(sublime_plugin.TextCommand):
