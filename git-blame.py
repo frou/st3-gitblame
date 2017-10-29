@@ -275,7 +275,9 @@ class BlameShowAllCommand(sublime_plugin.TextCommand):
     def prepare_pattern(self):
         '''Prepares the regex pattern to parse git blame output.
         '''
-        p_sha = r'(?P<sha>\w+)'
+        # The SHA output by git-blame may have a leading caret to indicate
+        # that it is a "boundary commit".
+        p_sha = r'(?P<sha>\^?\w+)'
         p_author = r'(?P<author>.+?)'
         p_date = r'(?P<date>\d{4}-\d{2}-\d{2})'
         p_time = r'(?P<time>\d{2}:\d{2}:\d{2})'
