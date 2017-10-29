@@ -189,7 +189,7 @@ class BlameCommand(sublime_plugin.TextCommand):
 
             sha, user, date, time = self.parse_blame(result)
 
-            body = template.format(sha=sha, user=user, date=date, time=time, stylesheet=stylesheet_one)
+            body = template_one.format(sha=sha, user=user, date=date, time=time, stylesheet=stylesheet_one)
 
             phantom = sublime.Phantom(line, body, sublime.LAYOUT_BLOCK, self.on_phantom_close)
             phantoms.append(phantom)
