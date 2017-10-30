@@ -245,7 +245,9 @@ class BlameShowAllCommand(sublime_plugin.TextCommand):
         '''Run `git blame` and get the output lines.
         '''
         try:
-            output = shell(["git", "blame", "--minimal", "-w", path],
+            # The option --show-name is necessary to force file name display.
+            command = ["git", "blame", "--show-name", "--minimal", "-w", path]
+            output = shell(command,
                 cwd=os.path.dirname(os.path.realpath(path)),
                 startupinfo=si,
                 stderr=subprocess.STDOUT)
@@ -264,6 +266,8 @@ class BlameShowAllCommand(sublime_plugin.TextCommand):
         m = self.pattern.match(blame)
         if m:
             sha = m.group('sha')
+            # Currently file is not used.
+            # file = m.group('file')
             author = m.group('author')
             date = m.group('date')
             time = m.group('time')
@@ -278,6 +282,7 @@ class BlameShowAllCommand(sublime_plugin.TextCommand):
         # The SHA output by git-blame may have a leading caret to indicate
         # that it is a "boundary commit".
         p_sha = r'(?P<sha>\^?\w+)'
+        p_file = r'((?P<file>[\S ]+)\s+)'
         p_author = r'(?P<author>.+?)'
         p_date = r'(?P<date>\d{4}-\d{2}-\d{2})'
         p_time = r'(?P<time>\d{2}:\d{2}:\d{2})'
@@ -285,8 +290,8 @@ class BlameShowAllCommand(sublime_plugin.TextCommand):
         p_line = r'(?P<line_number>\d+)'
         s = r'\s+'
 
-        self.pattern = re.compile(r'^' + p_sha + s + r'\(' + p_author +
-                                  s + p_date + s + p_time + s +
+        self.pattern = re.compile(r'^' + p_sha + s + p_file + r'\(' +
+                                  p_author + s + p_date + s + p_time + s +
                                   p_timezone + s + p_line + r'\) ')
 
     def format_name(self, name):
