@@ -178,22 +178,25 @@ class BlameCommand(sublime_plugin.TextCommand):
         phantoms = []
         self.view.erase_phantoms('git-blame')
         #Before adding the phantom, see if the current phantom that is displayed is at the same spot at the selection
-        if not (self.phantom_set.phantoms and self.view.line(self.view.sel()[0]) == self.view.line(self.phantom_set.phantoms[0].region)):
-            for region in self.view.sel():
-                line = self.view.line(region)
-                (row, col) = self.view.rowcol(region.begin())
-                full_path = self.view.file_name()
-                result = self.get_blame(int(row) + 1, full_path)
-                if not result:
-                    # Unable to get blame
-                    return
+        if self.phantom_set.phantoms and self.view.line(self.view.sel()[0]) == self.view.line(self.phantom_set.phantoms[0].region):
+            self.phantom_set.update(phantoms)
+            return
+        
+        for region in self.view.sel():
+            line = self.view.line(region)
+            (row, col) = self.view.rowcol(region.begin())
+            full_path = self.view.file_name()
+            result = self.get_blame(int(row) + 1, full_path)
+            if not result:
+                # Unable to get blame
+                return
 
-                sha, user, date, time = self.parse_blame(result)
+            sha, user, date, time = self.parse_blame(result)
 
-                body = template_one.format(sha=sha, user=user, date=date, time=time, stylesheet=stylesheet_one)
+            body = template_one.format(sha=sha, user=user, date=date, time=time, stylesheet=stylesheet_one)
 
-                phantom = sublime.Phantom(line, body, sublime.LAYOUT_BLOCK, self.on_phantom_close)
-                phantoms.append(phantom)
+            phantom = sublime.Phantom(line, body, sublime.LAYOUT_BLOCK, self.on_phantom_close)
+            phantoms.append(phantom)
         self.phantom_set.update(phantoms)
 
 
