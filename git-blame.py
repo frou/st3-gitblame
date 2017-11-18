@@ -328,13 +328,17 @@ class BlameEraseAllCommand(sublime_plugin.TextCommand):
 
 class BlameEraseAllListener(sublime_plugin.ViewEventListener):
 
-    def on_modified(self):
+    @classmethod
+    def is_applicable(cls, settings):
+        '''Checks if the blame_erase_all command is applicable.
+        '''
+        return settings.get(SETTING_PHANTOM_ALL_DISPLAYED, False)
+
+    def on_modified_async(self):
         '''Automatically erases the blame results to prevent mismatches.
         '''
-        settings = self.view.settings()
-        if settings.get(SETTING_PHANTOM_ALL_DISPLAYED, False):
-            self.view.run_command('blame_erase_all')
-            settings.erase(SETTING_PHANTOM_ALL_DISPLAYED)
+        self.view.run_command('blame_erase_all')
+        self.view.settings().erase(SETTING_PHANTOM_ALL_DISPLAYED)
 
 
 class InsertCommitDescriptionCommand(sublime_plugin.TextCommand):
