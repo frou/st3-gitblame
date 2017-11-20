@@ -7,6 +7,7 @@ import subprocess
 from subprocess import check_output as shell
 
 PHANTOM_KEY_ALL = 'git-blame-all'
+SETTING_PHANTOM_ALL_DISPLAYED = 'git-blame-all-displayed'
 
 stylesheet_one = '''
     <style>
@@ -244,6 +245,7 @@ class BlameShowAllCommand(sublime_plugin.TextCommand):
             phantoms.append(phantom)
 
         self.phantom_set.update(phantoms)
+        self.view.settings().set(SETTING_PHANTOM_ALL_DISPLAYED, True)
 
     def get_blame_lines(self, path):
         '''Run `git blame` and get the output lines.
@@ -330,10 +332,17 @@ class BlameEraseAllCommand(sublime_plugin.TextCommand):
 
 class BlameEraseAllListener(sublime_plugin.ViewEventListener):
 
-    def on_modified(self):
+    @classmethod
+    def is_applicable(cls, settings):
+        '''Checks if the blame_erase_all command is applicable.
+        '''
+        return settings.get(SETTING_PHANTOM_ALL_DISPLAYED, False)
+
+    def on_modified_async(self):
         '''Automatically erases the blame results to prevent mismatches.
         '''
         self.view.run_command('blame_erase_all')
+        self.view.settings().erase(SETTING_PHANTOM_ALL_DISPLAYED)
 
 
 class InsertCommitDescriptionCommand(sublime_plugin.TextCommand):
