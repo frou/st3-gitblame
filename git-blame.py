@@ -169,7 +169,7 @@ class BlameCommand(sublime_plugin.TextCommand):
             elif intent == "show":
                 desc = self.get_commit(sha, self.view.file_name()).decode('utf-8')
                 buf = self.view.window().new_file()
-                buf.run_command('insert_commit_description', {'desc': desc})
+                buf.run_command('insert_commit_description', {'desc': desc, 'scratch_view_name': 'commit ' + sha})
             else:
                 self.view.erase_phantoms('git-blame')
         else:
@@ -182,7 +182,7 @@ class BlameCommand(sublime_plugin.TextCommand):
         if self.phantom_set.phantoms and self.view.line(self.view.sel()[0]) == self.view.line(self.phantom_set.phantoms[0].region):
             self.phantom_set.update(phantoms)
             return
-        
+
         for region in self.view.sel():
             line = self.view.line(region)
             (row, col) = self.view.rowcol(region.begin())
@@ -347,8 +347,9 @@ class BlameEraseAllListener(sublime_plugin.ViewEventListener):
 
 class InsertCommitDescriptionCommand(sublime_plugin.TextCommand):
 
-    def run(self, edit, desc):
+    def run(self, edit, desc, scratch_view_name):
         view = self.view
         view.set_scratch(True)
         view.set_syntax_file('Packages/Diff/Diff.sublime-syntax')
         view.insert(edit, 0, desc)
+        view.set_name(scratch_view_name)
