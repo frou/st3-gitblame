@@ -182,7 +182,7 @@ class BlameCommand(sublime_plugin.TextCommand):
         if self.phantom_set.phantoms and self.view.line(self.view.sel()[0]) == self.view.line(self.phantom_set.phantoms[0].region):
             self.phantom_set.update(phantoms)
             return
-        
+
         for region in self.view.sel():
             line = self.view.line(region)
             (row, col) = self.view.rowcol(region.begin())
@@ -252,6 +252,8 @@ class BlameShowAllCommand(sublime_plugin.TextCommand):
 
         self.phantom_set.update(phantoms)
         self.view.settings().set(SETTING_PHANTOM_ALL_DISPLAYED, True)
+        # Bring the phantoms into view without the user needing to manually scroll left.
+        self.view.set_viewport_position((0.0, self.view.viewport_position()[1]))
 
     def get_blame_lines(self, path):
         '''Run `git blame` and get the output lines.
