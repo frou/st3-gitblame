@@ -176,6 +176,10 @@ class BlameCommand(sublime_plugin.TextCommand):
             self.view.erase_phantoms('git-blame')
 
     def run(self, edit):
+        if self.view.is_dirty():
+            sublime.status_message("The file needs to be saved for git blame.")
+            return
+
         phantoms = []
         self.view.erase_phantoms('git-blame')
         #Before adding the phantom, see if the current phantom that is displayed is at the same spot at the selection
