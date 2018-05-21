@@ -3,5 +3,10 @@
     "id": "blame",
     "caption": "Git Blame",
     "command": "blame"
+},
+{
+    "id": "blame",
+    "caption": "Git Blame: Toggle inline",
+    "command": "blame_toggle_inline"
 }
 ]

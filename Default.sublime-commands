@@ -8,6 +8,10 @@
         "command": "blame_show_all"
     },
     {
+        "caption": "Git Blame Toggle Inline",
+        "command": "blame_toggle_inline"
+    },
+    {
         "caption": "Git Blame Erase All",
         "command": "blame_erase_all"
     }
