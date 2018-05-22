@@ -1,5 +1,6 @@
 [![GitHub contributors](https://img.shields.io/github/contributors/psykzz/st3-gitblame.svg)](https://github.com/psykzz/st3-gitblame/graphs/contributors)
 [![GitHub issues](https://img.shields.io/github/issues/psykzz/st3-gitblame.svg)](https://github.com/psykzz/st3-gitblame/issues)
+[![CircleCI](https://circleci.com/gh/psykzz/st3-gitblame.svg?style=svg)](https://circleci.com/gh/psykzz/st3-gitblame)
 
 
 # Git blame - Sublime text 3 plugin
