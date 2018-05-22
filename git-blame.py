@@ -103,7 +103,7 @@ template_all = '''
 try:
     si = subprocess.STARTUPINFO()
     si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-except:
+except Exception:
     si = None
 
 
