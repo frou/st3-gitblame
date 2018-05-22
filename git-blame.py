@@ -103,7 +103,7 @@ template_all = '''
 try:
     si = subprocess.STARTUPINFO()
     si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-except:
+except Exception:
     si = None
 
 
@@ -116,11 +116,12 @@ class BlameCommand(sublime_plugin.TextCommand):
     @functools.lru_cache(128, False)
     def get_blame(self, line, path):
         try:
-            return shell(["git", "blame", "--minimal", "-w",
-                "-L {0},{0}".format(line), path],
+            return shell(
+                ["git", "blame", "--minimal", "-w", "-L {0},{0}".format(line), path],
                 cwd=os.path.dirname(os.path.realpath(path)),
                 startupinfo=si,
-                stderr=subprocess.STDOUT)
+                stderr=subprocess.STDOUT
+            )
         except subprocess.CalledProcessError as e:
             print("Git blame: git error {}:\n{}".format(e.returncode, e.output.decode("UTF-8")))
         except Exception as e:
@@ -145,9 +146,11 @@ class BlameCommand(sublime_plugin.TextCommand):
 
     def get_commit(self, sha, path):
         try:
-            return shell(["git", "show", sha],
+            return shell(
+                ["git", "show", sha],
                 cwd=os.path.dirname(os.path.realpath(path)),
-                startupinfo=si)
+                startupinfo=si
+            )
         except Exception as e:
             return
 
@@ -182,8 +185,9 @@ class BlameCommand(sublime_plugin.TextCommand):
 
         phantoms = []
         self.view.erase_phantoms('git-blame')
-        #Before adding the phantom, see if the current phantom that is displayed is at the same spot at the selection
-        if self.phantom_set.phantoms and self.view.line(self.view.sel()[0]) == self.view.line(self.phantom_set.phantoms[0].region):
+        # Before adding the phantom, see if the current phantom that is displayed is at the same spot at the selection
+        phantom_exists = self.view.line(self.view.sel()[0]) == self.view.line(self.phantom_set.phantoms[0].region)
+        if self.phantom_set.phantoms and phantom_exists:
             self.phantom_set.update(phantoms)
             return
 
@@ -265,10 +269,12 @@ class BlameShowAllCommand(sublime_plugin.TextCommand):
         try:
             # The option --show-name is necessary to force file name display.
             command = ["git", "blame", "--show-name", "--minimal", "-w", path]
-            output = shell(command,
+            output = shell(
+                command,
                 cwd=os.path.dirname(os.path.realpath(path)),
                 startupinfo=si,
-                stderr=subprocess.STDOUT)
+                stderr=subprocess.STDOUT
+            )
             return output.decode("UTF-8").splitlines()
         except subprocess.CalledProcessError as e:
             print("Git blame: git error {}:\n{}".format(e.returncode, e.output.decode("UTF-8")))
