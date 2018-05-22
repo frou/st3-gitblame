@@ -126,7 +126,7 @@ template_all = '''
 try:
     si = subprocess.STARTUPINFO()
     si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-except:
+except Exception:
     si = None
 
 
@@ -260,8 +260,9 @@ class BlameCommand(BasePlugin):
 
         phantoms = []
         self.view.erase_phantoms(self.PHANTOM_KEY)
-        #Before adding the phantom, see if the current phantom that is displayed is at the same spot at the selection
-        if self.phantom_set.phantoms and self.view.line(self.view.sel()[0]) == self.view.line(self.phantom_set.phantoms[0].region):
+        # Before adding the phantom, see if the current phantom that is displayed is at the same spot at the selection
+        phantom_exists = self.view.line(self.view.sel()[0]) == self.view.line(self.phantom_set.phantoms[0].region)
+        if self.phantom_set.phantoms and phantom_exists:
             self.phantom_set.update(phantoms)
             return
 
@@ -403,8 +404,6 @@ class BlameShowAllCommand(BasePlugin):
         self.view.settings().set(SETTING_PHANTOM_ALL_DISPLAYED, True)
         # Bring the phantoms into view without the user needing to manually scroll left.
         self.view.set_viewport_position((0.0, self.view.viewport_position()[1]))
-
-
 
     def format_name(self, name):
         '''Formats author names so that widths of phantoms become equal.
