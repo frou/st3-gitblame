@@ -139,9 +139,16 @@ p_timezone = r'(?P<timezone>[\+-]\d+)'
 p_line = r'(?P<line_number>\d+)'
 s = r'\s+'
 
-r_pattern = re.compile(r'^' + p_sha + s + p_file + r'\(' +
-                                  p_author + s + p_date + s + p_time + s +
-                                  p_timezone + s + p_line + r'\) ')
+r_pattern = re.compile(r'^{sha}{s}{file}\({author}{s}{date}{s}{time}{s}{timezone}{s}{line}\)'.format(
+    s=s,
+    sha=p_sha,
+    file=p_file,
+    author=p_author,
+    date=p_date,
+    time=p_time,
+    timezone=p_timezone,
+    line=p_line
+))
 
 
 @functools.lru_cache(256, False)
@@ -150,15 +157,18 @@ def get_blame(line, path):
     '''
     try:
         command = ["git", "blame", "--show-name", "--minimal", "-w", "-L {0},{0}".format(line), path]
-        output = shell(command,
+        output = shell(
+            command,
             cwd=os.path.dirname(os.path.realpath(path)),
             startupinfo=si,
-            stderr=subprocess.STDOUT)
+            stderr=subprocess.STDOUT
+        )
         return output.decode('UTF-8')
     except subprocess.CalledProcessError as e:
         print("Git blame: git error {}:\n{}".format(e.returncode, e.output.decode("UTF-8")))
     except Exception as e:
         print("Git blame: Unexpected error:", e)
+
 
 @functools.lru_cache(256, False)
 def get_blame_lines(path):
@@ -167,10 +177,12 @@ def get_blame_lines(path):
     try:
         # The option --show-name is necessary to force file name display.
         command = ["git", "blame", "--show-name", "--minimal", "-w", path]
-        output = shell(command,
+        output = shell(
+            command,
             cwd=os.path.dirname(os.path.realpath(path)),
             startupinfo=si,
-            stderr=subprocess.STDOUT)
+            stderr=subprocess.STDOUT
+        )
         return output.decode("UTF-8").splitlines()
     except subprocess.CalledProcessError as e:
         print("Git blame: git error {}:\n{}".format(e.returncode, e.output.decode("UTF-8")))
@@ -183,9 +195,11 @@ def get_commit(sha, path):
     '''Run `git show` and return the direct output.
     '''
     try:
-        return shell(["git", "show", sha],
+        return shell(
+            ["git", "show", sha],
             cwd=os.path.dirname(os.path.realpath(path)),
-            startupinfo=si)
+            startupinfo=si
+        )
     except Exception as e:
         return
 
@@ -213,6 +227,7 @@ def parse_blame(blame):
             return sha, author, date, time, line_number
         else:
             return None
+
 
 class BasePlugin(sublime_plugin.ViewEventListener, sublime_plugin.TextCommand):
     PHANTOM_KEY = 'git-blame'
@@ -249,6 +264,7 @@ class BasePlugin(sublime_plugin.ViewEventListener, sublime_plugin.TextCommand):
                 self.view.erase_phantoms(self.PHANTOM_KEY)
         else:
             self.view.erase_phantoms(self.PHANTOM_KEY)
+
 
 class BlameCommand(BasePlugin):
     PHANTOM_KEY = 'git-blame'
@@ -313,7 +329,8 @@ class BlameInlineEvent(BasePlugin):
             lines = self.view.lines(region)
             for line in lines:
                 line = self.view.line(line)
-                if line.size() == 0: continue
+                if line.size() == 0:
+                    continue
 
                 # get row, col
                 row, col = self.view.rowcol(region.begin())
@@ -350,13 +367,13 @@ class BlameToggleInlineCommand(BasePlugin):
         currently = self.view.settings().get(SETTING_SHOW_BLAME_INLINE, True)
         self.view.settings().set(SETTING_SHOW_BLAME_INLINE, not currently)
 
+
 class BlameShowAllCommand(BasePlugin):
     PHANTOM_KEY = 'git-blame-all'
 
     def __init__(self, view):
         super().__init__(view)
         self.phantom_set = sublime.PhantomSet(self.view, self.PHANTOM_KEY)
-
 
     # The fixed length for author names
     NAME_LENGTH = 10
