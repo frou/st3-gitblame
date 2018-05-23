@@ -212,7 +212,7 @@ def parse_blame(blame):
         # Maybe i dont know
         try:
             blame = blame.decode('UTF-8')
-        except:
+        except Exception:
             pass
 
         m = r_pattern.match(blame)
