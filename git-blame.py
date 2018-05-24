@@ -10,7 +10,22 @@ PHANTOM_KEY_ALL = 'git-blame-all'
 SETTING_PHANTOM_ALL_DISPLAYED = 'git-blame-all-displayed'
 SETTING_SHOW_BLAME_INLINE = 'git-blame-show-inline'
 
-stylesheet_one_inline = '''
+template_inline = '''
+<body id="inline-git-blame">
+    {stylesheet}
+    <div class="phantom">
+        <span class="message">
+            ({user})
+            {date} {time} |
+            {sha}
+            <a href="copy-{sha}">[Copy]</a>
+            <a href="show-{sha}">[Show]</a>
+        </span>
+    </div>
+</body>
+'''
+
+stylesheet_inline = '''
 <style>
 div.phantom {
     padding-left: 2rem;
@@ -24,10 +39,6 @@ div.phantom span.message {
 div.phantom a {
     text-decoration: inherit;
     color: color(var(--bluish) blend(var(--background) 60%));
-}
-div.phantom a.close {
-    display: none;
-
 }
 </style>
 '''
@@ -349,7 +360,7 @@ class BlameInlineEvent(BasePlugin):
                 # pos = line.begin() + 80 if line.size() < 80 else line.end()
                 pos = line.end() + 1 if line.size() == 0 else line.end()
                 anchor = sublime.Region(pos, pos)
-                body = template_one.format(sha=sha, user=user, date=date, time=time, stylesheet=stylesheet_one_inline)
+                body = template_inline.format(sha=sha, user=user, date=date, time=time, stylesheet=stylesheet_inline)
 
                 phantom = sublime.Phantom(anchor, body, sublime.LAYOUT_INLINE, self.on_phantom_close)
                 phantoms.append(phantom)
