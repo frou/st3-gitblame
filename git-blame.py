@@ -117,7 +117,7 @@ class BlameCommand(sublime_plugin.TextCommand):
     def get_blame(self, line, path):
         try:
             return shell(
-                ["git", "blame", "--minimal", "-w", "-L {0},{0}".format(line), path],
+                ["git", "blame", "--minimal", "-w", "-L {0},{0}".format(line), os.path.basename(path)],
                 cwd=os.path.dirname(os.path.realpath(path)),
                 startupinfo=si,
                 stderr=subprocess.STDOUT
@@ -268,7 +268,7 @@ class BlameShowAllCommand(sublime_plugin.TextCommand):
         '''
         try:
             # The option --show-name is necessary to force file name display.
-            command = ["git", "blame", "--show-name", "--minimal", "-w", path]
+            command = ["git", "blame", "--show-name", "--minimal", "-w", os.path.basename(path)]
             output = shell(
                 command,
                 cwd=os.path.dirname(os.path.realpath(path)),
