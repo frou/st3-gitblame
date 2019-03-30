@@ -186,10 +186,11 @@ class BlameCommand(sublime_plugin.TextCommand):
         phantoms = []
         self.view.erase_phantoms('git-blame')
         # Before adding the phantom, see if the current phantom that is displayed is at the same spot at the selection
-        phantom_exists = self.view.line(self.view.sel()[0]) == self.view.line(self.phantom_set.phantoms[0].region)
-        if self.phantom_set.phantoms and phantom_exists:
-            self.phantom_set.update(phantoms)
-            return
+        if self.phantom_set.phantoms:
+            phantom_exists = self.view.line(self.view.sel()[0]) == self.view.line(self.phantom_set.phantoms[0].region)
+            if phantom_exists:
+                self.phantom_set.update(phantoms)
+                return
 
         for region in self.view.sel():
             line = self.view.line(region)
