@@ -370,10 +370,17 @@ def communicate_error(exn, dialog=True):
     if isinstance(exn, subprocess.CalledProcessError):
         user_msg += "\n\n{}".format(exn.output.decode("utf-8"))
 
-    if dialog:
+
+def communicate_error(e, modal=True):
+    user_msg = "st3-gitblame:\n\n{}".format(e)
+    if isinstance(e, subprocess.CalledProcessError):
+        user_msg += "\n\n{}".format(e.output.decode("utf-8"))
+
+    print()
+    if modal:
         sublime.error_message(user_msg)
     else:
         sublime.status_message(user_msg)
-        # Unlike error_message(...), status_message(...) does not automatically
-        # record its argument in the console too.
+        # Unlike with the error dialog, a status message is not automatically
+        # persisted in the console too.
         print(user_msg)
