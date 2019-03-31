@@ -1,9 +1,11 @@
 import sublime
 import sublime_plugin
+
 import os
 import re
 import functools
 import subprocess
+import sys
 
 PHANTOM_KEY_ALL = 'git-blame-all'
 SETTING_PHANTOM_ALL_DISPLAYED = 'git-blame-all-displayed'
@@ -98,12 +100,6 @@ template_all = '''
     </body>
 '''
 
-# Sometimes this fails on other OS, just error silently
-try:
-    si = subprocess.STARTUPINFO()
-    si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-except Exception:
-    si = None
 
 def communicate_error(exn, dialog=True):
     user_msg = "st3-gitblame:\n\n{}".format(exn)
@@ -118,6 +114,30 @@ def communicate_error(exn, dialog=True):
         # record its argument in the console too.
         print(user_msg)
 
+
+def real_dirname(path):
+    return os.path.dirname(os.path.realpath(path))
+
+
+def run_git(working_dir, *args):
+    cmd_line = list(args)
+    cmd_line.insert(0, "git")
+
+    si = None
+    if sys.platform == "win32":
+        si = subprocess.STARTUPINFO()
+        # Stop a visible console window from appearing.
+        si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+        si.wShowWindow = subprocess.SW_HIDE
+
+    return subprocess.check_output(
+        cmd_line,
+        cwd=working_dir,
+        startupinfo=si,
+        stderr=subprocess.STDOUT
+    ).decode("utf-8")
+
+
 class BlameCommand(sublime_plugin.TextCommand):
 
     def __init__(self, view):
@@ -126,12 +146,10 @@ class BlameCommand(sublime_plugin.TextCommand):
 
     @functools.lru_cache(128, False)
     def get_blame(self, line, path):
-        return subprocess.check_output(
-            ["git", "blame", "--minimal", "-w", "-L {0},{0}".format(line), path],
-            cwd=os.path.dirname(os.path.realpath(path)),
-            startupinfo=si,
-            stderr=subprocess.STDOUT
-        ).decode("utf-8")
+        return run_git(
+            real_dirname(path),
+            "blame", "--minimal", "-w", "-L {0},{0}".format(line), path
+        )
 
     def parse_blame(self, blame):
         sha, file_path, user, date, time, tz_offset, *_ = blame.split()
@@ -151,12 +169,7 @@ class BlameCommand(sublime_plugin.TextCommand):
         return(sha, user[1:], date, time)
 
     def get_commit(self, sha, path):
-        return subprocess.check_output(
-            ["git", "show", sha],
-            cwd=os.path.dirname(os.path.realpath(path)),
-            startupinfo=si,
-            stderr=subprocess.STDOUT
-        ).decode('utf-8')
+        return run_git(real_dirname(path), "show", sha)
 
     def on_phantom_close(self, href):
         href_parts = href.split('-')
@@ -277,13 +290,10 @@ class BlameShowAllCommand(sublime_plugin.TextCommand):
         self.view.set_viewport_position((0.0, self.view.viewport_position()[1]))
 
     def get_blame(self, path):
-        return subprocess.check_output(
-            # The option --show-name is necessary to force file name display.
-            ["git", "blame", "--show-name", "--minimal", "-w", path],
-            cwd=os.path.dirname(os.path.realpath(path)),
-            startupinfo=si,
-            stderr=subprocess.STDOUT
-        ).decode("utf-8")
+        return run_git(
+            real_dirname(path),
+            "blame", "--show-name", "--minimal", "-w", path
+        )
 
     def parse_blame(self, blame):
         '''Parses git blame output.
