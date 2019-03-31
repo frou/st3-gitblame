@@ -105,18 +105,6 @@ try:
 except Exception:
     si = None
 
-def communicate_error(exn, dialog=True):
-    user_msg = "st3-gitblame:\n\n{}".format(exn)
-    if isinstance(exn, subprocess.CalledProcessError):
-        user_msg += "\n\n{}".format(exn.output.decode("utf-8"))
-
-    if dialog:
-        sublime.error_message(user_msg)
-    else:
-        sublime.status_message(user_msg)
-        # Unlike error_message(...), status_message(...) does not automatically
-        # record its argument in the console too.
-        print(user_msg)
 
 class BlameCommand(sublime_plugin.TextCommand):
 
@@ -375,3 +363,17 @@ class InsertCommitDescriptionCommand(sublime_plugin.TextCommand):
         view.set_syntax_file('Packages/Diff/Diff.sublime-syntax')
         view.insert(edit, 0, desc)
         view.set_name(scratch_view_name)
+
+
+def communicate_error(exn, dialog=True):
+    user_msg = "st3-gitblame:\n\n{}".format(exn)
+    if isinstance(exn, subprocess.CalledProcessError):
+        user_msg += "\n\n{}".format(exn.output.decode("utf-8"))
+
+    if dialog:
+        sublime.error_message(user_msg)
+    else:
+        sublime.status_message(user_msg)
+        # Unlike error_message(...), status_message(...) does not automatically
+        # record its argument in the console too.
+        print(user_msg)
