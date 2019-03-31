@@ -176,8 +176,7 @@ class BlameCommand(sublime_plugin.TextCommand):
             self.view.erase_phantoms('git-blame')
 
     def run(self, edit):
-        if self.view.is_dirty():
-            sublime.status_message("The file needs to be saved for git blame.")
+        if not view_is_suitable(self.view):
             return
 
         phantoms = []
@@ -220,8 +219,7 @@ class BlameShowAllCommand(sublime_plugin.TextCommand):
         self.pattern = None
 
     def run(self, edit):
-        if self.view.is_dirty():
-            sublime.status_message("The file needs to be saved for git blame.")
+        if not view_is_suitable(self.view):
             return
 
         self.view.erase_phantoms(PHANTOM_KEY_ALL)
@@ -365,10 +363,11 @@ class InsertCommitDescriptionCommand(sublime_plugin.TextCommand):
         view.set_name(scratch_view_name)
 
 
-def communicate_error(exn, dialog=True):
-    user_msg = "st3-gitblame:\n\n{}".format(exn)
-    if isinstance(exn, subprocess.CalledProcessError):
-        user_msg += "\n\n{}".format(exn.output.decode("utf-8"))
+def view_is_suitable(view):
+    ok = view.file_name() and not view.is_dirty()
+    if not ok:
+        communicate_error("Please save file changes to disk first.")
+    return ok
 
 
 def communicate_error(e, modal=True):
