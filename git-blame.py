@@ -175,9 +175,20 @@ class BlameCommand(sublime_plugin.TextCommand):
         else:
             self.view.erase_phantoms('git-blame')
 
-    def run(self, edit):
+    def want_event(self):
+        return True
+
+    def run(self, edit, event=None):
         if not view_is_suitable(self.view):
             return
+
+        if event:
+            # This command was ran from the context menu. Before proceeding,
+            # move the caret to where the mouse was clicked.
+            mouse_position = (event["x"], event["y"])
+            text_point = self.view.window_to_text(mouse_position)
+            self.view.sel().clear()
+            self.view.sel().add(sublime.Region(text_point))
 
         phantoms = []
         self.view.erase_phantoms('git-blame')
