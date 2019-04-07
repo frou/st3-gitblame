@@ -4,7 +4,6 @@ import os
 import re
 import functools
 import subprocess
-from subprocess import check_output as shell
 
 PHANTOM_KEY_ALL = 'git-blame-all'
 SETTING_PHANTOM_ALL_DISPLAYED = 'git-blame-all-displayed'
@@ -115,20 +114,15 @@ class BlameCommand(sublime_plugin.TextCommand):
 
     @functools.lru_cache(128, False)
     def get_blame(self, line, path):
-        try:
-            return shell(
-                ["git", "blame", "--minimal", "-w", "-L {0},{0}".format(line), path],
-                cwd=os.path.dirname(os.path.realpath(path)),
-                startupinfo=si,
-                stderr=subprocess.STDOUT
-            )
-        except subprocess.CalledProcessError as e:
-            print("Git blame: git error {}:\n{}".format(e.returncode, e.output.decode("UTF-8")))
-        except Exception as e:
-            print("Git blame: Unexpected error:", e)
+        return subprocess.check_output(
+            ["git", "blame", "--minimal", "-w", "-L {0},{0}".format(line), path],
+            cwd=os.path.dirname(os.path.realpath(path)),
+            startupinfo=si,
+            stderr=subprocess.STDOUT
+        ).decode("utf-8")
 
     def parse_blame(self, blame):
-        sha, file_path, user, date, time, tz_offset, *_ = blame.decode('utf-8').split()
+        sha, file_path, user, date, time, tz_offset, *_ = blame.split()
 
         # Was part of the inital commit so no updates
         if file_path[0] == '(':
@@ -145,14 +139,12 @@ class BlameCommand(sublime_plugin.TextCommand):
         return(sha, user[1:], date, time)
 
     def get_commit(self, sha, path):
-        try:
-            return shell(
-                ["git", "show", sha],
-                cwd=os.path.dirname(os.path.realpath(path)),
-                startupinfo=si
-            )
-        except Exception as e:
-            return
+        return subprocess.check_output(
+            ["git", "show", sha],
+            cwd=os.path.dirname(os.path.realpath(path)),
+            startupinfo=si,
+            stderr=subprocess.STDOUT
+        ).decode('utf-8')
 
     def on_phantom_close(self, href):
         href_parts = href.split('-')
@@ -170,7 +162,12 @@ class BlameCommand(sublime_plugin.TextCommand):
                 sublime.set_clipboard(sha)
                 sublime.status_message('Git SHA copied to clipboard')
             elif intent == "show":
-                desc = self.get_commit(sha, self.view.file_name()).decode('utf-8')
+                try:
+                    desc = self.get_commit(sha, self.view.file_name())
+                except Exception as e:
+                    communicate_error(e)
+                    return
+
                 buf = self.view.window().new_file()
                 buf.run_command('insert_commit_description', {'desc': desc, 'scratch_view_name': 'commit ' + sha})
             else:
@@ -179,8 +176,7 @@ class BlameCommand(sublime_plugin.TextCommand):
             self.view.erase_phantoms('git-blame')
 
     def run(self, edit):
-        if self.view.is_dirty():
-            sublime.status_message("The file needs to be saved for git blame.")
+        if not view_is_suitable(self.view):
             return
 
         phantoms = []
@@ -196,12 +192,14 @@ class BlameCommand(sublime_plugin.TextCommand):
             line = self.view.line(region)
             (row, col) = self.view.rowcol(region.begin())
             full_path = self.view.file_name()
-            result = self.get_blame(int(row) + 1, full_path)
-            if not result:
-                # Unable to get blame
+
+            try:
+                blame_output = self.get_blame(int(row) + 1, full_path)
+            except Exception as e:
+                communicate_error(e)
                 return
 
-            sha, user, date, time = self.parse_blame(result)
+            sha, user, date, time = self.parse_blame(blame_output)
 
             body = template_one.format(sha=sha, user=user, date=date, time=time, stylesheet=stylesheet_one)
 
@@ -221,8 +219,7 @@ class BlameShowAllCommand(sublime_plugin.TextCommand):
         self.pattern = None
 
     def run(self, edit):
-        if self.view.is_dirty():
-            sublime.status_message("The file needs to be saved for git blame.")
+        if not view_is_suitable(self.view):
             return
 
         self.view.erase_phantoms(PHANTOM_KEY_ALL)
@@ -234,12 +231,13 @@ class BlameShowAllCommand(sublime_plugin.TextCommand):
             self.view.settings().set(SETTING_PHANTOM_ALL_DISPLAYED, False)
             return
 
-        blame_lines = self.get_blame_lines(self.view.file_name())
-
-        if not blame_lines:
+        try:
+            blame_output = self.get_blame(self.view.file_name())
+        except Exception as e:
+            communicate_error(e)
             return
 
-        for l in blame_lines:
+        for l in blame_output.splitlines():
             parsed = self.parse_blame(l)
             if not parsed:
                 continue
@@ -264,23 +262,14 @@ class BlameShowAllCommand(sublime_plugin.TextCommand):
         # Bring the phantoms into view without the user needing to manually scroll left.
         self.view.set_viewport_position((0.0, self.view.viewport_position()[1]))
 
-    def get_blame_lines(self, path):
-        '''Run `git blame` and get the output lines.
-        '''
-        try:
+    def get_blame(self, path):
+        return subprocess.check_output(
             # The option --show-name is necessary to force file name display.
-            command = ["git", "blame", "--show-name", "--minimal", "-w", path]
-            output = shell(
-                command,
-                cwd=os.path.dirname(os.path.realpath(path)),
-                startupinfo=si,
-                stderr=subprocess.STDOUT
-            )
-            return output.decode("UTF-8").splitlines()
-        except subprocess.CalledProcessError as e:
-            print("Git blame: git error {}:\n{}".format(e.returncode, e.output.decode("UTF-8")))
-        except Exception as e:
-            print("Git blame: Unexpected error:", e)
+            ["git", "blame", "--show-name", "--minimal", "-w", path],
+            cwd=os.path.dirname(os.path.realpath(path)),
+            startupinfo=si,
+            stderr=subprocess.STDOUT
+        ).decode("utf-8")
 
     def parse_blame(self, blame):
         '''Parses git blame output.
@@ -372,3 +361,25 @@ class InsertCommitDescriptionCommand(sublime_plugin.TextCommand):
         view.set_syntax_file('Packages/Diff/Diff.sublime-syntax')
         view.insert(edit, 0, desc)
         view.set_name(scratch_view_name)
+
+
+def view_is_suitable(view):
+    ok = view.file_name() and not view.is_dirty()
+    if not ok:
+        communicate_error("Please save file changes to disk first.")
+    return ok
+
+
+def communicate_error(e, modal=True):
+    user_msg = "st3-gitblame:\n\n{}".format(e)
+    if isinstance(e, subprocess.CalledProcessError):
+        user_msg += "\n\n{}".format(e.output.decode("utf-8"))
+
+    print()
+    if modal:
+        sublime.error_message(user_msg)
+    else:
+        sublime.status_message(user_msg)
+        # Unlike with the error dialog, a status message is not automatically
+        # persisted in the console too.
+        print(user_msg)
