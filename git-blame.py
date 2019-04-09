@@ -119,6 +119,10 @@ def real_dirname(path):
     return os.path.dirname(os.path.realpath(path))
 
 
+# TODO: Encapsulate git invocations with a suitable constructor.
+class GitInvocation:
+    pass
+
 def run_git(working_dir, *args):
     cmd_line = list(args)
     cmd_line.insert(0, "git")
