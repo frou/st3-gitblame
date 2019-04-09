@@ -10,6 +10,8 @@ Small plugin to parse git blame and add a view to show the user and datetime of 
 
 View on [packagecontrol.io](https://packagecontrol.io/packages/Git%20blame)
 
+This package was originally created by [@psykzz](https://github.com/psykzz) and is now maintained by [@frou](https://github.com/frou)
+
 
 ## Usage
 
