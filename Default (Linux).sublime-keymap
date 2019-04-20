@@ -1,6 +1,4 @@
 [
-{
-    "keys": ["ctrl+shift+q"],
-    "command": "blame"
-}
+  {"keys": ["ctrl+shift+q"], "command": "blame"},
+  {"keys": ["ctrl+shift+c"], "command": "blame_show_all"}
 ]
