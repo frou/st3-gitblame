@@ -2,34 +2,32 @@
 [![GitHub contributors](https://img.shields.io/github/contributors/frou/st3-gitblame.svg)](https://github.com/frou/st3-gitblame/graphs/contributors)
 [![GitHub issues](https://img.shields.io/github/issues/frou/st3-gitblame.svg)](https://github.com/frou/st3-gitblame/issues)
 
-# Git blame - Sublime text 3 plugin
-Sublime text 3 - Git blame the line
+# Git blame - Package for Sublime Text 3
 
-Small plugin to parse git blame and add a view to show the user and datetime of the blame. You can click the sha to copy it or click the ✖ to close. Also, this package provides a command to see all the blame result of a file.
+This package enables you to query Git "blame" information for files while you are viewing/editing them in Sublime Text.
 
-View on [packagecontrol.io](https://packagecontrol.io/packages/Git%20blame)
+Blame information tells you who last edited a line, when they did it, and which commit they did it in. You can then choose to show that commit in full including its commit message and diff.
+
+For this package to work, you must already have the `git` command-line tool installed, and be viewing/editing a file that is part of a Git repository on your hard drive.
+
+[View on the Package Control website](https://packagecontrol.io/packages/Git%20blame)
+
+---
 
 This package was originally created by [@psykzz](https://github.com/psykzz) and is now maintained by [@frou](https://github.com/frou)
 
+## How to use
 
-## Usage
+Place the text insertion cursor on the line you are interested in, then press <kbd>Ctrl</kbd><kbd>Alt</kbd><kbd>B</kbd> (Mac/Windows) or <kbd>Ctrl</kbd><kbd>Shift</kbd><kbd>Q</kbd> (Linux). (Instead of pressing the keyboard shortcut, you can alternatively right click and select *Git Blame* from the context menu)
 
-### Checking the results of `git blame` for selected lines
+![Screenshot](https://raw.githubusercontent.com/frou/st3-gitblame/master/screenshot.png)
 
- > CTRL + ALT + B (Q on linux)
+The blame information will appear. You can then click `[Show]` to show the commit in full, or `[Copy]` to copy the Commit ID (aka SHA) to your clipboard. Click ✖ or press the keyboard shortcut again to close the blame information.
 
- > Right click > Git blame
+## Advanced use
 
-### Checking the result of `git blame` for the whole file
+In combination with Sublime Text's *Multiple Cursor* feature, you can query blame information for more than one line simultaneously by first placing a cursor on each line you are interested in.
 
-To show the `git blame` result: Open the command pallette and select `Git Blame Show All`.
+You can also query blame information for every line in the entire file simultaneously by pressing <kbd>Ctrl</kbd><kbd>Alt</kbd><kbd>Shift</kbd><kbd>B</kbd> (Mac/Windows) or <kbd>Ctrl</kbd><kbd>Shift</kbd><kbd>C</kbd> (Linux). Click ✖ or press the keyboard shortcut again to close them.
 
-To erase the `git blame` result: Open the command pallette and select `Git Blame Erase All`. Or, you can click the ✖ icon to erase it. Also, the result is automatically erased when you start to modify the file.
-
-## Example
-
-<img width="645" alt="screen shot 2017-07-20 at 11 12 51" src="https://user-images.githubusercontent.com/2543659/28410198-331b1ec8-6d3d-11e7-9ac1-57d43fb6ab60.png">
-<img width="672" alt="screen shot 2017-07-20 at 11 13 05" src="https://user-images.githubusercontent.com/2543659/28410200-33312740-6d3d-11e7-8b1e-f46ae7b6925b.png">
-<img width="660" alt="screen shot 2017-07-20 at 11 13 20" src="https://user-images.githubusercontent.com/2543659/28410201-3336ad3c-6d3d-11e7-974c-fa5a1f89ea2b.png">
-<img width="663" alt="screen shot 2017-07-20 at 11 13 29" src="https://user-images.githubusercontent.com/2543659/28410203-3358c444-6d3d-11e7-980d-e4b49958eb9b.png">
-<img width="667" alt="screen shot 2017-07-20 at 11 13 38" src="https://user-images.githubusercontent.com/2543659/28410202-333ccc62-6d3d-11e7-8d7f-ff88067f3cb1.png">
+This package's commands are also made available in the *Command Palette*. Type "Git Blame" into it to find them.
