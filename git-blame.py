@@ -112,6 +112,7 @@ class BlameCommand(sublime_plugin.TextCommand):
         self.view = view
         self.phantom_set = sublime.PhantomSet(view, 'git-blame')
 
+    # TODO: Can this cache start providing stale results?
     @functools.lru_cache(128, False)
     def get_blame(self, line, path):
         return subprocess.check_output(
