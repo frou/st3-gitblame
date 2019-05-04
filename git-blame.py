@@ -112,8 +112,26 @@ class BlameCommand(sublime_plugin.TextCommand):
         self.phantom_set = sublime.PhantomSet(view, 'git-blame')
 
     def get_blame(self, line, path):
+        cmd_line = ["git", "blame", "--minimal", "-w", "-L {0},{0}".format(line), os.path.basename(path)]
+        # TODO: Factor out so that BlameShowAllCommand can use the following too.
+        pkg_settings = sublime.load_settings("Git blame.sublime-settings")
+        content_chasing_key = "content_chasing"
+        content_chasing_value = pkg_settings.get(content_chasing_key)
+        if content_chasing_value:
+            if content_chasing_value == "same_file_same_commit":
+                cmd_line += ["-M"]
+            elif content_chasing_value == "cross_file_same_commit":
+                cmd_line += ["-C"]
+            elif content_chasing_value == "cross_any_file":
+                cmd_line += ["-C"] * 2
+            elif content_chasing_value == "cross_any_historical_file":
+                cmd_line += ["-C"] * 3
+            else:
+                communicate_error('Settings file contains unrecognised "{}" value for "{}"'.format(content_chasing_value, content_chasing_key))
+
+        # print(cmd_line)
         return subprocess.check_output(
-            ["git", "blame", "--minimal", "-w", "-L {0},{0}".format(line), os.path.basename(path)],
+            cmd_line,
             cwd=os.path.dirname(os.path.realpath(path)),
             startupinfo=si,
             stderr=subprocess.STDOUT
