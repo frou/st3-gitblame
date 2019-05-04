@@ -2,7 +2,6 @@ import sublime
 import sublime_plugin
 import os
 import re
-import functools
 import subprocess
 
 PHANTOM_KEY_ALL = 'git-blame-all'
@@ -112,8 +111,6 @@ class BlameCommand(sublime_plugin.TextCommand):
         self.view = view
         self.phantom_set = sublime.PhantomSet(view, 'git-blame')
 
-    # TODO: Can this cache start providing stale results?
-    @functools.lru_cache(128, False)
     def get_blame(self, line, path):
         return subprocess.check_output(
             ["git", "blame", "--minimal", "-w", "-L {0},{0}".format(line), os.path.basename(path)],
