@@ -372,7 +372,7 @@ def view_is_suitable(view):
 
 
 def communicate_error(e, modal=True):
-    user_msg = "st3-gitblame:\n\n{}".format(e)
+    user_msg = "Git blame:\n\n{}".format(e)
     if isinstance(e, subprocess.CalledProcessError):
         user_msg += "\n\n{}".format(e.output.decode("utf-8"))
 
