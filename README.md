@@ -16,11 +16,15 @@ This package was originally created by [@psykzz](https://github.com/psykzz) and 
 
 ## How to use
 
-Place the text insertion cursor on the line you are interested in, then press <kbd>Ctrl</kbd><kbd>Alt</kbd><kbd>B</kbd> (Mac/Windows) or <kbd>Ctrl</kbd><kbd>Shift</kbd><kbd>Q</kbd> (Linux). Instead of pressing the keyboard shortcut, you can alternatively right click and select *Git Blame* from the context menu.
+Place the text insertion cursor on the line you are interested in, then press <kbd>Ctrl</kbd><kbd>Alt</kbd><kbd>B</kbd> (Mac/Windows) or <kbd>Ctrl</kbd><kbd>Shift</kbd><kbd>Q</kbd> (Linux).
+
+(Instead of pressing the keyboard shortcut, you can alternatively right click and select *Git Blame* from the context menu)
+
+The blame information will appear:
 
 ![Screenshot](https://raw.githubusercontent.com/frou/st3-gitblame/master/screenshot.png)
 
-The blame information will appear. You can then click `[Show]` to show the commit in full, or `[Copy]` to copy the Commit ID (aka SHA) to your clipboard. Click × or press the keyboard shortcut again to close the blame information.
+You can then click `[Show]` to show the commit in full, or `[Copy]` to copy the Commit ID (aka SHA) to your clipboard. Click × or press the keyboard shortcut again to close the blame information.
 
 ## Advanced use
 
