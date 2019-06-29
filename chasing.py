@@ -27,7 +27,9 @@ class BlameSetContentChasingMode(sublime_plugin.TextCommand):
         return ModeInputHandler()
 
 
-# TODO: Bump the minimum required Sublime version number to the one that introduced *InputHandlers
+# TODO: Bump the minimum required Sublime version to the one that introduced *InputHandlers.
+# 3.1 (BUILD 3170) https://www.sublimetext.com/3
+# https://github.com/wbond/package_control_channel/blob/master/repository/g.json
 
 
 class ModeInputHandler(sublime_plugin.ListInputHandler):
