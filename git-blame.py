@@ -4,6 +4,8 @@ import os
 import re
 import subprocess
 
+from .chasing import BlameSetContentChasingMode
+
 PHANTOM_KEY_ALL = 'git-blame-all'
 SETTING_PHANTOM_ALL_DISPLAYED = 'git-blame-all-displayed'
 
@@ -113,21 +115,15 @@ class BlameCommand(sublime_plugin.TextCommand):
 
     def get_blame(self, line, path):
         cmd_line = ["git", "blame", "--minimal", "-w", "-L {0},{0}".format(line), os.path.basename(path)]
-        # TODO: Factor out so that BlameShowAllCommand can use the following too.
-        pkg_settings = sublime.load_settings("Git blame.sublime-settings")
-        content_chasing_key = "content_chasing"
-        content_chasing_value = pkg_settings.get(content_chasing_key)
-        if content_chasing_value:
-            if content_chasing_value == "same_file_same_commit":
-                cmd_line += ["-M"]
-            elif content_chasing_value == "cross_file_same_commit":
-                cmd_line += ["-C"]
-            elif content_chasing_value == "cross_any_file":
-                cmd_line += ["-C"] * 2
-            elif content_chasing_value == "cross_any_historical_file":
-                cmd_line += ["-C"] * 3
-            else:
-                communicate_error('Settings file contains unrecognised "{}" value for "{}"'.format(content_chasing_value, content_chasing_key))
+
+        # TODO: Factor the following out so that BlameShowAllCommand can use it too.
+        chasing_mode = self.view.settings().get(BlameSetContentChasingMode.__name__, None)
+        if chasing_mode is not None:
+            try:
+                cmd_line += BlameSetContentChasingMode.GIT_ARGS_FOR_MODES[chasing_mode]
+            except KeyError:
+                communicate_error("Unexpected content chasing mode: {0}".format(chasing_mode))
+        # sublime.message_dialog(str(cmd_line))
 
         # print(cmd_line)
         return subprocess.check_output(
