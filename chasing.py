@@ -3,7 +3,7 @@ import sublime_plugin
 
 
 class BlameSetContentChasingMode(sublime_plugin.TextCommand):
-    MODE_NONE = "<NONE>"
+    MODE_NONE = False
     MODE_SAME_FILE_SAME_COMMIT = "same_file_same_commit"
     MODE_CROSS_FILE_SAME_COMMIT = "cross_file_same_commit"
     MODE_CROSS_ANY_FILE = "cross_any_file"
@@ -27,13 +27,17 @@ class BlameSetContentChasingMode(sublime_plugin.TextCommand):
         return ModeInputHandler()
 
 
+# TODO: Bump the minimum required Sublime version number to the one that introduced *InputHandlers
+
+
 class ModeInputHandler(sublime_plugin.ListInputHandler):
     def placeholder(self):
         return "Select a mode"
 
+    # TODO: Preselect the mode currently in effect.
     def list_items(self):
         return [
-            BlameSetContentChasingMode.MODE_NONE,
+            ["<NONE>", BlameSetContentChasingMode.MODE_NONE],
             BlameSetContentChasingMode.MODE_SAME_FILE_SAME_COMMIT,
             BlameSetContentChasingMode.MODE_CROSS_FILE_SAME_COMMIT,
             BlameSetContentChasingMode.MODE_CROSS_ANY_FILE,
@@ -51,5 +55,5 @@ class PermanenceInputHandler(sublime_plugin.ListInputHandler):
     def list_items(self):
         return [
             ("Temporarily (for this open file)", False),
-            ("Permanently (new default for all files)", True),
+            ("Permanently (the default in the settings file will be modified)", True),
         ]
