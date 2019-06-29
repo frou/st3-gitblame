@@ -9,6 +9,8 @@ from .chasing import BlameSetContentChasingMode
 PHANTOM_KEY_ALL = 'git-blame-all'
 SETTING_PHANTOM_ALL_DISPLAYED = 'git-blame-all-displayed'
 
+# TODO: Move the templates to a seperate source file.
+
 stylesheet_one = '''
     <style>
         div.phantom-arrow {
@@ -374,6 +376,8 @@ class InsertCommitDescriptionCommand(sublime_plugin.TextCommand):
         view.insert(edit, 0, desc)
         view.set_name(scratch_view_name)
 
+
+# TODO: Move the utility functions to a seperate source file.
 
 def view_is_suitable(view):
     ok = view.file_name() and not view.is_dirty()
