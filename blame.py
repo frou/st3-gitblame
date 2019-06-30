@@ -131,7 +131,7 @@ class BlameCommand(sublime_plugin.TextCommand):
                 BlameSetContentChasingMode.MODE_NONE
             )
         try:
-            cmd_line += BlameSetContentChasingMode.GIT_ARGS_FOR_MODES[chasing_mode]
+            cmd_line += BlameSetContentChasingMode.METADATA_FOR_MODES[chasing_mode]["git_args"]
         except KeyError as e:
             communicate_error("Unexpected content chasing mode: {0}".format(e))
         # sublime.message_dialog(str(cmd_line))
