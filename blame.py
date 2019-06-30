@@ -9,6 +9,7 @@ from .common import (
     SETTINGS_KEY_COMMIT_SKIPPING_MODE,
     SETTINGS_KEY_TEMPORARY_COMMIT_SKIPPING_MODE,
 )
+from .util import view_is_suitable, communicate_error
 from .commit_skipping import BlameSetCommitSkippingMode
 
 PHANTOM_KEY_ALL = 'git-blame-all'
@@ -389,27 +390,3 @@ class InsertCommitDescriptionCommand(sublime_plugin.TextCommand):
         view.set_syntax_file('Packages/Diff/Diff.sublime-syntax')
         view.insert(edit, 0, desc)
         view.set_name(scratch_view_name)
-
-
-# @todo #0 Move the utility functions to their own source file.
-
-def view_is_suitable(view):
-    ok = view.file_name() and not view.is_dirty()
-    if not ok:
-        communicate_error("Please save file changes to disk first.")
-    return ok
-
-
-def communicate_error(e, modal=True):
-    user_msg = "Git blame:\n\n{}".format(e)
-    if isinstance(e, subprocess.CalledProcessError):
-        user_msg += "\n\n{}".format(e.output.decode("utf-8"))
-
-    print()
-    if modal:
-        sublime.error_message(user_msg)
-    else:
-        sublime.status_message(user_msg)
-        # Unlike with the error dialog, a status message is not automatically
-        # persisted in the console too.
-        print(user_msg)
