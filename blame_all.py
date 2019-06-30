@@ -10,7 +10,7 @@ from .util import view_is_suitable, communicate_error, platform_startupinfo
 PHANTOM_KEY_ALL = "git-blame-all"
 SETTING_PHANTOM_ALL_DISPLAYED = "git-blame-all-displayed"
 
-stylesheet_all = '''
+stylesheet_all = """
     <style>
         div.phantom {
             padding: 0;
@@ -33,9 +33,9 @@ stylesheet_all = '''
             background-color: #ffffff18;
         }
     </style>
-'''
+"""
 
-template_all = '''
+template_all = """
     <body id="inline-git-blame">
         {stylesheet}
         <div class="phantom">
@@ -45,7 +45,8 @@ template_all = '''
             </span>
         </div>
     </body>
-'''
+"""
+
 
 class BlameShowAllCommand(sublime_plugin.TextCommand):
 
