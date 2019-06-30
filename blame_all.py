@@ -41,7 +41,7 @@ template_all = '''
         <div class="phantom">
             <span class="message">
                 {sha} (<span class="user">{user}</span> {date} {time})
-                <a class="close" href="close">''' + chr(0x00D7) + '''</a>
+                <a class="close" href="close">\u00D7</a>
             </span>
         </div>
     </body>

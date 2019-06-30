@@ -61,7 +61,7 @@ template_one = '''
                 {sha}
                 <a href="copy-{sha}">[Copy]</a>
                 <a href="show-{sha}">[Show]</a>
-                <a class="close" href="close">''' + chr(0x00D7) + '''</a>
+                <a class="close" href="close">\u00D7</a>
             </span>
         </div>
     </body>
