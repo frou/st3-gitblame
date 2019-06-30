@@ -4,6 +4,7 @@ import os
 import re
 import subprocess
 
+from .common import *
 from .chasing import BlameSetContentChasingMode
 
 PHANTOM_KEY_ALL = 'git-blame-all'
@@ -119,12 +120,20 @@ class BlameCommand(sublime_plugin.TextCommand):
         cmd_line = ["git", "blame", "--minimal", "-w", "-L {0},{0}".format(line), os.path.basename(path)]
 
         # TODO: Factor the following out so that BlameShowAllCommand can use it too.
-        chasing_mode = self.view.settings().get(BlameSetContentChasingMode.__name__, None)
-        if chasing_mode is not None:
-            try:
-                cmd_line += BlameSetContentChasingMode.GIT_ARGS_FOR_MODES[chasing_mode]
-            except KeyError:
-                communicate_error("Unexpected content chasing mode: {0}".format(chasing_mode))
+        chasing_mode = self.view.settings().get(
+            SETTINGS_KEY_TEMPORARY_CONTENT_CHASING_MODE,
+            None
+        )
+        if chasing_mode is None:
+            settings_file = sublime.load_settings(SETTINGS_FILE_BASENAME)
+            chasing_mode = settings_file.get(
+                SETTINGS_KEY_CONTENT_CHASING_MODE,
+                BlameSetContentChasingMode.MODE_NONE
+            )
+        try:
+            cmd_line += BlameSetContentChasingMode.GIT_ARGS_FOR_MODES[chasing_mode]
+        except KeyError as e:
+            communicate_error("Unexpected content chasing mode: {0}".format(e))
         # sublime.message_dialog(str(cmd_line))
 
         # print(cmd_line)
@@ -222,6 +231,7 @@ class BlameCommand(sublime_plugin.TextCommand):
         self.phantom_set.update(phantoms)
 
 
+# TODO: Move this to its own source file.
 class BlameShowAllCommand(sublime_plugin.TextCommand):
 
     # The fixed length for author names

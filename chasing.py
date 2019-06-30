@@ -1,6 +1,8 @@
 import sublime
 import sublime_plugin
 
+from .common import *
+
 
 class BlameSetContentChasingMode(sublime_plugin.TextCommand):
     MODE_NONE = False
@@ -19,9 +21,13 @@ class BlameSetContentChasingMode(sublime_plugin.TextCommand):
 
     def run(self, edit, mode, permanence):
         if permanence:
-            raise Exception("not implemented")
+            sublime.load_settings(SETTINGS_FILE_BASENAME).set(
+                SETTINGS_KEY_CONTENT_CHASING_MODE, mode
+            )
+            sublime.save_settings(SETTINGS_FILE_BASENAME)
+            self.view.settings().erase(SETTINGS_KEY_TEMPORARY_CONTENT_CHASING_MODE)
         else:
-            self.view.settings().set(self.__class__.__name__, mode)
+            self.view.settings().set(SETTINGS_KEY_TEMPORARY_CONTENT_CHASING_MODE, mode)
 
     def input(self, args):  # noqa: A003
         return ModeInputHandler()
