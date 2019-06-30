@@ -16,21 +16,21 @@ class BlameSetCommitSkippingMode(sublime_plugin.TextCommand):
     MODE_CROSS_ANY_HISTORICAL_FILE = "cross_any_historical_file"
 
     DETAIL = {
-        MODE_NONE: {"elaboration": "<Disable Skipping>", "git_args": []},
+        MODE_NONE: {"elaboration": "<NONE>", "git_args": []},
         MODE_SAME_FILE_SAME_COMMIT: {
-            "elaboration": "... moved/copied the line within a file",
+            "elaboration": "...moved/copied the line within a file",
             "git_args": ["-M"],
         },
         MODE_CROSS_FILE_SAME_COMMIT: {
-            "elaboration": "... moved/copied the line from another file modified in the same commit",
+            "elaboration": "...moved/copied the line from another file modified in the same commit",
             "git_args": ["-C"],
         },
         MODE_CROSS_ANY_FILE: {
-            "elaboration": "... created the file with a copy of a line from any other file",
+            "elaboration": "...created the file with a copy of a line from any other file",
             "git_args": ["-C"] * 2,
         },
         MODE_CROSS_ANY_HISTORICAL_FILE: {
-            "elaboration": "... created the file with a copy of a line from any other historical file",
+            "elaboration": "...created the file with a copy of a line from any other historical file",
             "git_args": ["-C"] * 3,
         },
     }
@@ -72,9 +72,6 @@ class ModeInputHandler(sublime_plugin.ListInputHandler):
 
     def next_input(self, args):
         return PermanenceInputHandler()
-
-    def description(self, value, text):
-        return 'to "{0}"'.format(text)
 
 
 class PermanenceInputHandler(sublime_plugin.ListInputHandler):
