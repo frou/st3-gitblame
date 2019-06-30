@@ -13,7 +13,7 @@ from .templates import blame_phantom_html_template, blame_phantom_css
 from .commit_skipping import BlameSetCommitSkippingMode
 
 
-class BlameCommand(sublime_plugin.TextCommand):
+class Blame(sublime_plugin.TextCommand):
     def __init__(self, view):
         self.view = view
         self.phantom_set = sublime.PhantomSet(view, "git-blame")
@@ -28,7 +28,7 @@ class BlameCommand(sublime_plugin.TextCommand):
             os.path.basename(path),
         ]
 
-        # @todo #21 Factor out loading of the commit-skipping mode so that BlameShowAllCommand can use it too.
+        # @todo #21 Factor out loading of the commit-skipping mode so that the BlameShowAll command can use it too.
         skipping_mode = self.view.settings().get(
             SETTINGS_KEY_TEMPORARY_COMMIT_SKIPPING_MODE, None
         )
@@ -100,7 +100,7 @@ class BlameCommand(sublime_plugin.TextCommand):
 
                 buf = self.view.window().new_file()
                 buf.run_command(
-                    "insert_commit_description",
+                    "blame_insert_commit_description",
                     {"desc": desc, "scratch_view_name": "commit " + sha},
                 )
             else:
@@ -148,7 +148,7 @@ class BlameCommand(sublime_plugin.TextCommand):
         self.phantom_set.update(phantoms)
 
 
-class InsertCommitDescriptionCommand(sublime_plugin.TextCommand):
+class BlameInsertCommitDescription(sublime_plugin.TextCommand):
     def run(self, edit, desc, scratch_view_name):
         view = self.view
         view.set_scratch(True)

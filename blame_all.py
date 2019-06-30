@@ -12,7 +12,7 @@ PHANTOM_KEY_ALL = "git-blame-all"
 SETTING_PHANTOM_ALL_DISPLAYED = "git-blame-all-displayed"
 
 
-class BlameShowAllCommand(sublime_plugin.TextCommand):
+class BlameShowAll(sublime_plugin.TextCommand):
 
     # The fixed length for author names
     NAME_LENGTH = 10
@@ -149,7 +149,7 @@ class BlameShowAllCommand(sublime_plugin.TextCommand):
             self.view.run_command("blame_erase_all")
 
 
-class BlameEraseAllCommand(sublime_plugin.TextCommand):
+class BlameEraseAll(sublime_plugin.TextCommand):
     def run(self, edit):
         """Erases the blame results.
         """
