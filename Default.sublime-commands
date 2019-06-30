@@ -10,5 +10,9 @@
     {
         "caption": "Git Blame: Erase All",
         "command": "blame_erase_all"
+    },
+    {
+        "caption": "Git Blame: Skip commits that...",
+        "command": "blame_set_commit_skipping_mode"
     }
 ]

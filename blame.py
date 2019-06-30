@@ -4,8 +4,17 @@ import os
 import re
 import subprocess
 
+from .common import (
+    SETTINGS_FILE_BASENAME,
+    SETTINGS_KEY_COMMIT_SKIPPING_MODE,
+    SETTINGS_KEY_TEMPORARY_COMMIT_SKIPPING_MODE,
+)
+from .commit_skipping import BlameSetCommitSkippingMode
+
 PHANTOM_KEY_ALL = 'git-blame-all'
 SETTING_PHANTOM_ALL_DISPLAYED = 'git-blame-all-displayed'
+
+# @todo #0 Move the HTML/CSS templates to a separate source file.
 
 stylesheet_one = '''
     <style>
@@ -112,8 +121,28 @@ class BlameCommand(sublime_plugin.TextCommand):
         self.phantom_set = sublime.PhantomSet(view, 'git-blame')
 
     def get_blame(self, line, path):
+        cmd_line = ["git", "blame", "--minimal", "-w", "-L {0},{0}".format(line), os.path.basename(path)]
+
+        # @todo #21 Factor out loading of the commit-skipping mode so that BlameShowAllCommand can use it too.
+        skipping_mode = self.view.settings().get(
+            SETTINGS_KEY_TEMPORARY_COMMIT_SKIPPING_MODE,
+            None
+        )
+        if skipping_mode is None:
+            settings_file = sublime.load_settings(SETTINGS_FILE_BASENAME)
+            skipping_mode = settings_file.get(
+                SETTINGS_KEY_COMMIT_SKIPPING_MODE,
+                BlameSetCommitSkippingMode.MODE_NONE
+            )
+        try:
+            cmd_line += BlameSetCommitSkippingMode.METADATA[skipping_mode]["git_args"]
+        except KeyError as e:
+            communicate_error("Unexpected commit skipping mode: {0}".format(e))
+        # sublime.message_dialog(str(cmd_line))
+
+        # print(cmd_line)
         return subprocess.check_output(
-            ["git", "blame", "--minimal", "-w", "-L {0},{0}".format(line), os.path.basename(path)],
+            cmd_line,
             cwd=os.path.dirname(os.path.realpath(path)),
             startupinfo=si,
             stderr=subprocess.STDOUT
@@ -206,6 +235,7 @@ class BlameCommand(sublime_plugin.TextCommand):
         self.phantom_set.update(phantoms)
 
 
+# @todo #0 Move BlameShowAllCommand to its own source file
 class BlameShowAllCommand(sublime_plugin.TextCommand):
 
     # The fixed length for author names
@@ -360,6 +390,8 @@ class InsertCommitDescriptionCommand(sublime_plugin.TextCommand):
         view.insert(edit, 0, desc)
         view.set_name(scratch_view_name)
 
+
+# @todo #0 Move the utility functions to their own source file.
 
 def view_is_suitable(view):
     ok = view.file_name() and not view.is_dirty()
