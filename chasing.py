@@ -12,21 +12,21 @@ class BlameSetContentChasingMode(sublime_plugin.TextCommand):
     MODE_CROSS_ANY_HISTORICAL_FILE = "cross_any_historical_file"
 
     METADATA_FOR_MODES = {
-        MODE_NONE: {"explanation": "<NONE>", "git_args": []},
+        MODE_NONE: {"explanation": "<Disable Skipping>", "git_args": []},
         MODE_SAME_FILE_SAME_COMMIT: {
-            "explanation": "Skip commits that moved/copied the line within a file",
+            "explanation": "... moved/copied the line WITHIN a file",
             "git_args": ["-M"],
         },
         MODE_CROSS_FILE_SAME_COMMIT: {
-            "explanation": "Skip commits that moved/copied the line between files",
+            "explanation": "... moved/copied the line from ANOTHER file modified in the SAME COMMIT",
             "git_args": ["-C"],
         },
         MODE_CROSS_ANY_FILE: {
-            "explanation": "Skip commits that created the file with a line copied from another file",
+            "explanation": "... CREATED the file with a copy of a line from ANY other file",
             "git_args": ["-C"] * 2,
         },
         MODE_CROSS_ANY_HISTORICAL_FILE: {
-            "explanation": "Skip commits that created the file with a line copied another file, including their all historial states",
+            "explanation": "... CREATED the file with a copy of a line from ANY other HISTORICAL file",
             "git_args": ["-C"] * 3,
         },
     }
@@ -57,7 +57,9 @@ class ModeInputHandler(sublime_plugin.ListInputHandler):
     # TODO: Preselect the mode currently in effect.
     def list_items(self):
         return [
-            [
+            [metadata["explanation"], mode]
+            if mode == BlameSetContentChasingMode.MODE_NONE
+            else [
                 "{0} (git blame {1})".format(
                     metadata["explanation"], " ".join(metadata["git_args"])
                 ),
