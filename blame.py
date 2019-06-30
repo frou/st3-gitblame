@@ -13,45 +13,43 @@ from .commit_skipping import BlameSetCommitSkippingMode
 
 # @todo #0 Move the HTML/CSS templates to a separate source file.
 
-stylesheet_one = """
-    <style>
-        div.phantom-arrow {
-            border-top: 0.4rem solid transparent;
-            border-left: 0.5rem solid color(var(--bluish) blend(var(--background) 30%));
-            width: 0;
-            height: 0;
-        }
-        div.phantom {
-            padding: 0.4rem 0 0.4rem 0.7rem;
-            margin: 0 0 0.2rem;
-            border-radius: 0 0.2rem 0.2rem 0.2rem;
-            background-color: color(var(--bluish) blend(var(--background) 30%));
-        }
-        div.phantom span.message {
-            padding-right: 0.7rem;
-        }
-        div.phantom a {
-            text-decoration: inherit;
-        }
-        div.phantom a.close {
-            padding: 0.35rem 0.7rem 0.45rem 0.8rem;
-            position: relative;
-            bottom: 0.05rem;
-            border-radius: 0 0.2rem 0.2rem 0;
-            font-weight: bold;
-        }
-        html.dark div.phantom a.close {
-            background-color: #00000018;
-        }
-        html.light div.phantom a.close {
-            background-color: #ffffff18;
-        }
-    </style>
+blame_phantom_css = """
+    div.phantom-arrow {
+        border-top: 0.4rem solid transparent;
+        border-left: 0.5rem solid color(var(--bluish) blend(var(--background) 30%));
+        width: 0;
+        height: 0;
+    }
+    div.phantom {
+        padding: 0.4rem 0 0.4rem 0.7rem;
+        margin: 0 0 0.2rem;
+        border-radius: 0 0.2rem 0.2rem 0.2rem;
+        background-color: color(var(--bluish) blend(var(--background) 30%));
+    }
+    div.phantom span.message {
+        padding-right: 0.7rem;
+    }
+    div.phantom a {
+        text-decoration: inherit;
+    }
+    div.phantom a.close {
+        padding: 0.35rem 0.7rem 0.45rem 0.8rem;
+        position: relative;
+        bottom: 0.05rem;
+        border-radius: 0 0.2rem 0.2rem 0;
+        font-weight: bold;
+    }
+    html.dark div.phantom a.close {
+        background-color: #00000018;
+    }
+    html.light div.phantom a.close {
+        background-color: #ffffff18;
+    }
 """
 
-template_one = """
+blame_phantom_html_template = """
     <body id="inline-git-blame">
-        {stylesheet}
+        <style>{css}</style>
         <div class="phantom-arrow"></div>
         <div class="phantom">
             <span class="message">
@@ -190,12 +188,13 @@ class BlameCommand(sublime_plugin.TextCommand):
 
             sha, user, date, time = self.parse_blame(blame_output)
 
-            body = template_one.format(
-                sha=sha, user=user, date=date, time=time, stylesheet=stylesheet_one
-            )
-
             phantom = sublime.Phantom(
-                line, body, sublime.LAYOUT_BLOCK, self.on_phantom_close
+                line,
+                blame_phantom_html_template.format(
+                    css=blame_phantom_css, sha=sha, user=user, date=date, time=time
+                ),
+                sublime.LAYOUT_BLOCK,
+                self.on_phantom_close,
             )
             phantoms.append(phantom)
         self.phantom_set.update(phantoms)

@@ -10,34 +10,32 @@ from .util import view_is_suitable, communicate_error, platform_startupinfo
 PHANTOM_KEY_ALL = "git-blame-all"
 SETTING_PHANTOM_ALL_DISPLAYED = "git-blame-all-displayed"
 
-stylesheet_all = """
-    <style>
-        div.phantom {
-            padding: 0;
-            margin: 0;
-            background-color: color(var(--bluish) blend(var(--background) 30%));
-        }
-        div.phantom .user {
-            width: 10em;
-        }
-        div.phantom a.close {
-            padding: 0.35rem 0.7rem 0.45rem 0.8rem;
-            position: relative;
-            bottom: 0.05rem;
-            font-weight: bold;
-        }
-        html.dark div.phantom a.close {
-            background-color: #00000018;
-        }
-        html.light div.phantom a.close {
-            background-color: #ffffff18;
-        }
-    </style>
+blame_all_phantom_css = """
+    div.phantom {
+        padding: 0;
+        margin: 0;
+        background-color: color(var(--bluish) blend(var(--background) 30%));
+    }
+    div.phantom .user {
+        width: 10em;
+    }
+    div.phantom a.close {
+        padding: 0.35rem 0.7rem 0.45rem 0.8rem;
+        position: relative;
+        bottom: 0.05rem;
+        font-weight: bold;
+    }
+    html.dark div.phantom a.close {
+        background-color: #00000018;
+    }
+    html.light div.phantom a.close {
+        background-color: #ffffff18;
+    }
 """
 
-template_all = """
+blame_all_phantom_html_template = """
     <body id="inline-git-blame">
-        {stylesheet}
+        <style>{css}</style>
         <div class="phantom">
             <span class="message">
                 {sha} (<span class="user">{user}</span> {date} {time})
@@ -84,17 +82,18 @@ class BlameShowAllCommand(sublime_plugin.TextCommand):
 
             sha, author, date, time, line_number = parsed
 
-            body = template_all.format(
-                sha=sha,
-                user=self.format_name(author),
-                date=date,
-                time=time,
-                stylesheet=stylesheet_all,
-            )
-
             line_point = self.get_line_point(line_number - 1)
             phantom = sublime.Phantom(
-                line_point, body, sublime.LAYOUT_INLINE, self.on_phantom_close
+                line_point,
+                blame_all_phantom_html_template.format(
+                    css=blame_all_phantom_css,
+                    sha=sha,
+                    user=self.format_name(author),
+                    date=date,
+                    time=time,
+                ),
+                sublime.LAYOUT_INLINE,
+                self.on_phantom_close,
             )
             phantoms.append(phantom)
 
