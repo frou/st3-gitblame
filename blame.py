@@ -135,7 +135,7 @@ class BlameCommand(sublime_plugin.TextCommand):
                 BlameSetCommitSkippingMode.MODE_NONE
             )
         try:
-            cmd_line += BlameSetCommitSkippingMode.METADATA_FOR_MODES[skipping_mode]["git_args"]
+            cmd_line += BlameSetCommitSkippingMode.METADATA[skipping_mode]["git_args"]
         except KeyError as e:
             communicate_error("Unexpected commit skipping mode: {0}".format(e))
         # sublime.message_dialog(str(cmd_line))
