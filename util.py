@@ -1,6 +1,7 @@
 import sublime
 
 import subprocess
+import sys
 
 
 def view_is_suitable(view):
@@ -23,3 +24,14 @@ def communicate_error(e, modal=True):
         # Unlike with the error dialog, a status message is not automatically
         # persisted in the console too.
         print(user_msg)
+
+
+def platform_startupinfo():
+    if sys.platform == "win32":
+        si = subprocess.STARTUPINFO()
+        # Stop a visible console window from appearing.
+        si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+        si.wShowWindow = subprocess.SW_HIDE
+        return si
+    else:
+        return None
