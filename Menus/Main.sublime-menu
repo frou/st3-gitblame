@@ -12,7 +12,7 @@
                 "caption": "Settings",
                 "command": "edit_settings",
                 "args": {
-                  "base_file": "${packages}/st3-gitblame/Git blame.sublime-settings",
+                  "base_file": "${packages}/st3-gitblame/Settings/Git blame.sublime-settings",
                   "default": "{\n\t$0\n}\n"
                 }
               }
