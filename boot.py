@@ -1,5 +1,4 @@
-# flake8: noqa
-
+# Importing our classes that have sublime_plugin superclasses causes Sublime to become aware of them.
 from .src.blame import *
 from .src.blame_all import *
 
@@ -8,6 +7,8 @@ def plugin_loaded():
     pass
 
 
-# Only called when this plugin is modified or deleted, not when Sublime exits.
 def plugin_unloaded():
     pass
+
+
+# flake8: noqa

@@ -15,7 +15,7 @@ class BlameSetCommitSkippingMode(sublime_plugin.TextCommand):
     MODE_CROSS_ANY_FILE = "cross_any_file"
     MODE_CROSS_ANY_HISTORICAL_FILE = "cross_any_historical_file"
 
-    METADATA = {
+    DETAIL = {
         MODE_NONE: {"elaboration": "<Disable Skipping>", "git_args": []},
         MODE_SAME_FILE_SAME_COMMIT: {
             "elaboration": "... moved/copied the line within a file",
@@ -67,7 +67,7 @@ class ModeInputHandler(sublime_plugin.ListInputHandler):
                 ),
                 mode,
             ]
-            for mode, metadata in BlameSetCommitSkippingMode.METADATA.items()
+            for mode, metadata in BlameSetCommitSkippingMode.DETAIL.items()
         ]
 
     def next_input(self, args):
