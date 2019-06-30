@@ -6,44 +6,10 @@ import re
 import subprocess
 
 from .util import view_is_suitable, communicate_error, platform_startupinfo
+from .templates import blame_all_phantom_html_template, blame_all_phantom_css
 
 PHANTOM_KEY_ALL = "git-blame-all"
 SETTING_PHANTOM_ALL_DISPLAYED = "git-blame-all-displayed"
-
-blame_all_phantom_css = """
-    div.phantom {
-        padding: 0;
-        margin: 0;
-        background-color: color(var(--bluish) blend(var(--background) 30%));
-    }
-    div.phantom .user {
-        width: 10em;
-    }
-    div.phantom a.close {
-        padding: 0.35rem 0.7rem 0.45rem 0.8rem;
-        position: relative;
-        bottom: 0.05rem;
-        font-weight: bold;
-    }
-    html.dark div.phantom a.close {
-        background-color: #00000018;
-    }
-    html.light div.phantom a.close {
-        background-color: #ffffff18;
-    }
-"""
-
-blame_all_phantom_html_template = """
-    <body id="inline-git-blame">
-        <style>{css}</style>
-        <div class="phantom">
-            <span class="message">
-                {sha} (<span class="user">{user}</span> {date} {time})
-                <a class="close" href="close">\u00D7</a>
-            </span>
-        </div>
-    </body>
-"""
 
 
 class BlameShowAllCommand(sublime_plugin.TextCommand):
