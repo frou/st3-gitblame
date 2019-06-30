@@ -9,6 +9,3 @@ def plugin_loaded():
 
 def plugin_unloaded():
     pass
-
-
-# flake8: noqa
