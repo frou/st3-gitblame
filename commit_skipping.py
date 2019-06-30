@@ -1,7 +1,11 @@
 import sublime
 import sublime_plugin
 
-from .common import *
+from .common import (
+    SETTINGS_FILE_BASENAME,
+    SETTINGS_KEY_COMMIT_SKIPPING_MODE,
+    SETTINGS_KEY_TEMPORARY_COMMIT_SKIPPING_MODE,
+)
 
 
 class BlameSetCommitSkippingMode(sublime_plugin.TextCommand):
@@ -79,5 +83,5 @@ class PermanenceInputHandler(sublime_plugin.ListInputHandler):
     def list_items(self):
         return [
             ("Temporarily (for this open file)", False),
-            ("Permanently (the default in the settings file will be modified)", True),
+            ("Permanently (a new default will be written to the settings file)", True),
         ]

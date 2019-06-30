@@ -4,8 +4,12 @@ import os
 import re
 import subprocess
 
-from .common import *
-from .chasing import BlameSetCommitSkippingMode
+from .common import (
+    SETTINGS_FILE_BASENAME,
+    SETTINGS_KEY_COMMIT_SKIPPING_MODE,
+    SETTINGS_KEY_TEMPORARY_COMMIT_SKIPPING_MODE,
+)
+from .commit_skipping import BlameSetCommitSkippingMode
 
 PHANTOM_KEY_ALL = 'git-blame-all'
 SETTING_PHANTOM_ALL_DISPLAYED = 'git-blame-all-displayed'
