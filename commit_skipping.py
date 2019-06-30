@@ -49,16 +49,14 @@ class BlameSetCommitSkippingMode(sublime_plugin.TextCommand):
         return ModeInputHandler()
 
 
-# TODO: Bump the minimum required Sublime version to the one that introduced *InputHandlers.
-# 3.1 (BUILD 3170) https://www.sublimetext.com/3
-# https://github.com/wbond/package_control_channel/blob/master/repository/g.json
+# @todo #21 Since we now use *InputHandlers, make a PR to package_control_channel to bump the minimum required sublime build to 3170 https://github.com/wbond/package_control_channel/blob/master/repository/g.json
 
 
 class ModeInputHandler(sublime_plugin.ListInputHandler):
     def placeholder(self):
         return "Select a mode"
 
-    # TODO: Preselect the mode currently in effect.
+    # @todo #21 When presenting commit-skipping modes in the Command Palette, preselect the one currently in effect
     def list_items(self):
         return [
             [metadata["elaboration"], mode]

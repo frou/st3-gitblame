@@ -14,7 +14,7 @@ from .commit_skipping import BlameSetCommitSkippingMode
 PHANTOM_KEY_ALL = 'git-blame-all'
 SETTING_PHANTOM_ALL_DISPLAYED = 'git-blame-all-displayed'
 
-# TODO: Move the templates to a seperate source file.
+# @todo #0 Move the HTML/CSS templates to a separate source file.
 
 stylesheet_one = '''
     <style>
@@ -123,7 +123,7 @@ class BlameCommand(sublime_plugin.TextCommand):
     def get_blame(self, line, path):
         cmd_line = ["git", "blame", "--minimal", "-w", "-L {0},{0}".format(line), os.path.basename(path)]
 
-        # TODO: Factor the following out so that BlameShowAllCommand can use it too.
+        # @todo #21 Factor out loading of the commit-skipping mode so that BlameShowAllCommand can use it too.
         skipping_mode = self.view.settings().get(
             SETTINGS_KEY_TEMPORARY_COMMIT_SKIPPING_MODE,
             None
@@ -235,7 +235,7 @@ class BlameCommand(sublime_plugin.TextCommand):
         self.phantom_set.update(phantoms)
 
 
-# TODO: Move this to its own source file.
+# @todo #0 Move BlameShowAllCommand to its own source file
 class BlameShowAllCommand(sublime_plugin.TextCommand):
 
     # The fixed length for author names
@@ -391,7 +391,7 @@ class InsertCommitDescriptionCommand(sublime_plugin.TextCommand):
         view.set_name(scratch_view_name)
 
 
-# TODO: Move the utility functions to a seperate source file.
+# @todo #0 Move the utility functions to their own source file.
 
 def view_is_suitable(view):
     ok = view.file_name() and not view.is_dirty()
