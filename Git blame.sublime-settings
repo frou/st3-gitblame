@@ -1,14 +1,3 @@
 {
-  // Possible values for "content_chasing". The later values may cause querying
-  // blame information to be slower.
-  //
-  // Value                          Corresponding git-blame flags
-  // -----                          -----------------------------
-  // false                          (none)
-  // "same_file_same_commit"        -M
-  // "cross_file_same_commit"       -C
-  // "cross_any_file"               -C -C
-  // "cross_any_historical_file"    -C -C -C
-  //
-  "content_chasing": false
+  "commit_skipping": false
 }

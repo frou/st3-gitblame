@@ -5,7 +5,7 @@ import re
 import subprocess
 
 from .common import *
-from .chasing import BlameSetContentChasingMode
+from .chasing import BlameSetCommitSkippingMode
 
 PHANTOM_KEY_ALL = 'git-blame-all'
 SETTING_PHANTOM_ALL_DISPLAYED = 'git-blame-all-displayed'
@@ -120,20 +120,20 @@ class BlameCommand(sublime_plugin.TextCommand):
         cmd_line = ["git", "blame", "--minimal", "-w", "-L {0},{0}".format(line), os.path.basename(path)]
 
         # TODO: Factor the following out so that BlameShowAllCommand can use it too.
-        chasing_mode = self.view.settings().get(
-            SETTINGS_KEY_TEMPORARY_CONTENT_CHASING_MODE,
+        skipping_mode = self.view.settings().get(
+            SETTINGS_KEY_TEMPORARY_COMMIT_SKIPPING_MODE,
             None
         )
-        if chasing_mode is None:
+        if skipping_mode is None:
             settings_file = sublime.load_settings(SETTINGS_FILE_BASENAME)
-            chasing_mode = settings_file.get(
-                SETTINGS_KEY_CONTENT_CHASING_MODE,
-                BlameSetContentChasingMode.MODE_NONE
+            skipping_mode = settings_file.get(
+                SETTINGS_KEY_COMMIT_SKIPPING_MODE,
+                BlameSetCommitSkippingMode.MODE_NONE
             )
         try:
-            cmd_line += BlameSetContentChasingMode.METADATA_FOR_MODES[chasing_mode]["git_args"]
+            cmd_line += BlameSetCommitSkippingMode.METADATA_FOR_MODES[skipping_mode]["git_args"]
         except KeyError as e:
-            communicate_error("Unexpected content chasing mode: {0}".format(e))
+            communicate_error("Unexpected commit skipping mode: {0}".format(e))
         # sublime.message_dialog(str(cmd_line))
 
         # print(cmd_line)

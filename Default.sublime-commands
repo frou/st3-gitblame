@@ -12,7 +12,7 @@
         "command": "blame_erase_all"
     },
     {
-        "caption": "Git Blame: Set content chasing mode",
-        "command": "blame_set_content_chasing_mode"
+        "caption": "Git Blame: Skip commits that...",
+        "command": "blame_set_commit_skipping_mode"
     }
 ]
