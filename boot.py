@@ -1,4 +1,5 @@
-# Importing our classes that have sublime_plugin superclasses causes Sublime to become aware of them.
+# Only .py files at the top-level of a Sublime package are considered "plugins".
+# Make Sublime aware of our *{Command,Listener,Handler} classes by importing them:
 from .src.blame import *
 from .src.blame_all import *
 
