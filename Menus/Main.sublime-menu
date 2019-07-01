@@ -15,6 +15,14 @@
                   "base_file": "${packages}/st3-gitblame/Settings/Git blame.sublime-settings",
                   "default": "{\n\t$0\n}\n"
                 }
+              },
+              {
+                "caption": "Key Bindings",
+                "command": "edit_settings",
+                "args": {
+                  "base_file": "${packages}/st3-gitblame/Keymaps/Default (${platform}).sublime-keymap",
+                  "default": "[\n\t$0\n]\n"
+                }
               }
             ]
           }
@@ -23,5 +31,3 @@
     ]
   }
 ]
-
-// @todo #0 Add a Key Bindings entry to the Settings menu that opens a 2-column editor (DefaultCurrentPlatform,UserCurrentPlatform)
