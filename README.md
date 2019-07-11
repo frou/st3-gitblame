@@ -25,12 +25,12 @@ The blame information will appear:
 
 ![Screenshot](https://raw.githubusercontent.com/frou/st3-gitblame/master/screenshot.png)
 
-You can then click `[Show]` to show the commit in full, or `[Copy]` to copy the Commit ID (aka SHA) to your clipboard. Click × or press the keyboard shortcut again to close the blame information.
+You can then click `[Show]` to show the commit in full, or `[Copy]` to copy the Commit ID (aka SHA) to your clipboard. To close the blame information, click the `×` icon, or press the keyboard shortcut again.
 
 ## Advanced use
 
 In combination with Sublime Text's *Multiple Cursor* feature, you can query blame information for more than one line simultaneously by first placing a cursor on each line you are interested in.
 
-You can also query blame information for every line in the entire file simultaneously by pressing <kbd>Ctrl</kbd><kbd>Alt</kbd><kbd>Shift</kbd><kbd>B</kbd> (Mac/Windows) or <kbd>Ctrl</kbd><kbd>Shift</kbd><kbd>C</kbd> (Linux). Click × or press the keyboard shortcut again to close them.
+You can also query blame information for every line in the entire file simultaneously by pressing <kbd>Ctrl</kbd><kbd>Alt</kbd><kbd>Shift</kbd><kbd>B</kbd> (Mac/Windows) or <kbd>Ctrl</kbd><kbd>Shift</kbd><kbd>C</kbd> (Linux). To close all of them, click the `×` icon on one of them, or press the keyboard shortcut again.
 
 This package's commands are also made available in the *Command Palette*. Type "Git Blame" into it to find them.
