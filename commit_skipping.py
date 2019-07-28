@@ -7,6 +7,8 @@ from .common import (
     SETTINGS_KEY_TEMPORARY_COMMIT_SKIPPING_MODE,
 )
 
+# @todo #21 Make a GIF of the new content chasing feature in action. (Quicktime's screen recording + GIF Brewery app? https://github.blog/2018-06-29-gif-that-keeps-on-gifing/)
+
 
 class BlameSetCommitSkippingMode(sublime_plugin.TextCommand):
     MODE_NONE = False
