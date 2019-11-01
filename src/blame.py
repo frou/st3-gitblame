@@ -12,6 +12,9 @@ from .util import view_is_suitable, communicate_error, platform_startupinfo
 from .templates import blame_phantom_html_template, blame_phantom_css
 from .commit_skipping import BlameSetCommitSkippingMode
 
+# @todo #0 Add a [Prev] button to the phantom, that causes it to reflect the previous commit that changed the line.
+#  This has some overlap with the "commit-skipping" feature and possibly obsoletes it?
+
 
 class Blame(sublime_plugin.TextCommand):
     def __init__(self, view):
