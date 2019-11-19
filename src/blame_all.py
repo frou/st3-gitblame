@@ -17,6 +17,8 @@ class BlameShowAll(sublime_plugin.TextCommand):
     # The fixed length for author names
     NAME_LENGTH = 10
 
+    # Overrides --------------------------------------------------
+
     def __init__(self, view):
         super().__init__(view)
         self.phantom_set = sublime.PhantomSet(self.view, PHANTOM_KEY_ALL)
@@ -67,6 +69,14 @@ class BlameShowAll(sublime_plugin.TextCommand):
         self.view.settings().set(SETTING_PHANTOM_ALL_DISPLAYED, True)
         # Bring the phantoms into view without the user needing to manually scroll left.
         self.view.set_viewport_position((0.0, self.view.viewport_position()[1]))
+
+    def on_phantom_close(self, href):
+        """Closes opened phantoms.
+        """
+        if href == "close":
+            self.view.run_command("blame_erase_all")
+
+    # ------------------------------------------------------------
 
     def get_blame(self, path):
         return subprocess.check_output(
@@ -142,14 +152,11 @@ class BlameShowAll(sublime_plugin.TextCommand):
         """
         return self.view.line(self.view.text_point(line, 0))
 
-    def on_phantom_close(self, href):
-        """Closes opened phantoms.
-        """
-        if href == "close":
-            self.view.run_command("blame_erase_all")
-
 
 class BlameEraseAll(sublime_plugin.TextCommand):
+
+    # Overrides --------------------------------------------------
+
     def run(self, edit):
         """Erases the blame results.
         """
@@ -158,6 +165,9 @@ class BlameEraseAll(sublime_plugin.TextCommand):
 
 
 class BlameEraseAllListener(sublime_plugin.ViewEventListener):
+
+    # Overrides --------------------------------------------------
+
     @classmethod
     def is_applicable(cls, settings):
         """Checks if the blame_erase_all command is applicable.

@@ -17,9 +17,85 @@ from .commit_skipping import BlameSetCommitSkippingMode
 
 
 class Blame(sublime_plugin.TextCommand):
+
+    # Overrides --------------------------------------------------
+
     def __init__(self, view):
         super().__init__(view)
         self.phantom_set = sublime.PhantomSet(view, "git-blame")
+
+    def run(self, edit):
+        if not view_is_suitable(self.view):
+            return
+
+        phantoms = []
+        self.view.erase_phantoms("git-blame")
+        # Before adding the phantom, see if the current phantom that is displayed is at the same spot at the selection
+        if self.phantom_set.phantoms:
+            phantom_exists = self.view.line(self.view.sel()[0]) == self.view.line(
+                self.phantom_set.phantoms[0].region
+            )
+            if phantom_exists:
+                self.phantom_set.update(phantoms)
+                return
+
+        for region in self.view.sel():
+            line = self.view.line(region)
+            (row, col) = self.view.rowcol(region.begin())
+            full_path = self.view.file_name()
+
+            try:
+                blame_output = self.get_blame(int(row) + 1, full_path)
+            except Exception as e:
+                communicate_error(e)
+                return
+
+            sha, user, date, time = self.parse_blame(blame_output)
+
+            phantom = sublime.Phantom(
+                line,
+                blame_phantom_html_template.format(
+                    css=blame_phantom_css, sha=sha, user=user, date=date, time=time
+                ),
+                sublime.LAYOUT_BLOCK,
+                self.on_phantom_close,
+            )
+            phantoms.append(phantom)
+        self.phantom_set.update(phantoms)
+
+    def on_phantom_close(self, href):
+        href_parts = href.split("-")
+
+        if len(href_parts) > 1:
+            intent = href_parts[0]
+            sha = href_parts[1]
+            # The SHA output by git-blame may have a leading caret to indicate
+            # that it is a "boundary commit". That useful information has
+            # already been shown in the phantom, so strip it before going on to
+            # use the SHA programmatically.
+            sha = sha.strip("^")
+
+            if intent == "copy":
+                sublime.set_clipboard(sha)
+                sublime.status_message("Git SHA copied to clipboard")
+            elif intent == "show":
+                try:
+                    desc = self.get_commit(sha, self.view.file_name())
+                except Exception as e:
+                    communicate_error(e)
+                    return
+
+                buf = self.view.window().new_file()
+                buf.run_command(
+                    "blame_insert_commit_description",
+                    {"desc": desc, "scratch_view_name": "commit " + sha},
+                )
+            else:
+                self.view.erase_phantoms("git-blame")
+        else:
+            self.view.erase_phantoms("git-blame")
+
+    # ------------------------------------------------------------
 
     def get_blame(self, line, path):
         cmd_line = [
@@ -78,79 +154,11 @@ class Blame(sublime_plugin.TextCommand):
             stderr=subprocess.STDOUT,
         ).decode("utf-8")
 
-    def on_phantom_close(self, href):
-        href_parts = href.split("-")
-
-        if len(href_parts) > 1:
-            intent = href_parts[0]
-            sha = href_parts[1]
-            # The SHA output by git-blame may have a leading caret to indicate
-            # that it is a "boundary commit". That useful information has
-            # already been shown in the phantom, so strip it before going on to
-            # use the SHA programmatically.
-            sha = sha.strip("^")
-
-            if intent == "copy":
-                sublime.set_clipboard(sha)
-                sublime.status_message("Git SHA copied to clipboard")
-            elif intent == "show":
-                try:
-                    desc = self.get_commit(sha, self.view.file_name())
-                except Exception as e:
-                    communicate_error(e)
-                    return
-
-                buf = self.view.window().new_file()
-                buf.run_command(
-                    "blame_insert_commit_description",
-                    {"desc": desc, "scratch_view_name": "commit " + sha},
-                )
-            else:
-                self.view.erase_phantoms("git-blame")
-        else:
-            self.view.erase_phantoms("git-blame")
-
-    def run(self, edit):
-        if not view_is_suitable(self.view):
-            return
-
-        phantoms = []
-        self.view.erase_phantoms("git-blame")
-        # Before adding the phantom, see if the current phantom that is displayed is at the same spot at the selection
-        if self.phantom_set.phantoms:
-            phantom_exists = self.view.line(self.view.sel()[0]) == self.view.line(
-                self.phantom_set.phantoms[0].region
-            )
-            if phantom_exists:
-                self.phantom_set.update(phantoms)
-                return
-
-        for region in self.view.sel():
-            line = self.view.line(region)
-            (row, col) = self.view.rowcol(region.begin())
-            full_path = self.view.file_name()
-
-            try:
-                blame_output = self.get_blame(int(row) + 1, full_path)
-            except Exception as e:
-                communicate_error(e)
-                return
-
-            sha, user, date, time = self.parse_blame(blame_output)
-
-            phantom = sublime.Phantom(
-                line,
-                blame_phantom_html_template.format(
-                    css=blame_phantom_css, sha=sha, user=user, date=date, time=time
-                ),
-                sublime.LAYOUT_BLOCK,
-                self.on_phantom_close,
-            )
-            phantoms.append(phantom)
-        self.phantom_set.update(phantoms)
-
 
 class BlameInsertCommitDescription(sublime_plugin.TextCommand):
+
+    # Overrides --------------------------------------------------
+
     def run(self, edit, desc, scratch_view_name):
         view = self.view
         view.set_scratch(True)

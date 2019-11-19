@@ -35,6 +35,8 @@ class BlameSetCommitSkippingMode(sublime_plugin.TextCommand):
         },
     }
 
+    # Overrides --------------------------------------------------
+
     def run(self, edit, mode, permanence):
         if permanence:
             sublime.load_settings(SETTINGS_FILE_BASENAME).set(
@@ -53,6 +55,9 @@ class BlameSetCommitSkippingMode(sublime_plugin.TextCommand):
 
 
 class ModeInputHandler(sublime_plugin.ListInputHandler):
+
+    # Overrides --------------------------------------------------
+
     def placeholder(self):
         return "Select a mode"
 
@@ -75,6 +80,9 @@ class ModeInputHandler(sublime_plugin.ListInputHandler):
 
 
 class PermanenceInputHandler(sublime_plugin.ListInputHandler):
+
+    # Overrides --------------------------------------------------
+
     def list_items(self):
         return [
             ("Temporarily (for this open file)", False),
