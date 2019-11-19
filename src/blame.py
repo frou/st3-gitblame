@@ -18,7 +18,7 @@ from .commit_skipping import BlameSetCommitSkippingMode
 
 class Blame(sublime_plugin.TextCommand):
     def __init__(self, view):
-        self.view = view
+        super().__init__(view)
         self.phantom_set = sublime.PhantomSet(view, "git-blame")
 
     def get_blame(self, line, path):
