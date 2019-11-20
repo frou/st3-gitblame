@@ -51,9 +51,6 @@ class BlameSetCommitSkippingMode(sublime_plugin.TextCommand):
         return ModeInputHandler()
 
 
-# @todo #21 Since we now use *InputHandlers, make a PR to package_control_channel to bump the minimum required sublime build to 3170 https://github.com/wbond/package_control_channel/blob/master/repository/g.json
-
-
 class ModeInputHandler(sublime_plugin.ListInputHandler):
 
     # Overrides --------------------------------------------------
