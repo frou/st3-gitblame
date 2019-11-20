@@ -1,6 +1,8 @@
 import sublime
 import sublime_plugin
 
+from collections import namedtuple
+
 from .common import (
     SETTINGS_FILE_BASENAME,
     SETTINGS_KEY_COMMIT_SKIPPING_MODE,
@@ -15,24 +17,24 @@ class BlameSetCommitSkippingMode(sublime_plugin.TextCommand):
     MODE_CROSS_ANY_FILE = "cross_any_file"
     MODE_CROSS_ANY_HISTORICAL_FILE = "cross_any_historical_file"
 
+    ModeMetadata = namedtuple("ModeMetadata", ["elaboration", "git_args"])
+
     DETAIL = {
-        MODE_NONE: {"elaboration": "<NONE>", "git_args": []},
-        MODE_SAME_FILE_SAME_COMMIT: {
-            "elaboration": "...moved/copied the line within a file",
-            "git_args": ["-M"],
-        },
-        MODE_CROSS_FILE_SAME_COMMIT: {
-            "elaboration": "...moved/copied the line from another file modified in the same commit",
-            "git_args": ["-C"],
-        },
-        MODE_CROSS_ANY_FILE: {
-            "elaboration": "...created the file with a copy of a line from any other file",
-            "git_args": ["-C"] * 2,
-        },
-        MODE_CROSS_ANY_HISTORICAL_FILE: {
-            "elaboration": "...created the file with a copy of a line from any other historical file",
-            "git_args": ["-C"] * 3,
-        },
+        MODE_NONE: ModeMetadata("<NONE>", []),
+        MODE_SAME_FILE_SAME_COMMIT: ModeMetadata(
+            "...moved/copied the line within a file", ["-M"]
+        ),
+        MODE_CROSS_FILE_SAME_COMMIT: ModeMetadata(
+            "...moved/copied the line from another file modified in the same commit",
+            ["-C"],
+        ),
+        MODE_CROSS_ANY_FILE: ModeMetadata(
+            "...created the file with a copy of a line from any other file", ["-C"] * 2
+        ),
+        MODE_CROSS_ANY_HISTORICAL_FILE: ModeMetadata(
+            "...created the file with a copy of a line from any other historical file",
+            ["-C"] * 3,
+        ),
     }
 
     # Overrides --------------------------------------------------
@@ -61,11 +63,11 @@ class ModeInputHandler(sublime_plugin.ListInputHandler):
     # @todo #21 When presenting commit-skipping modes in the Command Palette, preselect the one currently in effect
     def list_items(self):
         return [
-            [metadata["elaboration"], mode]
+            [metadata.elaboration, mode]
             if mode == BlameSetCommitSkippingMode.MODE_NONE
             else [
                 "{0} (git blame {1})".format(
-                    metadata["elaboration"], " ".join(metadata["git_args"])
+                    metadata.elaboration, " ".join(metadata.git_args)
                 ),
                 mode,
             ]
