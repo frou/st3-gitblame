@@ -1,7 +1,6 @@
 [![GitHub release](https://img.shields.io/github/release/frou/st3-gitblame.svg)](https://github.com/frou/st3-gitblame/releases)
 [![GitHub contributors](https://img.shields.io/github/contributors/frou/st3-gitblame.svg)](https://github.com/frou/st3-gitblame/graphs/contributors)
 [![GitHub issues](https://img.shields.io/github/issues/frou/st3-gitblame.svg)](https://github.com/frou/st3-gitblame/issues)
-[![PDD status](http://www.0pdd.com/svg?name=frou/st3-gitblame)](http://www.0pdd.com/p?name=frou/st3-gitblame)
 
 # Git blame - Package for Sublime Text 3
 
