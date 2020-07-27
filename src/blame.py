@@ -116,10 +116,13 @@ class Blame(sublime_plugin.TextCommand):
             skipping_mode = settings_file.get(
                 SETTINGS_KEY_COMMIT_SKIPPING_MODE, BlameSetCommitSkippingMode.MODE_NONE
             )
+
         try:
             cmd_line += BlameSetCommitSkippingMode.DETAIL[skipping_mode]["git_args"]
         except KeyError as e:
             communicate_error("Unexpected commit skipping mode: {0}".format(e))
+        except Exception:
+            pass
 
         # print(cmd_line)
         return subprocess.check_output(
