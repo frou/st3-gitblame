@@ -148,7 +148,7 @@ class Blame(sublime_plugin.TextCommand):
 
     def get_commit(self, sha, path):
         return subprocess.check_output(
-            ["git", "show", sha],
+            ["git", "show", "--no-color", sha],
             cwd=os.path.dirname(os.path.realpath(path)),
             startupinfo=platform_startupinfo(),
             stderr=subprocess.STDOUT,
