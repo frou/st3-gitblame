@@ -4,7 +4,6 @@ import subprocess
 import sublime
 import sublime_plugin
 
-from .common import SETTINGS_FILE_BASENAME
 from .templates import blame_phantom_css, blame_phantom_html_template
 from .util import communicate_error, platform_startupinfo, view_is_suitable
 
