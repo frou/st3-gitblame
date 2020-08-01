@@ -10,25 +10,26 @@ from .util import communicate_error, platform_startupinfo, view_is_suitable
 # @todo #0 Add a [Prev] button to the phantom, that causes it to reflect the previous commit that changed the line.
 #  This has some overlap with the "commit-skipping" feature and possibly obsoletes it?
 
-PHANTOM_KEY = "git-blame"
-
 
 class Blame(sublime_plugin.TextCommand):
+
+    PHANTOM_KEY = "git-blame"
+    SHA_SKIP_LIST_DELIM = "\t"
 
     # Overrides --------------------------------------------------
 
     def __init__(self, view):
         super().__init__(view)
-        self.phantom_set = sublime.PhantomSet(view, PHANTOM_KEY)
+        self.phantom_set = sublime.PhantomSet(view, self.PHANTOM_KEY)
 
-    def run(self, edit):
+    def run(self, edit, sha_skip_list=[], prevving=False):
         if not view_is_suitable(self.view):
             return
 
         phantoms = []
         self.erase_phantoms()
         # Before adding the phantom, see if the current phantom that is displayed is at the same spot at the selection
-        if self.phantom_set.phantoms:
+        if not prevving and self.phantom_set.phantoms:
             phantom_exists = self.view.line(self.view.sel()[0]) == self.view.line(
                 self.phantom_set.phantoms[0].region
             )
@@ -42,7 +43,7 @@ class Blame(sublime_plugin.TextCommand):
             full_path = self.view.file_name()
 
             try:
-                blame_output = self.get_blame(int(row) + 1, full_path)
+                blame_output = self.get_blame(int(row) + 1, full_path, sha_skip_list)
             except Exception as e:
                 communicate_error(e)
                 return
@@ -52,7 +53,12 @@ class Blame(sublime_plugin.TextCommand):
             phantom = sublime.Phantom(
                 line,
                 blame_phantom_html_template.format(
-                    css=blame_phantom_css, sha=sha, user=user, date=date, time=time
+                    css=blame_phantom_css,
+                    sha=sha,
+                    user=user,
+                    date=date,
+                    time=time,
+                    sha_skip_list=self.SHA_SKIP_LIST_DELIM.join(sha_skip_list),
                 ),
                 sublime.LAYOUT_BLOCK,
                 self.on_phantom_close,
@@ -65,17 +71,19 @@ class Blame(sublime_plugin.TextCommand):
 
         if len(href_parts) > 1:
             intent = href_parts[0]
-            sha = href_parts[1]
+            operand = href_parts[1]
             # The SHA output by git-blame may have a leading caret to indicate
             # that it is a "boundary commit". That useful information has
             # already been shown in the phantom, so strip it before going on to
             # use the SHA programmatically.
-            sha = sha.strip("^")
+            operand = operand.strip("^")
 
             if intent == "copy":
+                sha = operand
                 sublime.set_clipboard(sha)
                 sublime.status_message("Git SHA copied to clipboard")
             elif intent == "show":
+                sha = operand
                 try:
                     desc = self.get_commit(sha, self.view.file_name())
                 except Exception as e:
@@ -87,6 +95,18 @@ class Blame(sublime_plugin.TextCommand):
                     "blame_insert_commit_description",
                     {"desc": desc, "scratch_view_name": "commit " + sha},
                 )
+            elif intent == "prev":
+                # The user might have moved the caret to a different line to the one the
+                # clicked phantom is for. Need to somehow remember which line the
+                # phantom was for.
+
+                sha, sha_skip_list_packed = operand.split("+")
+                if sha_skip_list_packed:
+                    sha_skip_list = sha_skip_list_packed.split(self.SHA_SKIP_LIST_DELIM)
+                    sha_skip_list.append(sha)
+                else:
+                    sha_skip_list = [sha]
+                self.run(None, sha_skip_list, prevving=True)
             else:
                 self.erase_phantoms()
         else:
@@ -94,15 +114,11 @@ class Blame(sublime_plugin.TextCommand):
 
     # ------------------------------------------------------------
 
-    def get_blame(self, line, path):
-        cmd_line = [
-            "git",
-            "blame",
-            "--minimal",
-            "-w",
-            "-L {0},{0}".format(line),
-            os.path.basename(path),
-        ]
+    def get_blame(self, line, path, sha_skip_list):
+        cmd_line = ["git", "blame", "--minimal", "-w", "-L {0},{0}".format(line)]
+        for skipped_sha in sha_skip_list:
+            cmd_line.extend(["--ignore-rev", skipped_sha])
+        cmd_line.append(os.path.basename(path))
         # print(cmd_line)
         return subprocess.check_output(
             cmd_line,
@@ -137,7 +153,7 @@ class Blame(sublime_plugin.TextCommand):
         ).decode("utf-8")
 
     def erase_phantoms(self):
-        self.view.erase_phantoms(PHANTOM_KEY)
+        self.view.erase_phantoms(self.PHANTOM_KEY)
 
 
 class BlameInsertCommitDescription(sublime_plugin.TextCommand):
