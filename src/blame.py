@@ -107,7 +107,6 @@ class Blame(sublime_plugin.TextCommand):
             os.path.basename(path),
         ]
 
-        # @todo #21 Factor out loading of the commit-skipping mode so that the BlameShowAll command can use it too.
         skipping_mode = self.view.settings().get(
             SETTINGS_KEY_TEMPORARY_COMMIT_SKIPPING_MODE, None
         )

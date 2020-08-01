@@ -60,7 +60,6 @@ class ModeInputHandler(sublime_plugin.ListInputHandler):
     def placeholder(self):
         return "Select a mode"
 
-    # @todo #21 When presenting commit-skipping modes in the Command Palette, preselect the one currently in effect
     def list_items(self):
         return [
             [metadata.elaboration, mode]
