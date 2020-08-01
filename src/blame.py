@@ -4,12 +4,7 @@ import subprocess
 import sublime
 import sublime_plugin
 
-from .commit_skipping import BlameSetCommitSkippingMode
-from .common import (
-    SETTINGS_FILE_BASENAME,
-    SETTINGS_KEY_COMMIT_SKIPPING_MODE,
-    SETTINGS_KEY_TEMPORARY_COMMIT_SKIPPING_MODE,
-)
+from .common import SETTINGS_FILE_BASENAME
 from .templates import blame_phantom_css, blame_phantom_html_template
 from .util import communicate_error, platform_startupinfo, view_is_suitable
 
@@ -107,20 +102,6 @@ class Blame(sublime_plugin.TextCommand):
             "-L {0},{0}".format(line),
             os.path.basename(path),
         ]
-
-        skipping_mode = self.view.settings().get(
-            SETTINGS_KEY_TEMPORARY_COMMIT_SKIPPING_MODE, None
-        )
-        if skipping_mode is None:
-            settings_file = sublime.load_settings(SETTINGS_FILE_BASENAME)
-            skipping_mode = settings_file.get(
-                SETTINGS_KEY_COMMIT_SKIPPING_MODE, BlameSetCommitSkippingMode.MODE_NONE
-            )
-        try:
-            cmd_line += BlameSetCommitSkippingMode.DETAIL[skipping_mode].git_args
-        except KeyError as e:
-            communicate_error("Unexpected commit skipping mode: {0}".format(e))
-
         # print(cmd_line)
         return subprocess.check_output(
             cmd_line,
