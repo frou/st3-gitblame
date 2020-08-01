@@ -10,6 +10,8 @@ from .util import communicate_error, platform_startupinfo, view_is_suitable
 # @todo #0 Add a [Prev] button to the phantom, that causes it to reflect the previous commit that changed the line.
 #  This has some overlap with the "commit-skipping" feature and possibly obsoletes it?
 
+PHANTOM_KEY = "git-blame"
+
 
 class Blame(sublime_plugin.TextCommand):
 
@@ -17,14 +19,14 @@ class Blame(sublime_plugin.TextCommand):
 
     def __init__(self, view):
         super().__init__(view)
-        self.phantom_set = sublime.PhantomSet(view, "git-blame")
+        self.phantom_set = sublime.PhantomSet(view, PHANTOM_KEY)
 
     def run(self, edit):
         if not view_is_suitable(self.view):
             return
 
         phantoms = []
-        self.view.erase_phantoms("git-blame")
+        self.erase_phantoms()
         # Before adding the phantom, see if the current phantom that is displayed is at the same spot at the selection
         if self.phantom_set.phantoms:
             phantom_exists = self.view.line(self.view.sel()[0]) == self.view.line(
@@ -86,9 +88,9 @@ class Blame(sublime_plugin.TextCommand):
                     {"desc": desc, "scratch_view_name": "commit " + sha},
                 )
             else:
-                self.view.erase_phantoms("git-blame")
+                self.erase_phantoms()
         else:
-            self.view.erase_phantoms("git-blame")
+            self.erase_phantoms()
 
     # ------------------------------------------------------------
 
@@ -133,6 +135,9 @@ class Blame(sublime_plugin.TextCommand):
             startupinfo=platform_startupinfo(),
             stderr=subprocess.STDOUT,
         ).decode("utf-8")
+
+    def erase_phantoms(self):
+        self.view.erase_phantoms(PHANTOM_KEY)
 
 
 class BlameInsertCommitDescription(sublime_plugin.TextCommand):
