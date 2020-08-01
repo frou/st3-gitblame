@@ -1,12 +1,12 @@
-import sublime
-import sublime_plugin
-
 import os
 import re
 import subprocess
 
-from .util import view_is_suitable, communicate_error, platform_startupinfo
-from .templates import blame_all_phantom_html_template, blame_all_phantom_css
+import sublime
+import sublime_plugin
+
+from .templates import blame_all_phantom_css, blame_all_phantom_html_template
+from .util import communicate_error, platform_startupinfo, view_is_suitable
 
 PHANTOM_KEY_ALL = "git-blame-all"
 SETTING_PHANTOM_ALL_DISPLAYED = "git-blame-all-displayed"

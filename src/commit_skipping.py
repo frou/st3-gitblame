@@ -1,7 +1,7 @@
+from collections import namedtuple
+
 import sublime
 import sublime_plugin
-
-from collections import namedtuple
 
 from .common import (
     SETTINGS_FILE_BASENAME,

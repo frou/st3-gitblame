@@ -1,16 +1,17 @@
-import sublime
-import sublime_plugin
 import os
 import subprocess
 
+import sublime
+import sublime_plugin
+
+from .commit_skipping import BlameSetCommitSkippingMode
 from .common import (
     SETTINGS_FILE_BASENAME,
     SETTINGS_KEY_COMMIT_SKIPPING_MODE,
     SETTINGS_KEY_TEMPORARY_COMMIT_SKIPPING_MODE,
 )
-from .util import view_is_suitable, communicate_error, platform_startupinfo
-from .templates import blame_phantom_html_template, blame_phantom_css
-from .commit_skipping import BlameSetCommitSkippingMode
+from .templates import blame_phantom_css, blame_phantom_html_template
+from .util import communicate_error, platform_startupinfo, view_is_suitable
 
 # @todo #0 Add a [Prev] button to the phantom, that causes it to reflect the previous commit that changed the line.
 #  This has some overlap with the "commit-skipping" feature and possibly obsoletes it?

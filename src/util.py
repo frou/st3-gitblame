@@ -1,7 +1,7 @@
-import sublime
-
 import subprocess
 import sys
+
+import sublime
 
 
 def view_is_suitable(view):
