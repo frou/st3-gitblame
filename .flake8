@@ -2,12 +2,6 @@
 
 [flake8]
 #
-# F401: module imported but unused
-# F403: ‘from module import *’ used; unable to detect undefined names
-#
-per-file-ignores =
-    boot.py:F401,F403
-#
 # FS002 - '.format' used
 #
 extend-ignore = FS002
