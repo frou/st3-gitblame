@@ -1,5 +1,6 @@
 import os
 import subprocess
+from urllib.parse import parse_qs, quote_plus, urlparse
 
 import sublime
 import sublime_plugin
@@ -7,14 +8,10 @@ import sublime_plugin
 from .templates import blame_phantom_css, blame_phantom_html_template
 from .util import communicate_error, platform_startupinfo, view_is_suitable
 
-# @todo #0 Add a [Prev] button to the phantom, that causes it to reflect the previous commit that changed the line.
-#  This has some overlap with the "commit-skipping" feature and possibly obsoletes it?
-
 
 class Blame(sublime_plugin.TextCommand):
 
     PHANTOM_KEY = "git-blame"
-    SHA_SKIP_LIST_DELIM = "\t"
 
     # Overrides --------------------------------------------------
 
@@ -58,7 +55,19 @@ class Blame(sublime_plugin.TextCommand):
                     user=user,
                     date=date,
                     time=time,
-                    sha_skip_list=self.SHA_SKIP_LIST_DELIM.join(sha_skip_list),
+                    # The SHA output by `git blame` may have a leading caret to indicate
+                    # that it is a "boundary commit". That needs to be stripped before
+                    # using the SHA programmatically for other purposes.
+                    qs_sha_val=quote_plus(sha.strip("^")),
+                    # Querystrings can contain the same key multiple times. We use that
+                    # functionality to accumulate a list of SHAs to skip over when
+                    # a [Prev] button has been clicked multiple times.
+                    qs_skip_keyvals="&".join(
+                        [
+                            "skip={}".format(quote_plus(skipee))
+                            for skipee in sha_skip_list
+                        ]
+                    ),
                 ),
                 sublime.LAYOUT_BLOCK,
                 self.on_phantom_close,
@@ -67,50 +76,39 @@ class Blame(sublime_plugin.TextCommand):
         self.phantom_set.update(phantoms)
 
     def on_phantom_close(self, href):
-        href_parts = href.split("-")
+        url = urlparse(href)
+        querystring = parse_qs(url.query)
+        # print(url)
+        # print(querystring)
 
-        if len(href_parts) > 1:
-            intent = href_parts[0]
-            operand = href_parts[1]
-            # The SHA output by git-blame may have a leading caret to indicate
-            # that it is a "boundary commit". That useful information has
-            # already been shown in the phantom, so strip it before going on to
-            # use the SHA programmatically.
-            operand = operand.strip("^")
+        if url.path == "copy":
+            sublime.set_clipboard(querystring["sha"][0])
+            sublime.status_message("Git SHA copied to clipboard")
+        elif url.path == "show":
+            sha = querystring["sha"][0]
+            try:
+                desc = self.get_commit(sha, self.view.file_name())
+            except Exception as e:
+                communicate_error(e)
+                return
 
-            if intent == "copy":
-                sha = operand
-                sublime.set_clipboard(sha)
-                sublime.status_message("Git SHA copied to clipboard")
-            elif intent == "show":
-                sha = operand
-                try:
-                    desc = self.get_commit(sha, self.view.file_name())
-                except Exception as e:
-                    communicate_error(e)
-                    return
-
-                buf = self.view.window().new_file()
-                buf.run_command(
-                    "blame_insert_commit_description",
-                    {"desc": desc, "scratch_view_name": "commit " + sha},
-                )
-            elif intent == "prev":
-                # The user might have moved the caret to a different line to the one the
-                # clicked phantom is for. Need to somehow remember which line the
-                # phantom was for.
-
-                sha, sha_skip_list_packed = operand.split("+")
-                if sha_skip_list_packed:
-                    sha_skip_list = sha_skip_list_packed.split(self.SHA_SKIP_LIST_DELIM)
-                    sha_skip_list.append(sha)
-                else:
-                    sha_skip_list = [sha]
-                self.run(None, sha_skip_list, prevving=True)
-            else:
-                self.erase_phantoms()
-        else:
+            buf = self.view.window().new_file()
+            buf.run_command(
+                "blame_insert_commit_description",
+                {"desc": desc, "scratch_view_name": "commit " + sha},
+            )
+        elif url.path == "prev":
+            sha = querystring["sha"][0]
+            sha_skip_list = querystring.get("skip", [])
+            if sha not in sha_skip_list:
+                sha_skip_list.append(sha)
+            self.run(None, sha_skip_list, prevving=True)
+        elif url.path == "close":
             self.erase_phantoms()
+        else:
+            communicate_error(
+                "No handler for URL path '{}' in phantom".format(url.path)
+            )
 
     # ------------------------------------------------------------
 

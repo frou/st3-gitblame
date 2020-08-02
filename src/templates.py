@@ -6,10 +6,10 @@ blame_phantom_html_template = """
             <span class="message">
                 <strong>Git Blame</strong> ({user})
                 {date} {time} |
-                <a href="prev-{sha}+{sha_skip_list}">[Prev]</a>
+                <a href="prev?sha={qs_sha_val}&{qs_skip_keyvals}">[Prev]</a>
                 {sha}
-                <a href="copy-{sha}">[Copy]</a>
-                <a href="show-{sha}">[Show]</a>
+                <a href="copy?sha={qs_sha_val}">[Copy]</a>
+                <a href="show?sha={qs_sha_val}">[Show]</a>
                 <a class="close" href="close">\u00D7</a>
             </span>
         </div>
