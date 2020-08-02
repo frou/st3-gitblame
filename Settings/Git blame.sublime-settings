@@ -1,3 +1,10 @@
 {
-
+    // Use this setting to supply additional flags to the git blame CLI program
+    // when it gets invoked by this package. See `man git-blame`.
+    //
+    // Example values:
+    //     ["-M"]
+    //     ["-C", "-C"]
+    //
+    "custom_blame_flags": []
 }

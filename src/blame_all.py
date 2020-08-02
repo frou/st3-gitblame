@@ -5,6 +5,7 @@ import subprocess
 import sublime
 import sublime_plugin
 
+from .settings import PKG_SETTINGS_KEY_CUSTOMBLAMEFLAGS, pkg_settings
 from .templates import blame_all_phantom_css, blame_all_phantom_html_template
 from .util import communicate_error, platform_startupinfo, view_is_suitable
 
@@ -79,9 +80,13 @@ class BlameShowAll(sublime_plugin.TextCommand):
     # ------------------------------------------------------------
 
     def get_blame(self, path):
+        # The option --show-name is necessary to force file name display.
+        cmd_line = ["git", "blame", "--show-name", "--minimal", "-w"]
+        cmd_line.extend(pkg_settings().get(PKG_SETTINGS_KEY_CUSTOMBLAMEFLAGS, []))
+        cmd_line.extend(["--", os.path.basename(path)])
+        # print(cmd_line)
         return subprocess.check_output(
-            # The option --show-name is necessary to force file name display.
-            ["git", "blame", "--show-name", "--minimal", "-w", os.path.basename(path)],
+            cmd_line,
             cwd=os.path.dirname(os.path.realpath(path)),
             startupinfo=platform_startupinfo(),
             stderr=subprocess.STDOUT,

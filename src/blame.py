@@ -5,6 +5,7 @@ from urllib.parse import parse_qs, quote_plus, urlparse
 import sublime
 import sublime_plugin
 
+from .settings import PKG_SETTINGS_KEY_CUSTOMBLAMEFLAGS, pkg_settings
 from .templates import blame_phantom_css, blame_phantom_html_template
 from .util import communicate_error, platform_startupinfo, view_is_suitable
 
@@ -83,7 +84,8 @@ class Blame(sublime_plugin.TextCommand):
         cmd_line = ["git", "blame", "--minimal", "-w", "-L {0},{0}".format(line)]
         for skipped_sha in sha_skip_list:
             cmd_line.extend(["--ignore-rev", skipped_sha])
-        cmd_line.append(os.path.basename(path))
+        cmd_line.extend(pkg_settings().get(PKG_SETTINGS_KEY_CUSTOMBLAMEFLAGS, []))
+        cmd_line.extend(["--", os.path.basename(path)])
         # print(cmd_line)
         return subprocess.check_output(
             cmd_line,
