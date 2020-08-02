@@ -70,45 +70,10 @@ class Blame(sublime_plugin.TextCommand):
                     ),
                 ),
                 sublime.LAYOUT_BLOCK,
-                self.on_phantom_close,
+                self.handle_phantom_button,
             )
             phantoms.append(phantom)
         self.phantom_set.update(phantoms)
-
-    def on_phantom_close(self, href):
-        url = urlparse(href)
-        querystring = parse_qs(url.query)
-        # print(url)
-        # print(querystring)
-
-        if url.path == "copy":
-            sublime.set_clipboard(querystring["sha"][0])
-            sublime.status_message("Git SHA copied to clipboard")
-        elif url.path == "show":
-            sha = querystring["sha"][0]
-            try:
-                desc = self.get_commit(sha, self.view.file_name())
-            except Exception as e:
-                communicate_error(e)
-                return
-
-            buf = self.view.window().new_file()
-            buf.run_command(
-                "blame_insert_commit_description",
-                {"desc": desc, "scratch_view_name": "commit " + sha},
-            )
-        elif url.path == "prev":
-            sha = querystring["sha"][0]
-            sha_skip_list = querystring.get("skip", [])
-            if sha not in sha_skip_list:
-                sha_skip_list.append(sha)
-            self.run(None, sha_skip_list, prevving=True)
-        elif url.path == "close":
-            self.erase_phantoms()
-        else:
-            communicate_error(
-                "No handler for URL path '{}' in phantom".format(url.path)
-            )
 
     # ------------------------------------------------------------
 
@@ -149,6 +114,41 @@ class Blame(sublime_plugin.TextCommand):
             startupinfo=platform_startupinfo(),
             stderr=subprocess.STDOUT,
         ).decode("utf-8")
+
+    def handle_phantom_button(self, href):
+        url = urlparse(href)
+        querystring = parse_qs(url.query)
+        # print(url)
+        # print(querystring)
+
+        if url.path == "copy":
+            sublime.set_clipboard(querystring["sha"][0])
+            sublime.status_message("Git SHA copied to clipboard")
+        elif url.path == "show":
+            sha = querystring["sha"][0]
+            try:
+                desc = self.get_commit(sha, self.view.file_name())
+            except Exception as e:
+                communicate_error(e)
+                return
+
+            buf = self.view.window().new_file()
+            buf.run_command(
+                "blame_insert_commit_description",
+                {"desc": desc, "scratch_view_name": "commit " + sha},
+            )
+        elif url.path == "prev":
+            sha = querystring["sha"][0]
+            sha_skip_list = querystring.get("skip", [])
+            if sha not in sha_skip_list:
+                sha_skip_list.append(sha)
+            self.run(None, sha_skip_list, prevving=True)
+        elif url.path == "close":
+            self.erase_phantoms()
+        else:
+            communicate_error(
+                "No handler for URL path '{}' in phantom".format(url.path)
+            )
 
     def erase_phantoms(self):
         self.view.erase_phantoms(self.PHANTOM_KEY)
