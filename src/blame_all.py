@@ -43,8 +43,8 @@ class BlameShowAll(sublime_plugin.TextCommand):
             communicate_error(e)
             return
 
-        for l in blame_output.splitlines():
-            parsed = self.parse_blame(l)
+        for line in blame_output.splitlines():
+            parsed = self.parse_blame(line)
             if not parsed:
                 continue
 
