@@ -8,4 +8,4 @@ def pkg_settings():
     return sublime.load_settings("Git blame.sublime-settings")
 
 
-# PKG_SETTINGS_KEY_FOO = "foo"
+PKG_SETTINGS_KEY_CUSTOMBLAMEFLAGS = "custom_blame_flags"
