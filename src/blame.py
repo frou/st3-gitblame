@@ -11,68 +11,70 @@ from .util import communicate_error, platform_startupinfo, view_is_suitable
 
 class Blame(sublime_plugin.TextCommand):
 
-    PHANTOM_KEY = "git-blame"
-
     # Overrides --------------------------------------------------
 
     def __init__(self, view):
         super().__init__(view)
-        self.phantom_set = sublime.PhantomSet(view, self.PHANTOM_KEY)
+        self.phantom_set = sublime.PhantomSet(view, "git-blame")
 
     def run(self, edit, sha_skip_list=[], prevving=False):
         if not view_is_suitable(self.view):
             return
 
+        # The contents of PhantomSet are replaced each time this Command is ran.
         phantoms = []
-        self.erase_phantoms()
-        # Before adding the phantom, see if the current phantom that is displayed is at the same spot at the selection
-        if not prevving and self.phantom_set.phantoms:
-            phantom_exists = self.view.line(self.view.sel()[0]) == self.view.line(
-                self.phantom_set.phantoms[0].region
-            )
-            if phantom_exists:
-                self.phantom_set.update(phantoms)
-                return
 
         for region in self.view.sel():
-            line = self.view.line(region)
-            (row, col) = self.view.rowcol(region.begin())
+            line_region = self.view.line(region)
+
+            # When this Command is ran for a line with a phantom already visible, we
+            # erase the phantom (i.e. toggle it). But if the reason this Command is
+            # being ran is because the user is clicking the [Prev] button, just erasing
+            # the existing phantom is not sufficient, because we need to then display
+            # another phantom with updated content.
+            if self.phantom_exists_for_region(line_region) and not prevving:
+                continue
+
+            (row, _) = self.view.rowcol(region.begin())
+            line = row + 1
             full_path = self.view.file_name()
 
             try:
-                blame_output = self.get_blame(int(row) + 1, full_path, sha_skip_list)
+                blame_output = self.get_blame(line, full_path, sha_skip_list)
             except Exception as e:
                 communicate_error(e)
                 return
 
             sha, user, date, time = self.parse_blame(blame_output)
 
-            phantom = sublime.Phantom(
-                line,
-                blame_phantom_html_template.format(
-                    css=blame_phantom_css,
-                    sha=sha,
-                    user=user,
-                    date=date,
-                    time=time,
-                    # The SHA output by `git blame` may have a leading caret to indicate
-                    # that it is a "boundary commit". That needs to be stripped before
-                    # using the SHA programmatically for other purposes.
-                    qs_sha_val=quote_plus(sha.strip("^")),
-                    # Querystrings can contain the same key multiple times. We use that
-                    # functionality to accumulate a list of SHAs to skip over when
-                    # a [Prev] button has been clicked multiple times.
-                    qs_skip_keyvals="&".join(
-                        [
-                            "skip={}".format(quote_plus(skipee))
-                            for skipee in sha_skip_list
-                        ]
+            phantoms.append(
+                sublime.Phantom(
+                    line_region,
+                    blame_phantom_html_template.format(
+                        css=blame_phantom_css,
+                        sha=sha,
+                        user=user,
+                        date=date,
+                        time=time,
+                        # The SHA output by `git blame` may have a leading caret to indicate
+                        # that it is a "boundary commit". That needs to be stripped before
+                        # using the SHA programmatically for other purposes.
+                        qs_sha_val=quote_plus(sha.strip("^")),
+                        # Querystrings can contain the same key multiple times. We use that
+                        # functionality to accumulate a list of SHAs to skip over when
+                        # a [Prev] button has been clicked multiple times.
+                        qs_skip_keyvals="&".join(
+                            [
+                                "skip={}".format(quote_plus(skipee))
+                                for skipee in sha_skip_list
+                            ]
+                        ),
                     ),
-                ),
-                sublime.LAYOUT_BLOCK,
-                self.handle_phantom_button,
+                    sublime.LAYOUT_BLOCK,
+                    self.handle_phantom_button,
+                )
             )
-            phantoms.append(phantom)
+
         self.phantom_set.update(phantoms)
 
     # ------------------------------------------------------------
@@ -115,6 +117,9 @@ class Blame(sublime_plugin.TextCommand):
             stderr=subprocess.STDOUT,
         ).decode("utf-8")
 
+    def phantom_exists_for_region(self, region):
+        return any(p.region == region for p in self.phantom_set.phantoms)
+
     def handle_phantom_button(self, href):
         url = urlparse(href)
         querystring = parse_qs(url.query)
@@ -144,15 +149,12 @@ class Blame(sublime_plugin.TextCommand):
                 sha_skip_list.append(sha)
             self.run(None, sha_skip_list, prevving=True)
         elif url.path == "close":
-            self.erase_phantoms()
-            # @todo Fix 2 key presses being needed to show a phantom again after closing it was closed using [x]
+            # Erase all phantoms
+            self.phantom_set.update([])
         else:
             communicate_error(
                 "No handler for URL path '{}' in phantom".format(url.path)
             )
-
-    def erase_phantoms(self):
-        self.view.erase_phantoms(self.PHANTOM_KEY)
 
 
 class BlameInsertCommitDescription(sublime_plugin.TextCommand):
