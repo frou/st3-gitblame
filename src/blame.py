@@ -145,6 +145,7 @@ class Blame(sublime_plugin.TextCommand):
             self.run(None, sha_skip_list, prevving=True)
         elif url.path == "close":
             self.erase_phantoms()
+            # @todo Fix 2 key presses being needed to show a phantom again after closing it was closed using [x]
         else:
             communicate_error(
                 "No handler for URL path '{}' in phantom".format(url.path)
