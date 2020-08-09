@@ -169,3 +169,4 @@ class BlameInsertCommitDescription(sublime_plugin.TextCommand):
         view.assign_syntax("Packages/Diff/Diff.sublime-syntax")
         view.insert(edit, 0, desc)
         view.set_name(scratch_view_name)
+        view.set_read_only(True)
