@@ -1,0 +1,5 @@
+-> 1.2.1
+
+FIXED:
+
+- Fixed menu and command palette entries for editing package's Settings & Key Bindings using outdated paths.
