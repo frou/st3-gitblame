@@ -1,14 +1,22 @@
 [
-    {
-        "caption": "Git Blame: Show",
-        "command": "blame"
-    },
-    {
-        "caption": "Git Blame: Show All",
-        "command": "blame_show_all"
-    },
-    {
-        "caption": "Git Blame: Erase All",
-        "command": "blame_erase_all"
+  {
+    "caption": "Git Blame: Show",
+    "command": "blame"
+  },
+  {
+    "caption": "Git Blame: Show All",
+    "command": "blame_show_all"
+  },
+  {
+    "caption": "Git Blame: Erase All",
+    "command": "blame_erase_all"
+  },
+  {
+    "caption": "Git Blame: Settings",
+    "command": "edit_settings",
+    "args": {
+      "base_file": "${packages}/st3-gitblame/Settings/Git blame.sublime-settings",
+      "default": "{\n\t$0\n}\n"
     }
+  }
 ]
