@@ -19,5 +19,14 @@
       "base_file": "${packages}/st3-gitblame/Settings/Git blame.sublime-settings",
       "default": "{\n\t$0\n}\n"
     }
+  },
+  {
+    "caption": "Git Blame: Key Bindings",
+    // ♊️: Entry in "Main.sublime-menu"
+    "command": "edit_settings",
+    "args": {
+      "base_file": "${packages}/st3-gitblame/Keymaps/Default (${platform}).sublime-keymap",
+      "default": "[\n\t$0\n]\n"
+    }
   }
 ]
