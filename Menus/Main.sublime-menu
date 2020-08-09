@@ -10,6 +10,7 @@
             "children": [
               {
                 "caption": "Settings",
+                // ♊️: Entry in "Default.sublime-commands"
                 "command": "edit_settings",
                 "args": {
                   "base_file": "${packages}/st3-gitblame/Settings/Git blame.sublime-settings",

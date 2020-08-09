@@ -13,6 +13,7 @@
   },
   {
     "caption": "Git Blame: Settings",
+    // ♊️: Entry in "Main.sublime-menu"
     "command": "edit_settings",
     "args": {
       "base_file": "${packages}/st3-gitblame/Settings/Git blame.sublime-settings",
