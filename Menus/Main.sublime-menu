@@ -13,7 +13,7 @@
                 // ♊️: Entry in "Default.sublime-commands"
                 "command": "edit_settings",
                 "args": {
-                  "base_file": "${packages}/st3-gitblame/Settings/Git blame.sublime-settings",
+                  "base_file": "${packages}/Git blame/Settings/Git blame.sublime-settings",
                   "default": "{\n\t$0\n}\n"
                 }
               },
@@ -22,7 +22,7 @@
                 // ♊️: Entry in "Default.sublime-commands"
                 "command": "edit_settings",
                 "args": {
-                  "base_file": "${packages}/st3-gitblame/Keymaps/Default (${platform}).sublime-keymap",
+                  "base_file": "${packages}/Git blame/Keymaps/Default (${platform}).sublime-keymap",
                   "default": "[\n\t$0\n]\n"
                 }
               }
