@@ -1,0 +1,17 @@
+-> 1.2.0
+
+NEW:
+
+- Added a [Prev] button to step back through multiple previous commits that affected a single line. Try this when the initial blame info is not as illuminating as you hoped for.
+
+- Added a Linux key binding (Ctrl-Shift-C) to show blame info for all lines. If you find that to be an unsuitable default, please comment here: https://github.com/frou/st3-gitblame/issues/49
+
+- Added entries for editing this package's Settings & Key Bindings to both the Preferences menu and the Command Palette.
+
+- Added the ability to set additional flags to be passed to the `git blame` CLI. See this package's Settings file.
+
+FIXED:
+
+- Fixed certain git configuration causing ANSI escape codes to be intermixed with the Diff when [Show]-ing a commit. Credit: https://github.com/james2doyle
+
+- Fixed caching issue that could cause incorrect blame info to be shown.
