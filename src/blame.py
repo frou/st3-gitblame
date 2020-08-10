@@ -18,13 +18,23 @@ class Blame(sublime_plugin.TextCommand):
         super().__init__(view)
         self.phantom_set = sublime.PhantomSet(view, "git-blame")
 
-    def run(self, edit, sha_skip_list=[], prevving=False):
+    def run(self, edit, prevving=False, fixed_row_num=None, sha_skip_list=[]):
         if not view_is_suitable(self.view):
             return
 
         phantoms = []
 
-        for region in self.view.sel():
+        if prevving:
+            # We'll be getting blame information for the line whose existing phantom's
+            # [Prev] button was clicked, regardless of where the text cursor(s)
+            # currently are.
+            relevant_regions = [sublime.Region(self.view.text_point(fixed_row_num, 0))]
+        else:
+            # We'll be getting blame information for the lines where text cursor(s)
+            # currently are.
+            relevant_regions = self.view.sel()
+
+        for region in relevant_regions:
             line_region = self.view.line(region)
 
             # When this Command is ran for a line with a phantom already visible, we
@@ -35,12 +45,13 @@ class Blame(sublime_plugin.TextCommand):
             if self.phantom_exists_for_region(line_region) and not prevving:
                 continue
 
-            (row, _) = self.view.rowcol(region.begin())
-            line = row + 1
+            row_num, _ = self.view.rowcol(region.begin())
+            line_num = row_num + 1
+
             full_path = self.view.file_name()
 
             try:
-                blame_output = self.get_blame(line, full_path, sha_skip_list)
+                blame_output = self.get_blame(line_num, full_path, sha_skip_list)
             except Exception as e:
                 communicate_error(e)
                 return
@@ -67,6 +78,7 @@ class Blame(sublime_plugin.TextCommand):
                         user=user,
                         date=date,
                         time=time,
+                        qs_row_num_val=quote_plus(str(row_num)),
                         qs_sha_val=quote_plus(sha_normalised),
                         # Querystrings can contain the same key multiple times. We use that
                         # functionality to accumulate a list of SHAs to skip over when
@@ -153,10 +165,16 @@ class Blame(sublime_plugin.TextCommand):
             )
         elif url.path == "prev":
             sha = querystring["sha"][0]
+            row_num = querystring["row_num"][0]
             sha_skip_list = querystring.get("skip", [])
             if sha not in sha_skip_list:
                 sha_skip_list.append(sha)
-            self.run(None, sha_skip_list, prevving=True)
+            self.run(
+                None,
+                prevving=True,
+                fixed_row_num=int(row_num),
+                sha_skip_list=sha_skip_list,
+            )
         elif url.path == "close":
             # Erase all phantoms
             self.phantom_set.update([])
