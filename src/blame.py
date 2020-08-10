@@ -63,6 +63,7 @@ class Blame(sublime_plugin.TextCommand):
                     blame_phantom_html_template.format(
                         css=blame_phantom_css,
                         sha=sha,
+                        sha_not_latest_indicator=" *" if sha_skip_list else "",
                         user=user,
                         date=date,
                         time=time,
