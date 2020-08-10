@@ -22,7 +22,6 @@ class Blame(sublime_plugin.TextCommand):
         if not view_is_suitable(self.view):
             return
 
-        # The contents of PhantomSet are replaced each time this Command is ran.
         phantoms = []
 
         for region in self.view.sel():
@@ -47,6 +46,16 @@ class Blame(sublime_plugin.TextCommand):
                 return
 
             sha, user, date, time = self.parse_blame(blame_output)
+            # The SHA output by `git blame` may have a leading caret to indicate that it
+            # is a "boundary commit". That needs to be stripped before passing the SHA
+            # back to git CLI commands for other purposes.
+            sha_normalised = sha.strip("^")
+
+            if sha_skip_list:
+                recently_skipped_sha = sha_skip_list[-1]
+                if sha_normalised == recently_skipped_sha:
+                    sublime.message_dialog("No earlier commits affected this line")
+                    return
 
             phantoms.append(
                 sublime.Phantom(
@@ -57,10 +66,7 @@ class Blame(sublime_plugin.TextCommand):
                         user=user,
                         date=date,
                         time=time,
-                        # The SHA output by `git blame` may have a leading caret to indicate
-                        # that it is a "boundary commit". That needs to be stripped before
-                        # using the SHA programmatically for other purposes.
-                        qs_sha_val=quote_plus(sha.strip("^")),
+                        qs_sha_val=quote_plus(sha_normalised),
                         # Querystrings can contain the same key multiple times. We use that
                         # functionality to accumulate a list of SHAs to skip over when
                         # a [Prev] button has been clicked multiple times.
