@@ -1,0 +1,6 @@
+-> 1.2.2
+
+FIXED:
+
+- Improved usability and reliability of [Prev] button that steps back through
+  multiple previous commits that affected a single line.
