@@ -83,7 +83,7 @@ class Blame(sublime_plugin.TextCommand):
                         # Querystrings can contain the same key multiple times. We use that
                         # functionality to accumulate a list of SHAs to skip over when
                         # a [Prev] button has been clicked multiple times.
-                        qs_skip_keyvals="&".join(
+                        qs_skip_keyvals="&amp;".join(
                             [
                                 "skip={}".format(quote_plus(skipee))
                                 for skipee in sha_skip_list
