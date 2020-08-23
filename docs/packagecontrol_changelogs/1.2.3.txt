@@ -1,0 +1,6 @@
+-> 1.2.3
+
+FIXED:
+
+- Fixed [Prev] [Copy] [Show] buttons not appearing in the new Sublime Text beta.
+  Credit: jtojnar https://github.com/frou/st3-gitblame/pull/56
