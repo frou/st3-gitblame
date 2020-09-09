@@ -9,6 +9,9 @@ from .settings import PKG_SETTINGS_KEY_CUSTOMBLAMEFLAGS, pkg_settings
 from .templates import blame_phantom_css, blame_phantom_html_template
 from .util import communicate_error, platform_startupinfo, view_is_suitable
 
+# @todo Make a command to open the latest diff ("CommitDescription") for the current line in a single keystroke.
+# @body Currently it takes a keystroke and then a mouse click on "Show"
+
 
 class Blame(sublime_plugin.TextCommand):
 
