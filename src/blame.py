@@ -68,7 +68,9 @@ class Blame(sublime_plugin.TextCommand):
             if sha_skip_list:
                 recently_skipped_sha = sha_skip_list[-1]
                 if sha_normalised == recently_skipped_sha:
-                    sublime.message_dialog("No earlier commits affected this line")
+                    sublime.message_dialog(
+                        "No earlier commits affected line {0}".format(line_num)
+                    )
                     return
 
             phantoms.append(
@@ -88,7 +90,7 @@ class Blame(sublime_plugin.TextCommand):
                         # a [Prev] button has been clicked multiple times.
                         qs_skip_keyvals="&amp;".join(
                             [
-                                "skip={}".format(quote_plus(skipee))
+                                "skip={0}".format(quote_plus(skipee))
                                 for skipee in sha_skip_list
                             ]
                         ),
@@ -183,7 +185,7 @@ class Blame(sublime_plugin.TextCommand):
             self.phantom_set.update([])
         else:
             communicate_error(
-                "No handler for URL path '{}' in phantom".format(url.path)
+                "No handler for URL path '{0}' in phantom".format(url.path)
             )
 
 
