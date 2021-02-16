@@ -118,6 +118,8 @@ class Blame(sublime_plugin.TextCommand):
             stderr=subprocess.STDOUT,
         ).decode("utf-8")
 
+    # @todo Add tests for parse_blame function, to avoid regressions when then improving it
+    # @body https://docs.python.org/3.9/library/unittest.html
     def parse_blame(self, blame):
         sha, file_path, user, date, time, tz_offset, *_ = blame.split()
 
