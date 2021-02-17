@@ -72,8 +72,7 @@ class BlameShowAll(sublime_plugin.TextCommand):
         self.view.set_viewport_position((0.0, self.view.viewport_position()[1]))
 
     def on_phantom_close(self, href):
-        """Closes opened phantoms.
-        """
+        """Closes opened phantoms."""
         if href == "close":
             self.view.run_command("blame_erase_all")
 
@@ -93,8 +92,7 @@ class BlameShowAll(sublime_plugin.TextCommand):
         ).decode("utf-8")
 
     def parse_blame(self, blame):
-        """Parses git blame output.
-        """
+        """Parses git blame output."""
         if not self.pattern:
             self.prepare_pattern()
 
@@ -112,15 +110,14 @@ class BlameShowAll(sublime_plugin.TextCommand):
             return None
 
     def prepare_pattern(self):
-        """Prepares the regex pattern to parse git blame output.
-        """
+        """Prepares the regex pattern to parse git blame output."""
         # The SHA output by git-blame may have a leading caret to indicate
         # that it is a "boundary commit".
         p_sha = r"(?P<sha>\^?\w+)"
         p_file = r"((?P<file>[\S ]+)\s+)"
         p_author = r"(?P<author>.+?)"
-        p_date = r"(?P<date>\d{4}-\d{2}-\d{2})"
-        p_time = r"(?P<time>\d{2}:\d{2}:\d{2})"
+        p_date = r"(?P<date>\d{4}-\d{2}-\d{2})"  # noqa: FS003
+        p_time = r"(?P<time>\d{2}:\d{2}:\d{2})"  # noqa: FS003
         p_timezone = r"(?P<timezone>[\+-]\d+)"
         p_line = r"(?P<line_number>\d+)"
         s = r"\s+"
@@ -144,8 +141,7 @@ class BlameShowAll(sublime_plugin.TextCommand):
         )
 
     def format_name(self, name):
-        """Formats author names so that widths of phantoms become equal.
-        """
+        """Formats author names so that widths of phantoms become equal."""
         ellipsis = "..."
         if len(name) > self.NAME_LENGTH:
             return name[: self.NAME_LENGTH] + ellipsis
@@ -153,8 +149,7 @@ class BlameShowAll(sublime_plugin.TextCommand):
             return name + "." * (self.NAME_LENGTH - len(name)) + ellipsis
 
     def get_line_point(self, line):
-        """Get the point of specified line in a view.
-        """
+        """Get the point of specified line in a view."""
         return self.view.line(self.view.text_point(line, 0))
 
 
@@ -163,8 +158,7 @@ class BlameEraseAll(sublime_plugin.TextCommand):
     # Overrides --------------------------------------------------
 
     def run(self, edit):
-        """Erases the blame results.
-        """
+        """Erases the blame results."""
         sublime.status_message("The git blame result is cleared.")
         self.view.erase_phantoms(PHANTOM_KEY_ALL)
 
@@ -175,12 +169,10 @@ class BlameEraseAllListener(sublime_plugin.ViewEventListener):
 
     @classmethod
     def is_applicable(cls, settings):
-        """Checks if the blame_erase_all command is applicable.
-        """
+        """Checks if the blame_erase_all command is applicable."""
         return settings.get(SETTING_PHANTOM_ALL_DISPLAYED, False)
 
     def on_modified_async(self):
-        """Automatically erases the blame results to prevent mismatches.
-        """
+        """Automatically erases the blame results to prevent mismatches."""
         self.view.run_command("blame_erase_all")
         self.view.settings().erase(SETTING_PHANTOM_ALL_DISPLAYED)
