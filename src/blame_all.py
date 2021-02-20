@@ -75,6 +75,7 @@ class BlameShowAll(sublime_plugin.TextCommand):
         self.phantom_set.update(phantoms)
         self.view.settings().set(SETTING_PHANTOM_ALL_DISPLAYED, True)
         # Bring the phantoms into view without the user needing to manually scroll left.
+        # @todo BlameAll: Automatically scrolling the view to the left doesn't work when the ST window has >1 Group
         self.view.set_viewport_position((0.0, self.view.viewport_position()[1]))
 
     def on_phantom_close(self, href):
