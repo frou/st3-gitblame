@@ -41,7 +41,7 @@ class BlameShowAll(sublime_plugin.TextCommand):
             communicate_error(e)
             return
 
-        blames = [self.parse_blame(line) for line in blame_output.splitlines()]
+        blames = [self.parse_line(line) for line in blame_output.splitlines()]
         blames = [b for b in blames if b]
         if not blames:
             communicate_error(
@@ -98,17 +98,8 @@ class BlameShowAll(sublime_plugin.TextCommand):
             stderr=subprocess.STDOUT,
         ).decode("utf-8")
 
-    def parse_blame(self, blame):
-        if not self.pattern:
-            self.prepare_pattern()
-
-        m = self.pattern.match(blame)
-        return m.groupdict() if m else {}
-
-    def prepare_pattern(self):
-        """Prepares the regex pattern to parse git blame output."""
-        # The SHA output by git-blame may have a leading caret to indicate
-        # that it is a "boundary commit".
+    @classmethod
+    def parse_line(cls, blame_line):
         p_sha = r"(?P<sha>\^?\w+)"
         p_file = r"((?P<file>[\S ]+)\s+)"
         p_author = r"(?P<author>.+?)"
@@ -118,7 +109,7 @@ class BlameShowAll(sublime_plugin.TextCommand):
         p_line = r"(?P<line_number>\d+)"
         s = r"\s+"
 
-        self.pattern = re.compile(
+        regex = re.compile(
             r"^"
             + p_sha
             + s
@@ -135,6 +126,9 @@ class BlameShowAll(sublime_plugin.TextCommand):
             + p_line
             + r"\) "
         )
+
+        m = regex.match(blame_line)
+        return m.groupdict() if m else {}
 
     def get_line_point(self, line):
         """Get the point of specified line in a view."""

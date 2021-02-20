@@ -59,7 +59,7 @@ class Blame(sublime_plugin.TextCommand):
                 communicate_error(e)
                 return
 
-            sha, user, date, time = self.parse_blame(blame_output)
+            sha, user, date, time = self.parse_line(blame_output)
             # The SHA output by `git blame` may have a leading caret to indicate that it
             # is a "boundary commit". That needs to be stripped before passing the SHA
             # back to git CLI commands for other purposes.
@@ -118,10 +118,9 @@ class Blame(sublime_plugin.TextCommand):
             stderr=subprocess.STDOUT,
         ).decode("utf-8")
 
-    # @todo Add tests for parse_blame function, to avoid regressions when then improving it
-    # @body https://docs.python.org/3.9/library/unittest.html
-    def parse_blame(self, blame):
-        sha, file_path, user, date, time, tz_offset, *_ = blame.split()
+    @classmethod
+    def parse_line(cls, blame_line):
+        sha, file_path, user, date, time, tz_offset, *_ = blame_line.split()
 
         # Was part of the inital commit so no updates
         if file_path[0] == "(":
