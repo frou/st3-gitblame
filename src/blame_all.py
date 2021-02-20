@@ -15,9 +15,6 @@ SETTING_PHANTOM_ALL_DISPLAYED = "git-blame-all-displayed"
 
 class BlameShowAll(sublime_plugin.TextCommand):
 
-    # The fixed length for author names
-    NAME_LENGTH = 10
-
     # Overrides --------------------------------------------------
 
     def __init__(self, view):
@@ -44,22 +41,31 @@ class BlameShowAll(sublime_plugin.TextCommand):
             communicate_error(e)
             return
 
-        for line in blame_output.splitlines():
-            parsed = self.parse_blame(line)
-            if not parsed:
-                continue
+        blames = [self.parse_blame(line) for line in blame_output.splitlines()]
+        blames = [b for b in blames if b]
+        if not blames:
+            communicate_error(
+                "Failed to parse anything for {0}. Has git's output format changed?".format(
+                    self.__class__.__name__
+                )
+            )
+            return
 
-            sha, author, date, time, line_number = parsed
-
+        max_author_len = max(len(b["author"]) for b in blames)
+        for blame in blames:
+            line_number = int(blame["line_number"])
             line_point = self.get_line_point(line_number - 1)
+
+            author = blame["author"]
+
             phantom = sublime.Phantom(
                 line_point,
                 blame_all_phantom_html_template.format(
                     css=blame_all_phantom_css,
-                    sha=sha,
-                    user=self.format_name(author),
-                    date=date,
-                    time=time,
+                    sha=blame["sha"],
+                    user=author + "&nbsp;" * (max_author_len - len(author)),
+                    date=blame["date"],
+                    time=blame["time"],
                 ),
                 sublime.LAYOUT_INLINE,
                 self.on_phantom_close,
@@ -92,22 +98,11 @@ class BlameShowAll(sublime_plugin.TextCommand):
         ).decode("utf-8")
 
     def parse_blame(self, blame):
-        """Parses git blame output."""
         if not self.pattern:
             self.prepare_pattern()
 
         m = self.pattern.match(blame)
-        if m:
-            sha = m.group("sha")
-            # Currently file is not used.
-            # file = m.group('file')
-            author = m.group("author")
-            date = m.group("date")
-            time = m.group("time")
-            line_number = int(m.group("line_number"))
-            return sha, author, date, time, line_number
-        else:
-            return None
+        return m.groupdict()
 
     def prepare_pattern(self):
         """Prepares the regex pattern to parse git blame output."""
@@ -139,14 +134,6 @@ class BlameShowAll(sublime_plugin.TextCommand):
             + p_line
             + r"\) "
         )
-
-    def format_name(self, name):
-        """Formats author names so that widths of phantoms become equal."""
-        ellipsis = "..."
-        if len(name) > self.NAME_LENGTH:
-            return name[: self.NAME_LENGTH] + ellipsis
-        else:
-            return name + "." * (self.NAME_LENGTH - len(name)) + ellipsis
 
     def get_line_point(self, line):
         """Get the point of specified line in a view."""

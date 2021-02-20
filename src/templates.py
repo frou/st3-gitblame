@@ -57,7 +57,7 @@ blame_all_phantom_html_template = """
         <style>{css}</style>
         <div class="phantom">
             <span class="message">
-                {sha} (<span class="user">{user}</span> {date} {time})
+                {sha}&nbsp;&nbsp;{user}&nbsp;&nbsp;{date}&nbsp;&nbsp;{time}
                 <a class="close" href="close">\u00D7</a>
             </span>
         </div>
@@ -70,9 +70,6 @@ blame_all_phantom_css = """
         padding: 0;
         margin: 0;
         background-color: color(var(--bluish) blend(var(--background) 30%));
-    }
-    div.phantom .user {
-        width: 10em;
     }
     div.phantom a.close {
         padding: 0.35rem 0.7rem 0.45rem 0.8rem;
