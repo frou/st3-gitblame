@@ -27,7 +27,7 @@ class BlameShowAll(sublime_plugin.TextCommand):
             return
 
         self.view.erase_phantoms(PHANTOM_KEY_ALL)
-        phantoms = []
+        phantoms = []  # type: list[sublime.Phantom]
 
         # If they are currently shown, toggle them off and return.
         if self.view.settings().get(SETTING_PHANTOM_ALL_DISPLAYED, False):
