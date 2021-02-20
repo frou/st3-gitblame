@@ -103,7 +103,7 @@ class BlameShowAll(sublime_plugin.TextCommand):
             self.prepare_pattern()
 
         m = self.pattern.match(blame)
-        return m.groupdict()
+        return m.groupdict() if m else {}
 
     def prepare_pattern(self):
         """Prepares the regex pattern to parse git blame output."""
