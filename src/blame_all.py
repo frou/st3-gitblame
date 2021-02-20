@@ -98,6 +98,7 @@ class BlameShowAll(sublime_plugin.TextCommand):
             stderr=subprocess.STDOUT,
         ).decode("utf-8")
 
+    # @todo Consolidate the CLI parsing regex into a single string (use r"""(?x)""") and use it in Blame as well as BlameShowAll
     @classmethod
     def parse_line(cls, blame_line):
         p_sha = r"(?P<sha>\^?\w+)"
@@ -109,7 +110,7 @@ class BlameShowAll(sublime_plugin.TextCommand):
         p_line = r"(?P<line_number>\d+)"
         s = r"\s+"
 
-        regex = re.compile(
+        pattern = (
             r"^"
             + p_sha
             + s
@@ -127,7 +128,8 @@ class BlameShowAll(sublime_plugin.TextCommand):
             + r"\) "
         )
 
-        m = regex.match(blame_line)
+        # Regexes compiled by re's module-level functions are cached, so we needn't do it ourselves.
+        m = re.match(pattern, blame_line)
         return m.groupdict() if m else {}
 
     def get_line_point(self, line):

@@ -29,7 +29,7 @@ class TestParsing(unittest.TestCase):
             ),
         ]
         for cli_output_line, expected_result in samples:
-            self.assertassertEqual(
+            self.assertEqual(
                 blame.Blame.parse_line(cli_output_line),
                 expected_result,
             )
