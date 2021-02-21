@@ -4,7 +4,7 @@ blame_phantom_html_template = """
         <div class="phantom-arrow"></div>
         <div class="phantom">
             <span class="message">
-                <strong>Git Blame</strong> ({user})
+                <strong>Git Blame</strong> ({author})
                 {date} {time} |
                 <a href="prev?sha={qs_sha_val}&amp;row_num={qs_row_num_val}&amp;{qs_skip_keyvals}">[Prev]</a>
                 {sha}{sha_not_latest_indicator}
@@ -57,7 +57,7 @@ blame_all_phantom_html_template = """
         <style>{css}</style>
         <div class="phantom">
             <span class="message">
-                {sha}&nbsp;&nbsp;{user}&nbsp;&nbsp;{date}&nbsp;&nbsp;{time}
+                {sha}&nbsp;&nbsp;{author}&nbsp;&nbsp;{date}&nbsp;&nbsp;{time}
                 <a class="close" href="close">\u00D7</a>
             </span>
         </div>

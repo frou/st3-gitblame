@@ -74,7 +74,7 @@ class Blame(sublime_plugin.TextCommand):
                 )
                 return
             sha = blame["sha"]
-            user = blame["author"]
+            author = blame["author"]
             date = blame["date"]
             time = blame["time"]
 
@@ -98,7 +98,7 @@ class Blame(sublime_plugin.TextCommand):
                         css=blame_phantom_css,
                         sha=sha,
                         sha_not_latest_indicator=" *" if sha_skip_list else "",
-                        user=user,
+                        author=author,
                         date=date,
                         time=time,
                         qs_row_num_val=quote_plus(str(row_num)),

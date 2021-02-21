@@ -70,7 +70,7 @@ class BlameShowAll(sublime_plugin.TextCommand):
                 blame_all_phantom_html_template.format(
                     css=blame_all_phantom_css,
                     sha=blame["sha"],
-                    user=author + "&nbsp;" * (max_author_len - len(author)),
+                    author=author + "&nbsp;" * (max_author_len - len(author)),
                     date=blame["date"],
                     time=blame["time"],
                 ),
