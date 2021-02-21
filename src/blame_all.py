@@ -4,7 +4,7 @@ import subprocess
 import sublime
 import sublime_plugin
 
-from .parse import parse_blame_cli_output_line
+from .parsing import parse_blame_cli_output_line
 from .settings import PKG_SETTINGS_KEY_CUSTOMBLAMEFLAGS, pkg_settings
 from .templates import blame_all_phantom_css, blame_all_phantom_html_template
 from .util import communicate_error, platform_startupinfo, view_is_suitable
@@ -88,7 +88,7 @@ class BlameShowAll(sublime_plugin.TextCommand):
     # ------------------------------------------------------------
 
     def get_blame(self, path):
-        # The option --show-name is necessary to force file name display.
+        # The option --show-name is necessary to force file name display even when this file has never been renamed.
         cmd_line = ["git", "blame", "--show-name", "--minimal", "-w"]
         cmd_line.extend(pkg_settings().get(PKG_SETTINGS_KEY_CUSTOMBLAMEFLAGS, []))
         cmd_line.extend(["--", os.path.basename(path)])
@@ -99,8 +99,6 @@ class BlameShowAll(sublime_plugin.TextCommand):
             startupinfo=platform_startupinfo(),
             stderr=subprocess.STDOUT,
         ).decode("utf-8")
-
-    # @todo Consolidate the CLI parsing regex into a single string (use r"""(?x)""") and use it in Blame as well as BlameShowAll
 
     def get_line_point(self, line):
         """Get the point of specified line in a view."""

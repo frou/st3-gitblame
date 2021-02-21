@@ -5,6 +5,7 @@ from urllib.parse import parse_qs, quote_plus, urlparse
 import sublime
 import sublime_plugin
 
+from .parsing import parse_blame_cli_output_line
 from .settings import PKG_SETTINGS_KEY_CUSTOMBLAMEFLAGS, pkg_settings
 from .templates import blame_phantom_css, blame_phantom_html_template
 from .util import communicate_error, platform_startupinfo, view_is_suitable
@@ -59,7 +60,19 @@ class Blame(sublime_plugin.TextCommand):
                 communicate_error(e)
                 return
 
-            sha, user, date, time = self.parse_line(blame_output)
+            blame = parse_blame_cli_output_line(blame_output)
+            if not blame:
+                communicate_error(
+                    "Failed to parse anything for {0}. Has git's output format changed?".format(
+                        self.__class__.__name__
+                    )
+                )
+                return
+            sha = blame["sha"]
+            user = blame["author"]
+            date = blame["date"]
+            time = blame["time"]
+
             # The SHA output by `git blame` may have a leading caret to indicate that it
             # is a "boundary commit". That needs to be stripped before passing the SHA
             # back to git CLI commands for other purposes.
@@ -105,7 +118,14 @@ class Blame(sublime_plugin.TextCommand):
     # ------------------------------------------------------------
 
     def get_blame(self, line, path, sha_skip_list):
-        cmd_line = ["git", "blame", "--minimal", "-w", "-L {0},{0}".format(line)]
+        cmd_line = [
+            "git",
+            "blame",
+            "--show-name",
+            "--minimal",
+            "-w",
+            "-L {0},{0}".format(line),
+        ]
         for skipped_sha in sha_skip_list:
             cmd_line.extend(["--ignore-rev", skipped_sha])
         cmd_line.extend(pkg_settings().get(PKG_SETTINGS_KEY_CUSTOMBLAMEFLAGS, []))
@@ -117,24 +137,6 @@ class Blame(sublime_plugin.TextCommand):
             startupinfo=platform_startupinfo(),
             stderr=subprocess.STDOUT,
         ).decode("utf-8")
-
-    @classmethod
-    def parse_line(cls, blame_line):
-        sha, file_path, user, date, time, tz_offset, *_ = blame_line.split()
-
-        # Was part of the inital commit so no updates
-        if file_path[0] == "(":
-            user, date, time, tz_offset = file_path, user, date, time
-            file_path = None
-
-        # Fix an issue where the username has a space
-        # Im going to need to do something better though if people
-        # start to have multiple spaces in their names.
-        if not date[0].isdigit():
-            user = "{0} {1}".format(user, date)
-            date, time = time, tz_offset
-
-        return (sha, user[1:], date, time)
 
     def get_commit(self, sha, path):
         return subprocess.check_output(
