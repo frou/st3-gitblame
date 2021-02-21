@@ -1,10 +1,10 @@
 import os
-import re
 import subprocess
 
 import sublime
 import sublime_plugin
 
+from .parse import parse_blame_cli_output_line
 from .settings import PKG_SETTINGS_KEY_CUSTOMBLAMEFLAGS, pkg_settings
 from .templates import blame_all_phantom_css, blame_all_phantom_html_template
 from .util import communicate_error, platform_startupinfo, view_is_suitable
@@ -41,7 +41,9 @@ class BlameShowAll(sublime_plugin.TextCommand):
             communicate_error(e)
             return
 
-        blames = [self.parse_line(line) for line in blame_output.splitlines()]
+        blames = [
+            parse_blame_cli_output_line(line) for line in blame_output.splitlines()
+        ]
         blames = [b for b in blames if b]
         if not blames:
             communicate_error(
@@ -99,38 +101,6 @@ class BlameShowAll(sublime_plugin.TextCommand):
         ).decode("utf-8")
 
     # @todo Consolidate the CLI parsing regex into a single string (use r"""(?x)""") and use it in Blame as well as BlameShowAll
-    @classmethod
-    def parse_line(cls, blame_line):
-        p_sha = r"(?P<sha>\^?\w+)"
-        p_file = r"((?P<file>[\S ]+)\s+)"
-        p_author = r"(?P<author>.+?)"
-        p_date = r"(?P<date>\d{4}-\d{2}-\d{2})"  # noqa: FS003
-        p_time = r"(?P<time>\d{2}:\d{2}:\d{2})"  # noqa: FS003
-        p_timezone = r"(?P<timezone>[\+-]\d+)"
-        p_line = r"(?P<line_number>\d+)"
-        s = r"\s+"
-
-        pattern = (
-            r"^"
-            + p_sha
-            + s
-            + p_file
-            + r"\("
-            + p_author
-            + s
-            + p_date
-            + s
-            + p_time
-            + s
-            + p_timezone
-            + s
-            + p_line
-            + r"\) "
-        )
-
-        # Regexes compiled by re's module-level functions are cached, so we needn't do it ourselves.
-        m = re.match(pattern, blame_line)
-        return m.groupdict() if m else {}
 
     def get_line_point(self, line):
         """Get the point of specified line in a view."""
