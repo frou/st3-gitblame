@@ -7,7 +7,12 @@ import sublime_plugin
 from .parsing import parse_blame_cli_output_line
 from .settings import PKG_SETTINGS_KEY_CUSTOMBLAMEFLAGS, pkg_settings
 from .templates import blame_all_phantom_css, blame_all_phantom_html_template
-from .util import communicate_error, platform_startupinfo, view_is_suitable
+from .util import (
+    CLI_COMMAND_INITIAL_ARGS,
+    communicate_error,
+    platform_startupinfo,
+    view_is_suitable,
+)
 
 PHANTOM_KEY_ALL = "git-blame-all"
 SETTING_PHANTOM_ALL_DISPLAYED = "git-blame-all-displayed"
@@ -88,8 +93,7 @@ class BlameShowAll(sublime_plugin.TextCommand):
     # ------------------------------------------------------------
 
     def get_blame(self, path):
-        # The option --show-name is necessary to force file name display even when this file has never been renamed.
-        cmd_line = ["git", "blame", "--show-name", "--minimal", "-w"]
+        cmd_line = CLI_COMMAND_INITIAL_ARGS.copy()
         cmd_line.extend(pkg_settings().get(PKG_SETTINGS_KEY_CUSTOMBLAMEFLAGS, []))
         cmd_line.extend(["--", os.path.basename(path)])
         # print(cmd_line)

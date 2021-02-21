@@ -3,6 +3,9 @@ import sys
 
 import sublime
 
+# The option --show-name is necessary to force file name display even when this file has never been renamed.
+CLI_COMMAND_INITIAL_ARGS = ["git", "blame", "--show-name", "--minimal", "-w"]
+
 
 def view_is_suitable(view):
     ok = view.file_name() and not view.is_dirty()

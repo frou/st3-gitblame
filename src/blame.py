@@ -8,7 +8,12 @@ import sublime_plugin
 from .parsing import parse_blame_cli_output_line
 from .settings import PKG_SETTINGS_KEY_CUSTOMBLAMEFLAGS, pkg_settings
 from .templates import blame_phantom_css, blame_phantom_html_template
-from .util import communicate_error, platform_startupinfo, view_is_suitable
+from .util import (
+    CLI_COMMAND_INITIAL_ARGS,
+    communicate_error,
+    platform_startupinfo,
+    view_is_suitable,
+)
 
 # @todo Make a command to open the latest diff ("CommitDescription") for the current line in a single keystroke.
 # @body Currently it takes a keystroke and then a mouse click on "Show"
@@ -118,14 +123,8 @@ class Blame(sublime_plugin.TextCommand):
     # ------------------------------------------------------------
 
     def get_blame(self, line, path, sha_skip_list):
-        cmd_line = [
-            "git",
-            "blame",
-            "--show-name",
-            "--minimal",
-            "-w",
-            "-L {0},{0}".format(line),
-        ]
+        cmd_line = CLI_COMMAND_INITIAL_ARGS.copy()
+        cmd_line.extend(["-L {0},{0}".format(line)])
         for skipped_sha in sha_skip_list:
             cmd_line.extend(["--ignore-rev", skipped_sha])
         cmd_line.extend(pkg_settings().get(PKG_SETTINGS_KEY_CUSTOMBLAMEFLAGS, []))
