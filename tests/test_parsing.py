@@ -16,8 +16,12 @@ class TestParsing(unittest.TestCase):
         samples = [
             (
                 r"""27399a5b (Tom van Ommeren 2017-10-12 22:53:05 +0200 26)     DiagnosticSeverity.Warning: 'markup.changed.lsp sublimelinter.mark.warning markup.warning.lsp',""",
-                # EXISTING INCORRECT PARSING. Issue #29
-                ("27399a5b", "Tom van", "Ommeren", "2017-10-12"),
+                (
+                    "27399a5b",
+                    "Tom van Ommeren",
+                    "2017-10-12",
+                    "22:53:05",
+                ),  # Failing. Issue #29
             ),
             (
                 r"""c937eff9 (Duncan Holm 2020-04-11 14:29:47 +0100 3) import re""",
