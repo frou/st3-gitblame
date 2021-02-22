@@ -28,14 +28,14 @@ class BaseBlame(metaclass=ABCMeta):
             stderr=subprocess.STDOUT,
         ).decode("utf-8")
 
-    def get_blame(self, path, **kwargs):
+    def get_blame_text(self, path, **kwargs):
         cli_args = ["blame", "--show-name", "--minimal", "-w"]
         cli_args.extend(self.extra_cli_args(**kwargs))
         cli_args.extend(pkg_settings().get(PKG_SETTINGS_KEY_CUSTOMBLAMEFLAGS, []))
         cli_args.extend(["--", os.path.basename(path)])
         return self.run_git(path, cli_args)
 
-    def get_commit(self, sha, path):
+    def get_commit_text(self, sha, path):
         cli_args = ["show", "--no-color", sha]
         return self.run_git(path, cli_args)
 

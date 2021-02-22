@@ -53,7 +53,7 @@ class Blame(BaseBlame, sublime_plugin.TextCommand):
             full_path = self.view.file_name()
 
             try:
-                blame_output = self.get_blame(
+                blame_output = self.get_blame_text(
                     full_path, line_num=line_num, sha_skip_list=sha_skip_list
                 )
             except Exception as e:
@@ -138,7 +138,7 @@ class Blame(BaseBlame, sublime_plugin.TextCommand):
         elif url.path == "show":
             sha = querystring["sha"][0]
             try:
-                desc = self.get_commit(sha, self.view.file_name())
+                desc = self.get_commit_text(sha, self.view.file_name())
             except Exception as e:
                 self.communicate_error(e)
                 return

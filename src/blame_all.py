@@ -33,7 +33,7 @@ class BlameShowAll(BaseBlame, sublime_plugin.TextCommand):
             return
 
         try:
-            blame_output = self.get_blame(self.view.file_name())
+            blame_output = self.get_blame_text(self.view.file_name())
         except Exception as e:
             self.communicate_error(e)
             return
