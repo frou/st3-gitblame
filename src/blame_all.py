@@ -67,7 +67,7 @@ class BlameShowAll(BaseBlame, sublime_plugin.TextCommand):
                     time=blame["time"],
                 ),
                 sublime.LAYOUT_INLINE,
-                self.on_phantom_close,
+                self.handle_phantom_button,
             )
             phantoms.append(phantom)
 
@@ -80,12 +80,11 @@ class BlameShowAll(BaseBlame, sublime_plugin.TextCommand):
     def extra_cli_args(self, **kwargs):
         return []
 
-    def on_phantom_close(self, href):
-        """Closes opened phantoms."""
+    # ------------------------------------------------------------
+
+    def handle_phantom_button(self, href):
         if href == "close":
             self.view.run_command("blame_erase_all")
-
-    # ------------------------------------------------------------
 
     def get_line_point(self, line):
         """Get the point of specified line in a view."""
