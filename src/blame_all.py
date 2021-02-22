@@ -7,6 +7,9 @@ from .templates import blame_all_phantom_css, blame_all_phantom_html_template
 PHANTOM_KEY_ALL = "git-blame-all"
 SETTING_PHANTOM_ALL_DISPLAYED = "git-blame-all-displayed"
 
+# @todo Disable view rulers while BlameAll phantoms are visible
+# @body Because they don't make sense while a big blob of phantoms are horizontally offsetting the user's code.
+
 
 class BlameShowAll(BaseBlame, sublime_plugin.TextCommand):
 
