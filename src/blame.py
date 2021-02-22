@@ -3,7 +3,7 @@ from urllib.parse import parse_qs, quote_plus, urlparse
 import sublime
 import sublime_plugin
 
-from .base_blame import BaseBlame
+from .base import BaseBlame
 from .templates import blame_phantom_css, blame_phantom_html_template
 
 # @todo Make a command to open the latest diff ("CommitDescription") for the current line in a single keystroke.

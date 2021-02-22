@@ -1,7 +1,7 @@
 import sublime
 import sublime_plugin
 
-from .base_blame import BaseBlame
+from .base import BaseBlame
 from .templates import blame_all_phantom_css, blame_all_phantom_html_template
 
 PHANTOM_KEY_ALL = "git-blame-all"
