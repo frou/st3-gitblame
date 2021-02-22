@@ -6,7 +6,6 @@ import sublime_plugin
 from .base_blame import BaseBlame
 from .parsing import parse_blame_cli_output_line
 from .templates import blame_phantom_css, blame_phantom_html_template
-from .util import communicate_error, view_is_suitable
 
 # @todo Make a command to open the latest diff ("CommitDescription") for the current line in a single keystroke.
 # @body Currently it takes a keystroke and then a mouse click on "Show"
@@ -21,7 +20,8 @@ class Blame(BaseBlame, sublime_plugin.TextCommand):
         self.phantom_set = sublime.PhantomSet(view, "git-blame")
 
     def run(self, edit, prevving=False, fixed_row_num=None, sha_skip_list=[]):
-        if not view_is_suitable(self.view):
+        if not self.has_suitable_view():
+            self.tell_user_to_save()
             return
 
         phantoms = []
@@ -57,12 +57,12 @@ class Blame(BaseBlame, sublime_plugin.TextCommand):
                     full_path, line_num=line_num, sha_skip_list=sha_skip_list
                 )
             except Exception as e:
-                communicate_error(e)
+                self.communicate_error(e)
                 return
 
             blame = parse_blame_cli_output_line(blame_output)
             if not blame:
-                communicate_error(
+                self.communicate_error(
                     "Failed to parse anything for {0}. Has git's output format changed?".format(
                         self.__class__.__name__
                     )
@@ -140,7 +140,7 @@ class Blame(BaseBlame, sublime_plugin.TextCommand):
             try:
                 desc = self.get_commit(sha, self.view.file_name())
             except Exception as e:
-                communicate_error(e)
+                self.communicate_error(e)
                 return
 
             buf = self.view.window().new_file()
@@ -164,7 +164,7 @@ class Blame(BaseBlame, sublime_plugin.TextCommand):
             # Erase all phantoms
             self.phantom_set.update([])
         else:
-            communicate_error(
+            self.communicate_error(
                 "No handler for URL path '{0}' in phantom".format(url.path)
             )
 

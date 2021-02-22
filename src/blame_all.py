@@ -4,7 +4,6 @@ import sublime_plugin
 from .base_blame import BaseBlame
 from .parsing import parse_blame_cli_output_line
 from .templates import blame_all_phantom_css, blame_all_phantom_html_template
-from .util import communicate_error, view_is_suitable
 
 PHANTOM_KEY_ALL = "git-blame-all"
 SETTING_PHANTOM_ALL_DISPLAYED = "git-blame-all-displayed"
@@ -20,7 +19,8 @@ class BlameShowAll(BaseBlame, sublime_plugin.TextCommand):
         self.pattern = None
 
     def run(self, edit):
-        if not view_is_suitable(self.view):
+        if not self.has_suitable_view():
+            self.tell_user_to_save()
             return
 
         self.view.erase_phantoms(PHANTOM_KEY_ALL)
@@ -35,7 +35,7 @@ class BlameShowAll(BaseBlame, sublime_plugin.TextCommand):
         try:
             blame_output = self.get_blame(self.view.file_name())
         except Exception as e:
-            communicate_error(e)
+            self.communicate_error(e)
             return
 
         blames = [
@@ -43,7 +43,7 @@ class BlameShowAll(BaseBlame, sublime_plugin.TextCommand):
         ]
         blames = [b for b in blames if b]
         if not blames:
-            communicate_error(
+            self.communicate_error(
                 "Failed to parse anything for {0}. Has git's output format changed?".format(
                     self.__class__.__name__
                 )
