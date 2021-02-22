@@ -1,24 +1,16 @@
-import os
-import subprocess
-
 import sublime
 import sublime_plugin
 
+from .base_blame import BaseBlame
 from .parsing import parse_blame_cli_output_line
-from .settings import PKG_SETTINGS_KEY_CUSTOMBLAMEFLAGS, pkg_settings
 from .templates import blame_all_phantom_css, blame_all_phantom_html_template
-from .util import (
-    CLI_COMMAND_INITIAL_ARGS,
-    communicate_error,
-    platform_startupinfo,
-    view_is_suitable,
-)
+from .util import communicate_error, view_is_suitable
 
 PHANTOM_KEY_ALL = "git-blame-all"
 SETTING_PHANTOM_ALL_DISPLAYED = "git-blame-all-displayed"
 
 
-class BlameShowAll(sublime_plugin.TextCommand):
+class BlameShowAll(BaseBlame, sublime_plugin.TextCommand):
 
     # Overrides --------------------------------------------------
 
@@ -85,24 +77,15 @@ class BlameShowAll(sublime_plugin.TextCommand):
         # @todo BlameAll: Automatically scrolling the view to the left doesn't work when the ST window has >1 Group
         self.view.set_viewport_position((0.0, self.view.viewport_position()[1]))
 
+    def extra_cli_args(self, **kwargs):
+        return []
+
     def on_phantom_close(self, href):
         """Closes opened phantoms."""
         if href == "close":
             self.view.run_command("blame_erase_all")
 
     # ------------------------------------------------------------
-
-    def get_blame(self, path):
-        cmd_line = CLI_COMMAND_INITIAL_ARGS.copy()
-        cmd_line.extend(pkg_settings().get(PKG_SETTINGS_KEY_CUSTOMBLAMEFLAGS, []))
-        cmd_line.extend(["--", os.path.basename(path)])
-        # print(cmd_line)
-        return subprocess.check_output(
-            cmd_line,
-            cwd=os.path.dirname(os.path.realpath(path)),
-            startupinfo=platform_startupinfo(),
-            stderr=subprocess.STDOUT,
-        ).decode("utf-8")
 
     def get_line_point(self, line):
         """Get the point of specified line in a view."""

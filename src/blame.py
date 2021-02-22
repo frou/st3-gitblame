@@ -1,25 +1,18 @@
-import os
-import subprocess
 from urllib.parse import parse_qs, quote_plus, urlparse
 
 import sublime
 import sublime_plugin
 
+from .base_blame import BaseBlame
 from .parsing import parse_blame_cli_output_line
-from .settings import PKG_SETTINGS_KEY_CUSTOMBLAMEFLAGS, pkg_settings
 from .templates import blame_phantom_css, blame_phantom_html_template
-from .util import (
-    CLI_COMMAND_INITIAL_ARGS,
-    communicate_error,
-    platform_startupinfo,
-    view_is_suitable,
-)
+from .util import communicate_error, view_is_suitable
 
 # @todo Make a command to open the latest diff ("CommitDescription") for the current line in a single keystroke.
 # @body Currently it takes a keystroke and then a mouse click on "Show"
 
 
-class Blame(sublime_plugin.TextCommand):
+class Blame(BaseBlame, sublime_plugin.TextCommand):
 
     # Overrides --------------------------------------------------
 
@@ -60,7 +53,9 @@ class Blame(sublime_plugin.TextCommand):
             full_path = self.view.file_name()
 
             try:
-                blame_output = self.get_blame(line_num, full_path, sha_skip_list)
+                blame_output = self.get_blame(
+                    full_path, line_num=line_num, sha_skip_list=sha_skip_list
+                )
             except Exception as e:
                 communicate_error(e)
                 return
@@ -120,30 +115,13 @@ class Blame(sublime_plugin.TextCommand):
 
         self.phantom_set.update(phantoms)
 
-    # ------------------------------------------------------------
-
-    def get_blame(self, line, path, sha_skip_list):
-        cmd_line = CLI_COMMAND_INITIAL_ARGS.copy()
-        cmd_line.extend(["-L {0},{0}".format(line)])
+    def extra_cli_args(self, line_num, sha_skip_list):
+        args = ["-L {0},{0}".format(line_num)]
         for skipped_sha in sha_skip_list:
-            cmd_line.extend(["--ignore-rev", skipped_sha])
-        cmd_line.extend(pkg_settings().get(PKG_SETTINGS_KEY_CUSTOMBLAMEFLAGS, []))
-        cmd_line.extend(["--", os.path.basename(path)])
-        # print(cmd_line)
-        return subprocess.check_output(
-            cmd_line,
-            cwd=os.path.dirname(os.path.realpath(path)),
-            startupinfo=platform_startupinfo(),
-            stderr=subprocess.STDOUT,
-        ).decode("utf-8")
+            args.extend(["--ignore-rev", skipped_sha])
+        return args
 
-    def get_commit(self, sha, path):
-        return subprocess.check_output(
-            ["git", "show", "--no-color", sha],
-            cwd=os.path.dirname(os.path.realpath(path)),
-            startupinfo=platform_startupinfo(),
-            stderr=subprocess.STDOUT,
-        ).decode("utf-8")
+    # ------------------------------------------------------------
 
     def phantom_exists_for_region(self, region):
         return any(p.region == region for p in self.phantom_set.phantoms)
