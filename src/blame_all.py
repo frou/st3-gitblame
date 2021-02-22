@@ -2,7 +2,6 @@ import sublime
 import sublime_plugin
 
 from .base_blame import BaseBlame
-from .parsing import parse_blame_cli_output_line
 from .templates import blame_all_phantom_css, blame_all_phantom_html_template
 
 PHANTOM_KEY_ALL = "git-blame-all"
@@ -38,9 +37,7 @@ class BlameShowAll(BaseBlame, sublime_plugin.TextCommand):
             self.communicate_error(e)
             return
 
-        blames = [
-            parse_blame_cli_output_line(line) for line in blame_output.splitlines()
-        ]
+        blames = [self.parse_line(line) for line in blame_output.splitlines()]
         blames = [b for b in blames if b]
         if not blames:
             self.communicate_error(

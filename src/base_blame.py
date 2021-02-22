@@ -1,4 +1,5 @@
 import os
+import re
 import subprocess
 import sys
 from abc import ABCMeta, abstractmethod
@@ -38,6 +39,24 @@ class BaseBlame(metaclass=ABCMeta):
     def get_commit_text(self, sha, path):
         cli_args = ["show", "--no-color", sha]
         return self.run_git(path, cli_args)
+
+    @classmethod
+    def parse_line(cls, line):
+        pattern = r"""(?x)
+            ^   (?P<sha>\^?\w+)
+            \s+ (?P<file>[\S ]+)
+            \s+
+            \(  (?P<author>.+?)
+            \s+ (?P<date>\d{4}-\d{2}-\d{2})
+            \s+ (?P<time>\d{2}:\d{2}:\d{2})
+            \s+ (?P<timezone>[\+-]\d+)
+            \s+ (?P<line_number>\d+)
+            \)
+            \s
+            """
+        # re's module-level functions like match(...) internally cache the compiled form of pattern strings.
+        m = re.match(pattern, line)
+        return m.groupdict() if m else {}
 
     def has_suitable_view(self):
         return (

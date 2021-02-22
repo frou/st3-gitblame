@@ -4,9 +4,7 @@ import unittest
 # REF: https://github.com/SublimeText/UnitTesting/blob/master/README.md
 
 # This strange form of import is required because our ST package name has a space in it.
-blame = importlib.import_module("Git blame.src.blame")
-blame_all = importlib.import_module("Git blame.src.blame_all")
-parsing = importlib.import_module("Git blame.src.parsing")
+base_blame = importlib.import_module("Git blame.src.base_blame")
 
 # NOTE: The sample git-blame CLI outputs were taken from the https://github.com/sublimelsp/LSP
 # repo because they exhibit different numbers of components in author names.
@@ -54,6 +52,6 @@ class TestParsing(unittest.TestCase):
         ]
         for cli_output_line, expected_result in samples:
             self.assertEqual(
-                parsing.parse_blame_cli_output_line(cli_output_line),
+                base_blame.BaseBlame.parse_line(cli_output_line),  # type: ignore [attr-defined]
                 expected_result,
             )

@@ -4,7 +4,6 @@ import sublime
 import sublime_plugin
 
 from .base_blame import BaseBlame
-from .parsing import parse_blame_cli_output_line
 from .templates import blame_phantom_css, blame_phantom_html_template
 
 # @todo Make a command to open the latest diff ("CommitDescription") for the current line in a single keystroke.
@@ -60,7 +59,7 @@ class Blame(BaseBlame, sublime_plugin.TextCommand):
                 self.communicate_error(e)
                 return
 
-            blame = parse_blame_cli_output_line(blame_output)
+            blame = self.parse_line(blame_output)
             if not blame:
                 self.communicate_error(
                     "Failed to parse anything for {0}. Has git's output format changed?".format(
