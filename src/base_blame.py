@@ -1,33 +1,41 @@
 import os
 import subprocess
+import sys
 from abc import ABCMeta, abstractmethod
 
 from .settings import PKG_SETTINGS_KEY_CUSTOMBLAMEFLAGS, pkg_settings
-from .util import platform_startupinfo
 
 
 class BaseBlame(metaclass=ABCMeta):
-    def get_blame(self, path, **kwargs):
-        # The option --show-name is necessary to force file name display even when this file has never been renamed.
-        cmd_line = ["git", "blame", "--show-name", "--minimal", "-w"]
-        cmd_line.extend(self.extra_cli_args(**kwargs))
-        cmd_line.extend(pkg_settings().get(PKG_SETTINGS_KEY_CUSTOMBLAMEFLAGS, []))
-        cmd_line.extend(["--", os.path.basename(path)])
+    def run_git(self, view_file_path, cli_args):
+        if sys.platform == "win32":
+            startup_info = subprocess.STARTUPINFO()
+            # Stop a visible console window from appearing.
+            startup_info.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+            startup_info.wShowWindow = subprocess.SW_HIDE
+        else:
+            startup_info = None
+
+        cmd_line = ["git"] + cli_args
         # print(cmd_line)
+
         return subprocess.check_output(
             cmd_line,
-            cwd=os.path.dirname(os.path.realpath(path)),
-            startupinfo=platform_startupinfo(),
+            cwd=os.path.dirname(os.path.realpath(view_file_path)),
+            startupinfo=startup_info,
             stderr=subprocess.STDOUT,
         ).decode("utf-8")
 
+    def get_blame(self, path, **kwargs):
+        cli_args = ["blame", "--show-name", "--minimal", "-w"]
+        cli_args.extend(self.extra_cli_args(**kwargs))
+        cli_args.extend(pkg_settings().get(PKG_SETTINGS_KEY_CUSTOMBLAMEFLAGS, []))
+        cli_args.extend(["--", os.path.basename(path)])
+        return self.run_git(path, cli_args)
+
     def get_commit(self, sha, path):
-        return subprocess.check_output(
-            ["git", "show", "--no-color", sha],
-            cwd=os.path.dirname(os.path.realpath(path)),
-            startupinfo=platform_startupinfo(),
-            stderr=subprocess.STDOUT,
-        ).decode("utf-8")
+        cli_args = ["show", "--no-color", sha]
+        return self.run_git(path, cli_args)
 
     # ------------------------------------------------------------
 
