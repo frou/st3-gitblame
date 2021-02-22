@@ -1,25 +1,16 @@
-import os
-import subprocess
 from urllib.parse import parse_qs, quote_plus, urlparse
 
 import sublime
 import sublime_plugin
 
-from .parsing import parse_blame_cli_output_line
-from .settings import PKG_SETTINGS_KEY_CUSTOMBLAMEFLAGS, pkg_settings
+from .base_blame import BaseBlame
 from .templates import blame_phantom_css, blame_phantom_html_template
-from .util import (
-    CLI_COMMAND_INITIAL_ARGS,
-    communicate_error,
-    platform_startupinfo,
-    view_is_suitable,
-)
 
 # @todo Make a command to open the latest diff ("CommitDescription") for the current line in a single keystroke.
 # @body Currently it takes a keystroke and then a mouse click on "Show"
 
 
-class Blame(sublime_plugin.TextCommand):
+class Blame(BaseBlame, sublime_plugin.TextCommand):
 
     # Overrides --------------------------------------------------
 
@@ -28,7 +19,8 @@ class Blame(sublime_plugin.TextCommand):
         self.phantom_set = sublime.PhantomSet(view, "git-blame")
 
     def run(self, edit, prevving=False, fixed_row_num=None, sha_skip_list=[]):
-        if not view_is_suitable(self.view):
+        if not self.has_suitable_view():
+            self.tell_user_to_save()
             return
 
         phantoms = []
@@ -60,14 +52,16 @@ class Blame(sublime_plugin.TextCommand):
             full_path = self.view.file_name()
 
             try:
-                blame_output = self.get_blame(line_num, full_path, sha_skip_list)
+                blame_output = self.get_blame_text(
+                    full_path, line_num=line_num, sha_skip_list=sha_skip_list
+                )
             except Exception as e:
-                communicate_error(e)
+                self.communicate_error(e)
                 return
 
-            blame = parse_blame_cli_output_line(blame_output)
+            blame = self.parse_line(blame_output)
             if not blame:
-                communicate_error(
+                self.communicate_error(
                     "Failed to parse anything for {0}. Has git's output format changed?".format(
                         self.__class__.__name__
                     )
@@ -120,30 +114,13 @@ class Blame(sublime_plugin.TextCommand):
 
         self.phantom_set.update(phantoms)
 
-    # ------------------------------------------------------------
-
-    def get_blame(self, line, path, sha_skip_list):
-        cmd_line = CLI_COMMAND_INITIAL_ARGS.copy()
-        cmd_line.extend(["-L {0},{0}".format(line)])
+    def extra_cli_args(self, line_num, sha_skip_list):
+        args = ["-L", "{0},{0}".format(line_num)]
         for skipped_sha in sha_skip_list:
-            cmd_line.extend(["--ignore-rev", skipped_sha])
-        cmd_line.extend(pkg_settings().get(PKG_SETTINGS_KEY_CUSTOMBLAMEFLAGS, []))
-        cmd_line.extend(["--", os.path.basename(path)])
-        # print(cmd_line)
-        return subprocess.check_output(
-            cmd_line,
-            cwd=os.path.dirname(os.path.realpath(path)),
-            startupinfo=platform_startupinfo(),
-            stderr=subprocess.STDOUT,
-        ).decode("utf-8")
+            args.extend(["--ignore-rev", skipped_sha])
+        return args
 
-    def get_commit(self, sha, path):
-        return subprocess.check_output(
-            ["git", "show", "--no-color", sha],
-            cwd=os.path.dirname(os.path.realpath(path)),
-            startupinfo=platform_startupinfo(),
-            stderr=subprocess.STDOUT,
-        ).decode("utf-8")
+    # ------------------------------------------------------------
 
     def phantom_exists_for_region(self, region):
         return any(p.region == region for p in self.phantom_set.phantoms)
@@ -160,9 +137,9 @@ class Blame(sublime_plugin.TextCommand):
         elif url.path == "show":
             sha = querystring["sha"][0]
             try:
-                desc = self.get_commit(sha, self.view.file_name())
+                desc = self.get_commit_text(sha, self.view.file_name())
             except Exception as e:
-                communicate_error(e)
+                self.communicate_error(e)
                 return
 
             buf = self.view.window().new_file()
@@ -186,7 +163,7 @@ class Blame(sublime_plugin.TextCommand):
             # Erase all phantoms
             self.phantom_set.update([])
         else:
-            communicate_error(
+            self.communicate_error(
                 "No handler for URL path '{0}' in phantom".format(url.path)
             )
 

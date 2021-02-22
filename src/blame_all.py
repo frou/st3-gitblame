@@ -1,24 +1,14 @@
-import os
-import subprocess
-
 import sublime
 import sublime_plugin
 
-from .parsing import parse_blame_cli_output_line
-from .settings import PKG_SETTINGS_KEY_CUSTOMBLAMEFLAGS, pkg_settings
+from .base_blame import BaseBlame
 from .templates import blame_all_phantom_css, blame_all_phantom_html_template
-from .util import (
-    CLI_COMMAND_INITIAL_ARGS,
-    communicate_error,
-    platform_startupinfo,
-    view_is_suitable,
-)
 
 PHANTOM_KEY_ALL = "git-blame-all"
 SETTING_PHANTOM_ALL_DISPLAYED = "git-blame-all-displayed"
 
 
-class BlameShowAll(sublime_plugin.TextCommand):
+class BlameShowAll(BaseBlame, sublime_plugin.TextCommand):
 
     # Overrides --------------------------------------------------
 
@@ -28,7 +18,8 @@ class BlameShowAll(sublime_plugin.TextCommand):
         self.pattern = None
 
     def run(self, edit):
-        if not view_is_suitable(self.view):
+        if not self.has_suitable_view():
+            self.tell_user_to_save()
             return
 
         self.view.erase_phantoms(PHANTOM_KEY_ALL)
@@ -41,17 +32,15 @@ class BlameShowAll(sublime_plugin.TextCommand):
             return
 
         try:
-            blame_output = self.get_blame(self.view.file_name())
+            blame_output = self.get_blame_text(self.view.file_name())
         except Exception as e:
-            communicate_error(e)
+            self.communicate_error(e)
             return
 
-        blames = [
-            parse_blame_cli_output_line(line) for line in blame_output.splitlines()
-        ]
+        blames = [self.parse_line(line) for line in blame_output.splitlines()]
         blames = [b for b in blames if b]
         if not blames:
-            communicate_error(
+            self.communicate_error(
                 "Failed to parse anything for {0}. Has git's output format changed?".format(
                     self.__class__.__name__
                 )
@@ -75,7 +64,7 @@ class BlameShowAll(sublime_plugin.TextCommand):
                     time=blame["time"],
                 ),
                 sublime.LAYOUT_INLINE,
-                self.on_phantom_close,
+                self.handle_phantom_button,
             )
             phantoms.append(phantom)
 
@@ -85,24 +74,14 @@ class BlameShowAll(sublime_plugin.TextCommand):
         # @todo BlameAll: Automatically scrolling the view to the left doesn't work when the ST window has >1 Group
         self.view.set_viewport_position((0.0, self.view.viewport_position()[1]))
 
-    def on_phantom_close(self, href):
-        """Closes opened phantoms."""
-        if href == "close":
-            self.view.run_command("blame_erase_all")
+    def extra_cli_args(self, **kwargs):
+        return []
 
     # ------------------------------------------------------------
 
-    def get_blame(self, path):
-        cmd_line = CLI_COMMAND_INITIAL_ARGS.copy()
-        cmd_line.extend(pkg_settings().get(PKG_SETTINGS_KEY_CUSTOMBLAMEFLAGS, []))
-        cmd_line.extend(["--", os.path.basename(path)])
-        # print(cmd_line)
-        return subprocess.check_output(
-            cmd_line,
-            cwd=os.path.dirname(os.path.realpath(path)),
-            startupinfo=platform_startupinfo(),
-            stderr=subprocess.STDOUT,
-        ).decode("utf-8")
+    def handle_phantom_button(self, href):
+        if href == "close":
+            self.view.run_command("blame_erase_all")
 
     def get_line_point(self, line):
         """Get the point of specified line in a view."""
