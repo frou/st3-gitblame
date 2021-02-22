@@ -116,7 +116,7 @@ class Blame(BaseBlame, sublime_plugin.TextCommand):
         self.phantom_set.update(phantoms)
 
     def extra_cli_args(self, line_num, sha_skip_list):
-        args = ["-L {0},{0}".format(line_num)]
+        args = ["-L", "{0},{0}".format(line_num)]
         for skipped_sha in sha_skip_list:
             args.extend(["--ignore-rev", skipped_sha])
         return args
