@@ -5,7 +5,7 @@ from .base import BaseBlame
 from .templates import blame_all_phantom_css, blame_all_phantom_html_template
 
 PHANTOM_KEY_ALL = "git-blame-all"
-SETTING_PHANTOM_ALL_DISPLAYED = "git-blame-all-displayed"
+VIEW_SETTING_PHANTOM_ALL_DISPLAYED = "git-blame-all-displayed"
 
 # @todo Disable view rulers while BlameAll phantoms are visible
 # @body Because they don't make sense while a big blob of phantoms are horizontally offsetting the user's code.
@@ -29,9 +29,9 @@ class BlameShowAll(BaseBlame, sublime_plugin.TextCommand):
         phantoms = []  # type: list[sublime.Phantom]
 
         # If they are currently shown, toggle them off and return.
-        if self.view.settings().get(SETTING_PHANTOM_ALL_DISPLAYED, False):
+        if self.view.settings().get(VIEW_SETTING_PHANTOM_ALL_DISPLAYED, False):
             self.phantom_set.update(phantoms)
-            self.view.settings().set(SETTING_PHANTOM_ALL_DISPLAYED, False)
+            self.view.settings().set(VIEW_SETTING_PHANTOM_ALL_DISPLAYED, False)
             return
 
         try:
@@ -72,7 +72,7 @@ class BlameShowAll(BaseBlame, sublime_plugin.TextCommand):
             phantoms.append(phantom)
 
         self.phantom_set.update(phantoms)
-        self.view.settings().set(SETTING_PHANTOM_ALL_DISPLAYED, True)
+        self.view.settings().set(VIEW_SETTING_PHANTOM_ALL_DISPLAYED, True)
         # Bring the phantoms into view without the user needing to manually scroll left.
         # @todo BlameAll: Automatically scrolling the view to the left doesn't work when the ST window has >1 Group
         self.view.set_viewport_position((0.0, self.view.viewport_position()[1]))
@@ -108,9 +108,9 @@ class BlameEraseAllListener(sublime_plugin.ViewEventListener):
     @classmethod
     def is_applicable(cls, settings):
         """Checks if the blame_erase_all command is applicable."""
-        return settings.get(SETTING_PHANTOM_ALL_DISPLAYED, False)
+        return settings.get(VIEW_SETTING_PHANTOM_ALL_DISPLAYED, False)
 
     def on_modified_async(self):
         """Automatically erases the blame results to prevent mismatches."""
         self.view.run_command("blame_erase_all")
-        self.view.settings().erase(SETTING_PHANTOM_ALL_DISPLAYED)
+        self.view.settings().erase(VIEW_SETTING_PHANTOM_ALL_DISPLAYED)
