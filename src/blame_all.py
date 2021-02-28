@@ -35,7 +35,7 @@ class BlameShowAll(BaseBlame, sublime_plugin.TextCommand):
         # If they are currently shown, toggle them off and return.
         if self.view.settings().get(VIEW_SETTING_PHANTOM_ALL_DISPLAYED, False):
             self.phantom_set.update(phantoms)
-            self.view.settings().set(VIEW_SETTING_PHANTOM_ALL_DISPLAYED, False)
+            self.view.settings().erase(VIEW_SETTING_PHANTOM_ALL_DISPLAYED)
             self.view.run_command("blame_restore_rulers")
             return
 
@@ -112,6 +112,7 @@ class BlameEraseAll(sublime_plugin.TextCommand):
         """Erases the blame results."""
         sublime.status_message("The git blame result is cleared.")
         self.view.erase_phantoms(PHANTOM_KEY_ALL)
+        self.view.settings().erase(VIEW_SETTING_PHANTOM_ALL_DISPLAYED)
         self.view.run_command("blame_restore_rulers")
 
 
@@ -127,7 +128,6 @@ class BlameEraseAllListener(sublime_plugin.ViewEventListener):
     def on_modified_async(self):
         """Automatically erases the blame results to prevent mismatches."""
         self.view.run_command("blame_erase_all")
-        self.view.settings().erase(VIEW_SETTING_PHANTOM_ALL_DISPLAYED)
 
 
 class BlameRestoreRulers(sublime_plugin.TextCommand):
