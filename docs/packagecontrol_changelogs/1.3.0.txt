@@ -1,0 +1,18 @@
+-> 1.3.0
+
+NEW:
+
+- Commit author names are now shown in full regardless of their length or number
+  of parts.
+
+- A view's "rulers" are now temporarily disabled while `Git Blame: Show All`
+  information is being shown (their position doesn't make sense while your
+  text/code is being horizontally offset).
+
+FIXED:
+
+- Fixed `Git Blame: Erase All` in the command palette causing the next
+  activation of `Git Blame: Show All` to have to be done twice.
+
+- Fixed the viewport sometimes not being automatically scrolled all the way to
+  the left when `Git Blame: Show All` was activated.
