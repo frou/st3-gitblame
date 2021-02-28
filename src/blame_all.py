@@ -11,9 +11,6 @@ VIEW_SETTING_PHANTOM_ALL_DISPLAYED = "git-blame-all-displayed"
 VIEW_SETTING_RULERS = "rulers"
 VIEW_SETTING_RULERS_PREV = "rulers_prev"
 
-# @todo Disable view rulers while BlameAll phantoms are visible
-# @body Because they don't make sense while a big blob of phantoms are horizontally offsetting the user's code.
-
 
 class BlameShowAll(BaseBlame, sublime_plugin.TextCommand):
 
