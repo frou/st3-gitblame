@@ -5,7 +5,11 @@ from .base import BaseBlame
 from .templates import blame_all_phantom_css, blame_all_phantom_html_template
 
 PHANTOM_KEY_ALL = "git-blame-all"
+
 VIEW_SETTING_PHANTOM_ALL_DISPLAYED = "git-blame-all-displayed"
+
+VIEW_SETTING_RULERS = "rulers"
+VIEW_SETTING_RULERS_PREV = "rulers_prev"
 
 # @todo Disable view rulers while BlameAll phantoms are visible
 # @body Because they don't make sense while a big blob of phantoms are horizontally offsetting the user's code.
@@ -32,6 +36,7 @@ class BlameShowAll(BaseBlame, sublime_plugin.TextCommand):
         if self.view.settings().get(VIEW_SETTING_PHANTOM_ALL_DISPLAYED, False):
             self.phantom_set.update(phantoms)
             self.view.settings().set(VIEW_SETTING_PHANTOM_ALL_DISPLAYED, False)
+            self.view.run_command("blame_restore_rulers")
             return
 
         try:
@@ -73,6 +78,7 @@ class BlameShowAll(BaseBlame, sublime_plugin.TextCommand):
 
         self.phantom_set.update(phantoms)
         self.view.settings().set(VIEW_SETTING_PHANTOM_ALL_DISPLAYED, True)
+        self.store_rulers()
         # Bring the phantoms into view without the user needing to manually scroll left.
         # @todo BlameAll: Automatically scrolling the view to the left doesn't work when the ST window has >1 Group
         self.view.set_viewport_position((0.0, self.view.viewport_position()[1]))
@@ -90,6 +96,13 @@ class BlameShowAll(BaseBlame, sublime_plugin.TextCommand):
         """Get the point of specified line in a view."""
         return self.view.line(self.view.text_point(line, 0))
 
+    def store_rulers(self):
+        self.view.settings().set(
+            VIEW_SETTING_RULERS_PREV,
+            self.view.settings().get(VIEW_SETTING_RULERS),
+        )
+        self.view.settings().set(VIEW_SETTING_RULERS, [])
+
 
 class BlameEraseAll(sublime_plugin.TextCommand):
 
@@ -99,6 +112,7 @@ class BlameEraseAll(sublime_plugin.TextCommand):
         """Erases the blame results."""
         sublime.status_message("The git blame result is cleared.")
         self.view.erase_phantoms(PHANTOM_KEY_ALL)
+        self.view.run_command("blame_restore_rulers")
 
 
 class BlameEraseAllListener(sublime_plugin.ViewEventListener):
@@ -114,3 +128,14 @@ class BlameEraseAllListener(sublime_plugin.ViewEventListener):
         """Automatically erases the blame results to prevent mismatches."""
         self.view.run_command("blame_erase_all")
         self.view.settings().erase(VIEW_SETTING_PHANTOM_ALL_DISPLAYED)
+
+
+class BlameRestoreRulers(sublime_plugin.TextCommand):
+
+    # Overrides --------------------------------------------------
+
+    def run(self, edit):
+        self.view.settings().set(
+            VIEW_SETTING_RULERS,
+            self.view.settings().get(VIEW_SETTING_RULERS_PREV),
+        )
