@@ -80,8 +80,12 @@ class BlameShowAll(BaseBlame, sublime_plugin.TextCommand):
         self.view.settings().set(VIEW_SETTING_PHANTOM_ALL_DISPLAYED, True)
         self.store_rulers()
         # Bring the phantoms into view without the user needing to manually scroll left.
-        # @todo BlameAll: Automatically scrolling the view to the left doesn't work when the ST window has >1 Group
-        self.view.set_viewport_position((0.0, self.view.viewport_position()[1]))
+        sublime.set_timeout(
+            lambda: self.view.set_viewport_position(
+                (0.0, self.view.viewport_position()[1])
+            ),
+            0,
+        )
 
     def extra_cli_args(self, **kwargs):
         return []
