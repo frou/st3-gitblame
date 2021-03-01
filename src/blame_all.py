@@ -55,12 +55,10 @@ class BlameShowAll(BaseBlame, sublime_plugin.TextCommand):
         max_author_len = max(len(b["author"]) for b in blames)
         for blame in blames:
             line_number = int(blame["line_number"])
-            line_point = self.get_line_point(line_number - 1)
-
             author = blame["author"]
 
             phantom = sublime.Phantom(
-                line_point,
+                self.phantom_region(line_number),
                 blame_all_phantom_html_template.format(
                     css=blame_all_phantom_css,
                     sha=blame["sha"],
@@ -93,9 +91,9 @@ class BlameShowAll(BaseBlame, sublime_plugin.TextCommand):
         if href == "close":
             self.view.run_command("blame_erase_all")
 
-    def get_line_point(self, line):
-        """Get the point of specified line in a view."""
-        return self.view.line(self.view.text_point(line, 0))
+    def phantom_region(self, line_number):
+        line_begins_pt = self.view.text_point(line_number - 1, 0)
+        return sublime.Region(line_begins_pt)
 
     def store_rulers(self):
         self.view.settings().set(
