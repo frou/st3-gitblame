@@ -1,0 +1,5 @@
+-> 1.3.1
+
+FIXED:
+
+- Fixed `Git Blame: Show All` information not displaying correctly in ST4 beta.
