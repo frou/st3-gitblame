@@ -27,7 +27,7 @@ class BaseBlame(metaclass=ABCMeta):
             cwd=os.path.dirname(os.path.realpath(view_file_path)),
             startupinfo=startup_info,
             stderr=subprocess.STDOUT,
-        ).decode("utf-8")
+        ).decode()
 
     def get_blame_text(self, path, **kwargs):
         cli_args = ["blame", "--show-name", "--minimal", "-w"]
@@ -69,7 +69,7 @@ class BaseBlame(metaclass=ABCMeta):
     def communicate_error(self, e, modal=True):
         user_msg = "Git blame:\n\n{0}".format(e)
         if isinstance(e, subprocess.CalledProcessError):
-            user_msg += "\n\n{0}".format(e.output.decode("utf-8"))
+            user_msg += "\n\n{0}".format(e.output.decode())
 
         print()  # noqa: T001
         if modal:
