@@ -13,7 +13,7 @@
   },
   {
     "caption": "Git Blame: Settings",
-    // ♊️: Entry in "Main.sublime-menu"
+    // TWIN: Entry in "Main.sublime-menu"
     "command": "edit_settings",
     "args": {
       "base_file": "${packages}/Git blame/Settings/Git blame.sublime-settings",
@@ -22,7 +22,7 @@
   },
   {
     "caption": "Git Blame: Key Bindings",
-    // ♊️: Entry in "Main.sublime-menu"
+    // TWIN: Entry in "Main.sublime-menu"
     "command": "edit_settings",
     "args": {
       "base_file": "${packages}/Git blame/Keymaps/Default (${platform}).sublime-keymap",

@@ -10,7 +10,7 @@
             "children": [
               {
                 "caption": "Settings",
-                // ♊️: Entry in "Default.sublime-commands"
+                // TWIN: Entry in "Default.sublime-commands"
                 "command": "edit_settings",
                 "args": {
                   "base_file": "${packages}/Git blame/Settings/Git blame.sublime-settings",
@@ -19,7 +19,7 @@
               },
               {
                 "caption": "Key Bindings",
-                // ♊️: Entry in "Default.sublime-commands"
+                // TWIN: Entry in "Default.sublime-commands"
                 "command": "edit_settings",
                 "args": {
                   "base_file": "${packages}/Git blame/Keymaps/Default (${platform}).sublime-keymap",
