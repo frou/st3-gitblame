@@ -6,5 +6,11 @@
     //     ["-M"]
     //     ["-C", "-C"]
     //
-    "custom_blame_flags": []
+    "custom_blame_flags": [],
+
+    "ignorerevs_files_auto_discovery": false,
+    "ignorerevs_files": [
+        ".git-blame-ignore-revs",
+        ".ignoredRevs"
+    ]
 }
