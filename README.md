@@ -2,7 +2,7 @@
 [![GitHub contributors](https://img.shields.io/github/contributors/frou/st3-gitblame.svg)](https://github.com/frou/st3-gitblame/graphs/contributors)
 [![GitHub issues](https://img.shields.io/github/issues/frou/st3-gitblame.svg)](https://github.com/frou/st3-gitblame/issues)
 
-# Git blame - Package for Sublime Text 3
+# Git blame - Package for Sublime Text
 
 This package enables you to query Git "blame" information for files while you are viewing/editing them in Sublime Text.
 
