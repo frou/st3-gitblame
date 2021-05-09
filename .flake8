@@ -1,7 +1,0 @@
-# REF: https://flake8.pycqa.org/en/latest/user/configuration.html
-# NOTE: flake8 merges config (commandline > project-lvl-cfg > user-lvl-cfg > defaults)
-
-[flake8]
-# FS002: '.format' used
-#   Shouldn't complain about str#format use, because f-strings won't be available until if/when the package goes ST4 exclusive.
-extend-ignore = FS002
