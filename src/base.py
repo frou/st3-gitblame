@@ -59,9 +59,8 @@ class BaseBlame(metaclass=ABCMeta):
         return m.groupdict() if m else {}
 
     def has_suitable_view(self):
-        return (
-            hasattr(self, "view") and self.view.file_name() and not self.view.is_dirty()  # type: ignore[attr-defined]
-        )
+        view = self._view()
+        return view.file_name() and not view.is_dirty()
 
     def tell_user_to_save(self):
         self.communicate_error("Please save file changes to disk first.")
@@ -81,6 +80,10 @@ class BaseBlame(metaclass=ABCMeta):
             print(user_msg)  # noqa: T001
 
     # ------------------------------------------------------------
+
+    @abstractmethod
+    def _view(self):
+        ...
 
     @abstractmethod
     def extra_cli_args(self, **kwargs):

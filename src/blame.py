@@ -114,6 +114,9 @@ class Blame(BaseBlame, sublime_plugin.TextCommand):
 
         self.phantom_set.update(phantoms)
 
+    def _view(self):
+        return self.view
+
     def extra_cli_args(self, line_num, sha_skip_list):
         args = ["-L", "{0},{0}".format(line_num)]
         for skipped_sha in sha_skip_list:
