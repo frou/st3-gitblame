@@ -84,3 +84,25 @@ blame_all_phantom_css = """
         background-color: #ffffff18;
     }
 """
+
+# ------------------------------------------------------------
+
+blame_inline_phantom_html_template = """
+    <body id="inline-git-blame">
+        <style>{css}</style>
+        <div class="phantom">
+            <span class="message">
+                {author},&nbsp;{date}&nbsp;{time}
+            </span>
+        </div>
+    </body>
+"""
+
+
+blame_inline_phantom_css = """
+    div.phantom {
+        color: gray;
+        padding: 0;
+        margin-left: 50px;
+    }
+"""

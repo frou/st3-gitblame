@@ -6,5 +6,7 @@
     //     ["-M"]
     //     ["-C", "-C"]
     //
-    "custom_blame_flags": []
+    "custom_blame_flags": [],
+    "inline_blame_enabled": true,
+    "inline_blame_delay": 300
 }
