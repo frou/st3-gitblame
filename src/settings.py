@@ -9,3 +9,6 @@ def pkg_settings():
 
 
 PKG_SETTINGS_KEY_CUSTOMBLAMEFLAGS = "custom_blame_flags"
+
+PKG_SETTINGS_KEY_INLINE_BLAME_ENABLED = "inline_blame_enabled"
+PKG_SETTINGS_KEY_INLINE_BLAME_DELAY = "inline_blame_delay"

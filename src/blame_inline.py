@@ -4,13 +4,20 @@ import sublime_plugin
 
 from .base import BaseBlame
 from .templates import blame_inline_phantom_css, blame_inline_phantom_html_template
+from .settings import pkg_settings, PKG_SETTINGS_KEY_INLINE_BLAME_ENABLED, PKG_SETTINGS_KEY_INLINE_BLAME_DELAY
 
 
 class BlameInlineListener(BaseBlame, sublime_plugin.ViewEventListener):
+
+    @classmethod
+    def is_applicable(cls, settings):
+        return pkg_settings().get(PKG_SETTINGS_KEY_INLINE_BLAME_ENABLED)
+
     def __init__(self, view):
         super().__init__(view)
         self.phantom_set = sublime.PhantomSet(view, 'git-blame')
         self.timer = None
+        self.delay_seconds = pkg_settings().get(PKG_SETTINGS_KEY_INLINE_BLAME_DELAY) / 1000
 
     def extra_cli_args(self, line_num):
         args = ["-L", "{0},{0}".format(line_num)]
@@ -52,13 +59,8 @@ class BlameInlineListener(BaseBlame, sublime_plugin.ViewEventListener):
         self.phantom_set.update(phantoms)
 
     def on_selection_modified_async(self):
-        s = self.view.settings()
-        phantom_blame_enabled = s.get('inline_blame_enabled', True)
-        phantom_blame_delay = s.get('inline_blame_delay', 300)
-        if not phantom_blame_enabled:
-            return
         self.view.erase_phantoms('git-blame')
         if self.timer:
             self.timer.cancel()
-        self.timer = threading.Timer(phantom_blame_delay / 1000, self.show_inline_blame)
+        self.timer = threading.Timer(self.delay_seconds, self.show_inline_blame)
         self.timer.start()
