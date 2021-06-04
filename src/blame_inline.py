@@ -46,6 +46,10 @@ class BlameInlineListener(BaseBlame, sublime_plugin.ViewEventListener):
         return "rgba({}, {}, {}, 0.3)".format(*colors_inverted)
 
     def show_inline_blame(self):
+        if self.view.is_dirty():
+            # If there have already been unsaved edits, stop the git child process from being ran at all.
+            return
+
         phantoms = []
         sels = self.view.sel()
         line = self.view.line(sels[0])
@@ -77,7 +81,13 @@ class BlameInlineListener(BaseBlame, sublime_plugin.ViewEventListener):
         )
         phantom = sublime.Phantom(anchor, body, sublime.LAYOUT_INLINE)
         phantoms.append(phantom)
-        self.phantom_set.update(phantoms)
+
+        # Dispatch back onto the main thread to serialize a final is_dirty check.
+        sublime.set_timeout(lambda: self.maybe_insert_phantoms(phantoms), 0)
+
+    def maybe_insert_phantoms(self, phantoms):
+        if not self.view.is_dirty():
+            self.phantom_set.update(phantoms)
 
     def on_selection_modified_async(self):
         self.view.erase_phantoms(INLINE_BLAME_PHANTOM_SET_KEY)
