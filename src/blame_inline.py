@@ -33,18 +33,6 @@ class BlameInlineListener(BaseBlame, sublime_plugin.ViewEventListener):
     def _view(self):
         return self.view
 
-    def get_inline_blame_color(self):
-        """
-        This method inverts the current background color and adds alpha, basically doing:
-        #ffffff -> rgba(0, 0, 0, 0.3)
-        The color is than used inside the style template. That is how we make
-        sure inline blame is visible in both dark and light color schemes.
-        """
-        bg = self.view.style().get("background")[1:]
-        colors = [int(bg[i : i + 2], 16) for i in range(0, len(bg), 2)]
-        colors_inverted = [str(255 - i) for i in colors]
-        return "rgba({}, {}, {}, 0.3)".format(*colors_inverted)
-
     def show_inline_blame(self):
         if self.view.is_dirty():
             # If there have already been unsaved edits, stop the git child process from being ran at all.
@@ -70,7 +58,7 @@ class BlameInlineListener(BaseBlame, sublime_plugin.ViewEventListener):
         if not blame:
             return
         body = blame_inline_phantom_html_template.format(
-            css=blame_inline_phantom_css.format(color=self.get_inline_blame_color()),
+            css=blame_inline_phantom_css,
             author=blame["author"],
             # TODO: add pretty format of the date, like "3 days ago"
             date=blame["date"],

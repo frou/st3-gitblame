@@ -100,9 +100,9 @@ blame_inline_phantom_html_template = """
 
 
 blame_inline_phantom_css = """
-    div.phantom {{
-        color: {color};
+    div.phantom {
+        color: color(var(--bluish) blend(var(--background) 60%));
         padding: 0;
         margin-left: 50px;
-    }}
+    }
 """
