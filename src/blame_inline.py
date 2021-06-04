@@ -89,9 +89,17 @@ class BlameInlineListener(BaseBlame, sublime_plugin.ViewEventListener):
         if not self.view.is_dirty():
             self.phantom_set.update(phantoms)
 
-    def on_selection_modified_async(self):
+    def show_inline_blame_handler(self):
         self.view.erase_phantoms(INLINE_BLAME_PHANTOM_SET_KEY)
         if self.timer:
             self.timer.cancel()
         self.timer = threading.Timer(self.delay_seconds, self.show_inline_blame)
         self.timer.start()
+
+    def on_selection_modified_async(self):
+        self.show_inline_blame_handler()
+
+    def on_post_save_async(self):
+        # Redisplay the blame after the file is saved, because there will be
+        # no call to on_selection_modified_async after save.
+        self.show_inline_blame_handler()
