@@ -27,7 +27,7 @@ class BlameInlineListener(BaseBlame, sublime_plugin.ViewEventListener):
         )
 
     def extra_cli_args(self, line_num):
-        args = ["-L", "{0},{0}".format(line_num)]
+        args = ["-L", "{0},{0}".format(line_num), "--date=relative"]
         return args
 
     def _view(self):
@@ -43,31 +43,43 @@ class BlameInlineListener(BaseBlame, sublime_plugin.ViewEventListener):
         line = self.view.line(sels[0])
         if line.size() < 2:
             # avoid weird behaviour of regions on empty lines
-            # < 2 is to check for newline character (full_line is required)
+            # < 2 is to check for newline character
             return
         pos = line.end()
         row, _ = self.view.rowcol(line.begin())
         anchor = sublime.Region(pos, pos)
         try:
             blame_output = self.get_blame_text(self.view.file_name(), line_num=row + 1)
-        except Exception as e:
+        except Exception:
             return
         blame = next(
-            (self.parse_line(line) for line in blame_output.splitlines()), None
+            (
+                self.parse_line_with_relative_date(line)
+                for line in blame_output.splitlines()
+            ),
+            None,
         )
         if not blame:
             return
+        summary = ""
+        # Uncommitted changes have only zeros in sha
+        if blame["sha"] != "00000000":
+            try:
+                summary = self.get_commit_message_first_line(
+                    blame["sha"], self.view.file_name()
+                )
+            except Exception as e:
+                return
         body = blame_inline_phantom_html_template.format(
             css=blame_inline_phantom_css,
             author=blame["author"],
-            # TODO: add pretty format of the date, like "3 days ago"
-            date=blame["date"],
-            time=blame["time"] + blame["timezone"],
-            # TODO: add first line of the commit here, but
-            #       it requires porcelain format of git blame
-            #       and further refactoring of BaseBlame
+            date=blame["relative_date"],
+            qs_sha_val=blame["sha"],
+            summary=summary,
         )
-        phantom = sublime.Phantom(anchor, body, sublime.LAYOUT_INLINE)
+        phantom = sublime.Phantom(
+            anchor, body, sublime.LAYOUT_INLINE, self.handle_phantom_button
+        )
         phantoms.append(phantom)
 
         # Dispatch back onto the main thread to serialize a final is_dirty check.

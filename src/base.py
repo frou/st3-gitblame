@@ -3,6 +3,7 @@ import re
 import subprocess
 import sys
 from abc import ABCMeta, abstractmethod
+from urllib.parse import parse_qs, quote_plus, urlparse
 
 import sublime
 
@@ -40,6 +41,10 @@ class BaseBlame(metaclass=ABCMeta):
         cli_args = ["show", "--no-color", sha]
         return self.run_git(path, cli_args)
 
+    def get_commit_message_first_line(self, sha, path):
+        cli_args = ["show", sha, "--pretty=format:%s", "--no-patch"]
+        return self.run_git(path, cli_args)
+
     @classmethod
     def parse_line(cls, line):
         pattern = r"""(?x)
@@ -57,6 +62,69 @@ class BaseBlame(metaclass=ABCMeta):
         # re's module-level functions like match(...) internally cache the compiled form of pattern strings.
         m = re.match(pattern, line)
         return m.groupdict() if m else {}
+
+    @classmethod
+    def parse_line_with_relative_date(cls, line):
+        """
+        The difference from parse_line is that date/time/timezone are replaced with relative_date
+        to be able to parse human readable format
+        https://github.com/git/git/blob/c09b6306c6ca275ed9d0348a8c8014b2ff723cfb/date.c#L131
+        """
+        pattern = r"""(?x)
+            ^   (?P<sha>\^?\w+)
+            \s+ (?P<file>[\S ]+)
+            \s+
+            \(  (?P<author>.+?)
+            \s+ (?P<relative_date>\d+.+ago)
+            \s+ (?P<line_number>\d+)
+            \)
+            \s
+            """
+        # re's module-level functions like match(...) internally cache the compiled form of pattern strings.
+        m = re.match(pattern, line)
+        return m.groupdict() if m else {}
+
+    def handle_phantom_button(self, href):
+        url = urlparse(href)
+        querystring = parse_qs(url.query)
+        # print(url)
+        # print(querystring)
+
+        if url.path == "copy":
+            sublime.set_clipboard(querystring["sha"][0])
+            sublime.status_message("Git SHA copied to clipboard")
+        elif url.path == "show":
+            sha = querystring["sha"][0]
+            try:
+                desc = self.get_commit_text(sha, self.view.file_name())
+            except Exception as e:
+                self.communicate_error(e)
+                return
+
+            buf = self.view.window().new_file()
+            buf.run_command(
+                "blame_insert_commit_description",
+                {"desc": desc, "scratch_view_name": "commit " + sha},
+            )
+        elif url.path == "prev":
+            sha = querystring["sha"][0]
+            row_num = querystring["row_num"][0]
+            sha_skip_list = querystring.get("skip", [])
+            if sha not in sha_skip_list:
+                sha_skip_list.append(sha)
+            self.run(
+                None,
+                prevving=True,
+                fixed_row_num=int(row_num),
+                sha_skip_list=sha_skip_list,
+            )
+        elif url.path == "close":
+            # Erase all phantoms
+            self.phantom_set.update([])
+        else:
+            self.communicate_error(
+                "No handler for URL path '{0}' in phantom".format(url.path)
+            )
 
     def has_suitable_view(self):
         view = self._view()

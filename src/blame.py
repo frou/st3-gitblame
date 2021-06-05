@@ -1,5 +1,3 @@
-from urllib.parse import parse_qs, quote_plus, urlparse
-
 import sublime
 import sublime_plugin
 
@@ -127,48 +125,6 @@ class Blame(BaseBlame, sublime_plugin.TextCommand):
 
     def phantom_exists_for_region(self, region):
         return any(p.region == region for p in self.phantom_set.phantoms)
-
-    def handle_phantom_button(self, href):
-        url = urlparse(href)
-        querystring = parse_qs(url.query)
-        # print(url)
-        # print(querystring)
-
-        if url.path == "copy":
-            sublime.set_clipboard(querystring["sha"][0])
-            sublime.status_message("Git SHA copied to clipboard")
-        elif url.path == "show":
-            sha = querystring["sha"][0]
-            try:
-                desc = self.get_commit_text(sha, self.view.file_name())
-            except Exception as e:
-                self.communicate_error(e)
-                return
-
-            buf = self.view.window().new_file()
-            buf.run_command(
-                "blame_insert_commit_description",
-                {"desc": desc, "scratch_view_name": "commit " + sha},
-            )
-        elif url.path == "prev":
-            sha = querystring["sha"][0]
-            row_num = querystring["row_num"][0]
-            sha_skip_list = querystring.get("skip", [])
-            if sha not in sha_skip_list:
-                sha_skip_list.append(sha)
-            self.run(
-                None,
-                prevving=True,
-                fixed_row_num=int(row_num),
-                sha_skip_list=sha_skip_list,
-            )
-        elif url.path == "close":
-            # Erase all phantoms
-            self.phantom_set.update([])
-        else:
-            self.communicate_error(
-                "No handler for URL path '{0}' in phantom".format(url.path)
-            )
 
 
 class BlameInsertCommitDescription(sublime_plugin.TextCommand):
