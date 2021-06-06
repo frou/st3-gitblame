@@ -40,6 +40,8 @@ class BlameInlineListener(BaseBlame, sublime_plugin.ViewEventListener):
 
         phantoms = []
         sels = self.view.sel()
+        # @todo Support showing inline blame for multiple carets?
+        # @body Maybe with a sanity check that there aren't too many (more than 10?)
         line = self.view.line(sels[0])
         if line.size() < 2:
             # avoid weird behaviour of regions on empty lines
