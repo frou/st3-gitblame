@@ -84,3 +84,28 @@ blame_all_phantom_css = """
         background-color: #ffffff18;
     }
 """
+
+# ------------------------------------------------------------
+
+blame_inline_phantom_html_template = """
+    <body id="inline-git-blame">
+        <style>{css}</style>
+        <div class="phantom">
+            <span class="message">
+                {author},&nbsp;{date}&nbsp;&#183;&nbsp;{summary}&nbsp;<a href="copy?sha={qs_sha_val}">[Copy]</a>&nbsp;<a href="show?sha={qs_sha_val}">[Show]</a>
+            </span>
+        </div>
+    </body>
+"""
+
+
+blame_inline_phantom_css = """
+    div.phantom {
+        color: color(var(--bluish) blend(var(--background) 60%));
+        padding: 0;
+        margin-left: 50px;
+    }
+    div.phantom a {
+        text-decoration: inherit;
+    }
+"""
