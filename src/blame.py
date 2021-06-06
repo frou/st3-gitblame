@@ -1,3 +1,5 @@
+from urllib.parse import quote_plus
+
 import sublime
 import sublime_plugin
 
