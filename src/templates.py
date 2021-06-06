@@ -101,7 +101,7 @@ blame_inline_phantom_html_template = """
 
 blame_inline_phantom_css = """
     div.phantom {
-        color: color(var(--bluish) blend(var(--background) 60%));
+        color: color(color(var(--bluish) blend(var(--background) 60%)) min-contrast(var(--background) 2.0));
         padding: 0;
         margin-left: 50px;
     }
