@@ -75,6 +75,7 @@ class BlameInlineListener(BaseBlame, sublime_plugin.ViewEventListener):
             author=blame["author"],
             date=blame["relative_date"],
             qs_sha_val=blame["sha"],
+            summary_separator=" · " if summary else "",
             summary=summary,
         )
         phantom = sublime.Phantom(
