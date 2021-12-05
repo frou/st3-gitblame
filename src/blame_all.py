@@ -85,6 +85,9 @@ class BlameShowAll(BaseBlame, sublime_plugin.TextCommand):
     def _view(self):
         return self.view
 
+    def _phantom_set(self):
+        return self.phantom_set
+
     def extra_cli_args(self, **kwargs):
         return []
 

@@ -35,6 +35,13 @@ class BlameInlineListener(BaseBlame, sublime_plugin.ViewEventListener):
     def _view(self):
         return self.view
 
+    def _phantom_set(self):
+        return self.phantom_set
+
+    def run(self, edit):
+        # Unlike the other BaseBlame subclasses, we are reactive, not a sublime_plugin.Command
+        pass
+
     def show_inline_blame(self):
         if self.view.is_dirty():
             # If there have already been unsaved edits, stop the git child process from being ran at all.
@@ -72,7 +79,7 @@ class BlameInlineListener(BaseBlame, sublime_plugin.ViewEventListener):
                 summary = self.get_commit_message_first_line(
                     blame["sha"], self.view.file_name()
                 )
-            except Exception as e:
+            except Exception:
                 return
         body = blame_inline_phantom_html_template.format(
             css=blame_inline_phantom_css,

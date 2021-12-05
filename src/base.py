@@ -120,7 +120,7 @@ class BaseBlame(metaclass=ABCMeta):
             )
         elif url.path == "close":
             # Erase all phantoms
-            self.phantom_set.update([])
+            self._phantom_set().update([])
         else:
             self.communicate_error(
                 "No handler for URL path '{0}' in phantom".format(url.path)
@@ -154,5 +154,13 @@ class BaseBlame(metaclass=ABCMeta):
         ...
 
     @abstractmethod
+    def _phantom_set(self):
+        ...
+
+    @abstractmethod
     def extra_cli_args(self, **kwargs):
+        ...
+
+    @abstractmethod
+    def run(self, edit, **kwargs):
         ...
