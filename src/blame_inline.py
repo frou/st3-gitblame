@@ -1,14 +1,15 @@
 import threading
+
 import sublime
 import sublime_plugin
 
 from .base import BaseBlame
-from .templates import blame_inline_phantom_css, blame_inline_phantom_html_template
 from .settings import (
-    pkg_settings,
-    PKG_SETTINGS_KEY_INLINE_BLAME_ENABLED,
     PKG_SETTINGS_KEY_INLINE_BLAME_DELAY,
+    PKG_SETTINGS_KEY_INLINE_BLAME_ENABLED,
+    pkg_settings,
 )
+from .templates import blame_inline_phantom_css, blame_inline_phantom_html_template
 
 INLINE_BLAME_PHANTOM_SET_KEY = "git-blame-inline"
 
@@ -16,6 +17,7 @@ INLINE_BLAME_PHANTOM_SET_KEY = "git-blame-inline"
 class BlameInlineListener(BaseBlame, sublime_plugin.ViewEventListener):
     @classmethod
     def is_applicable(cls, settings):
+        # @todo Fix inline blame (sometimes?) remaining enabled when the user setting for it is edited from true -> false
         return pkg_settings().get(PKG_SETTINGS_KEY_INLINE_BLAME_ENABLED)
 
     def __init__(self, view):

@@ -3,7 +3,7 @@ import re
 import subprocess
 import sys
 from abc import ABCMeta, abstractmethod
-from urllib.parse import parse_qs, quote_plus, urlparse
+from urllib.parse import parse_qs, urlparse
 
 import sublime
 
@@ -96,12 +96,12 @@ class BaseBlame(metaclass=ABCMeta):
         elif url.path == "show":
             sha = querystring["sha"][0]
             try:
-                desc = self.get_commit_text(sha, self.view.file_name())
+                desc = self.get_commit_text(sha, self._view().file_name())
             except Exception as e:
                 self.communicate_error(e)
                 return
 
-            buf = self.view.window().new_file()
+            buf = self._view().window().new_file()
             buf.run_command(
                 "blame_insert_commit_description",
                 {"desc": desc, "scratch_view_name": "commit " + sha},
