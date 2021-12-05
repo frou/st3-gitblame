@@ -1,5 +1,9 @@
 [
   {
+    "caption": "Git Blame: Toggle Inline Blame",
+    "command": "toggle_inline_git_blame"
+  },
+  {
     "caption": "Git Blame: Show",
     "command": "blame"
   },

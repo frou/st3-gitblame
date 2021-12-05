@@ -14,19 +14,6 @@ from .templates import blame_inline_phantom_css, blame_inline_phantom_html_templ
 INLINE_BLAME_PHANTOM_SET_KEY = "git-blame-inline"
 
 
-class ToggleInlineGitBlame(sublime_plugin.TextCommand):
-    # Overrides begin ------------------------------------------------------------------
-
-    def run(self, edit):
-        settings = pkg_settings()
-        settings.set(
-            PKG_SETTINGS_KEY_INLINE_BLAME_ENABLED,
-            not settings.get(PKG_SETTINGS_KEY_INLINE_BLAME_ENABLED),
-        )
-
-    # Overrides end --------------------------------------------------------------------
-
-
 class BlameInlineListener(BaseBlame, sublime_plugin.ViewEventListener):
 
     pkg_setting_callback_added = False
@@ -40,7 +27,16 @@ class BlameInlineListener(BaseBlame, sublime_plugin.ViewEventListener):
             )
             cls.pkg_setting_callback_added = True
 
-        return pkg_settings().get(PKG_SETTINGS_KEY_INLINE_BLAME_ENABLED)
+        return cls.determine_enablement(view_settings)
+
+    @classmethod
+    def determine_enablement(cls, view_settings):
+        enabled = view_settings.get(
+            ToggleInlineGitBlame.VIEW_SETTINGS_KEY_INLINE_BLAME_ENABLED
+        )
+        if enabled is None:
+            enabled = pkg_settings().get(PKG_SETTINGS_KEY_INLINE_BLAME_ENABLED)
+        return enabled
 
     @classmethod
     def on_pkg_setting_changed(cls):
@@ -57,9 +53,9 @@ class BlameInlineListener(BaseBlame, sublime_plugin.ViewEventListener):
             for view in window.views()
             if view_is_editor(view)
         ]
-        inline_blame_enabled = pkg_settings().get(PKG_SETTINGS_KEY_INLINE_BLAME_ENABLED)
         for view in all_editor_views:
-            if not inline_blame_enabled:
+            ToggleInlineGitBlame.erase_customization(view)
+            if not pkg_settings().get(PKG_SETTINGS_KEY_INLINE_BLAME_ENABLED):
                 view.erase_phantoms(INLINE_BLAME_PHANTOM_SET_KEY)
             # Do a dummy modification to the view's settings to induce the ViewEventListener applicability check to happen again.
             view.settings().set(cls.__name__, "")
@@ -163,3 +159,23 @@ class BlameInlineListener(BaseBlame, sublime_plugin.ViewEventListener):
         # Redisplay the blame after the file is saved, because there will be
         # no call to on_selection_modified_async after save.
         self.show_inline_blame_handler()
+
+
+class ToggleInlineGitBlame(sublime_plugin.TextCommand):
+
+    # Might as well reuse the same settings key, but at the view-level.
+    VIEW_SETTINGS_KEY_INLINE_BLAME_ENABLED = PKG_SETTINGS_KEY_INLINE_BLAME_ENABLED
+
+    # Overrides begin ------------------------------------------------------------------
+
+    def run(self, edit):
+        enabled = not BlameInlineListener.determine_enablement(self.view.settings())
+        if not enabled:
+            self.view.erase_phantoms(INLINE_BLAME_PHANTOM_SET_KEY)
+        self.view.settings().set(self.VIEW_SETTINGS_KEY_INLINE_BLAME_ENABLED, enabled)
+
+    # Overrides end --------------------------------------------------------------------
+
+    @classmethod
+    def erase_customization(cls, view):
+        view.settings().erase(cls.VIEW_SETTINGS_KEY_INLINE_BLAME_ENABLED)
