@@ -88,8 +88,11 @@ class BlameShowAll(BaseBlame, sublime_plugin.TextCommand):
     def extra_cli_args(self, **kwargs):
         return []
 
-    def handle_phantom_close_button(self):
+    def close_by_user_request(self):
         self.view.run_command("blame_erase_all")
+
+    def recurse(self, *args, **kwargs):
+        raise NotImplementedError()
 
     # Overrides end --------------------------------------------------------------------
 

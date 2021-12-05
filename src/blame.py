@@ -117,7 +117,7 @@ class Blame(BaseBlame, sublime_plugin.TextCommand):
     def _view(self):
         return self.view
 
-    def handle_phantom_close_button(self):
+    def close_by_user_request(self):
         self.phantom_set.update([])
 
     def extra_cli_args(self, line_num, sha_skip_list):
@@ -125,6 +125,9 @@ class Blame(BaseBlame, sublime_plugin.TextCommand):
         for skipped_sha in sha_skip_list:
             args.extend(["--ignore-rev", skipped_sha])
         return args
+
+    def recurse(self, *args, **kwargs):
+        self.run(None, **kwargs)
 
     # Overrides end --------------------------------------------------------------------
 

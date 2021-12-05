@@ -60,9 +60,12 @@ class BlameInlineListener(BaseBlame, sublime_plugin.ViewEventListener):
     def _view(self):
         return self.view
 
-    def handle_phantom_close_button(self):
-        # Inline Blame phantoms close automatically when appropriate.
-        pass
+    def close_by_user_request(self):
+        # Inline Blame phantoms do not have a user-accessible close UI.
+        raise NotImplementedError()
+
+    def recurse(self, *args, **kwargs):
+        raise NotImplementedError()
 
     # Overrides end --------------------------------------------------------------------
 

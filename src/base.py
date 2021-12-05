@@ -112,14 +112,13 @@ class BaseBlame(metaclass=ABCMeta):
             sha_skip_list = querystring.get("skip", [])
             if sha not in sha_skip_list:
                 sha_skip_list.append(sha)
-            self.run(
-                None,
+            self.recurse(
                 prevving=True,
                 fixed_row_num=int(row_num),
                 sha_skip_list=sha_skip_list,
             )
         elif url.path == "close":
-            self.handle_phantom_close_button()
+            self.close_by_user_request()
         else:
             self.communicate_error(
                 "No handler for URL path '{0}' in phantom".format(url.path)
@@ -153,7 +152,7 @@ class BaseBlame(metaclass=ABCMeta):
         ...
 
     @abstractmethod
-    def handle_phantom_close_button(self):
+    def close_by_user_request(self):
         ...
 
     @abstractmethod
@@ -161,5 +160,5 @@ class BaseBlame(metaclass=ABCMeta):
         ...
 
     @abstractmethod
-    def run(self, edit, **kwargs):
+    def recurse(self, *args, **kwargs):
         ...
