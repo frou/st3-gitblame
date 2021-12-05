@@ -14,6 +14,8 @@ VIEW_SETTING_RULERS_PREV = "rulers_prev"
 
 class BlameShowAll(BaseBlame, sublime_plugin.TextCommand):
 
+    HORIZONTAL_SCROLL_DELAY_MS = 100
+
     # Overrides --------------------------------------------------
 
     def __init__(self, view):
@@ -34,6 +36,9 @@ class BlameShowAll(BaseBlame, sublime_plugin.TextCommand):
             self.phantom_set.update(phantoms)
             self.view.settings().erase(VIEW_SETTING_PHANTOM_ALL_DISPLAYED)
             self.view.run_command("blame_restore_rulers")
+            # Workaround a visible empty space sometimes remaining in the viewport.
+            self.horizontal_scroll_to_limit(left=False)
+            self.horizontal_scroll_to_limit(left=True)
             return
 
         try:
@@ -75,12 +80,7 @@ class BlameShowAll(BaseBlame, sublime_plugin.TextCommand):
         self.view.settings().set(VIEW_SETTING_PHANTOM_ALL_DISPLAYED, True)
         self.store_rulers()
         # Bring the phantoms into view without the user needing to manually scroll left.
-        sublime.set_timeout(
-            lambda: self.view.set_viewport_position(
-                (0.0, self.view.viewport_position()[1])
-            ),
-            0,
-        )
+        self.horizontal_scroll_to_limit(left=True)
 
     def _view(self):
         return self.view
@@ -103,6 +103,15 @@ class BlameShowAll(BaseBlame, sublime_plugin.TextCommand):
             self.view.settings().get(VIEW_SETTING_RULERS),
         )
         self.view.settings().set(VIEW_SETTING_RULERS, [])
+
+    def horizontal_scroll_to_limit(self, *, left):
+        x = 0.0 if left else self.view.layout_extent()[0]
+        y = self.view.viewport_position()[1]
+        # NOTE: The scrolling doesn't seem to work if called inline (or with a 0ms timeout).
+        sublime.set_timeout(
+            lambda: self.view.set_viewport_position((x, y)),
+            self.HORIZONTAL_SCROLL_DELAY_MS,
+        )
 
 
 class BlameEraseAll(sublime_plugin.TextCommand):
