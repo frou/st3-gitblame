@@ -15,10 +15,42 @@ INLINE_BLAME_PHANTOM_SET_KEY = "git-blame-inline"
 
 
 class BlameInlineListener(BaseBlame, sublime_plugin.ViewEventListener):
+
+    pkg_setting_callback_added = False
+
     @classmethod
-    def is_applicable(cls, settings):
-        # @todo Fix inline blame (sometimes?) remaining enabled when the user setting for it is edited from true -> false
+    def is_applicable(cls, view_settings):
+        if not cls.pkg_setting_callback_added:
+            pkg_settings().add_on_change(
+                PKG_SETTINGS_KEY_INLINE_BLAME_ENABLED,
+                cls.on_pkg_setting_changed,
+            )
+            cls.pkg_setting_callback_added = True
+
         return pkg_settings().get(PKG_SETTINGS_KEY_INLINE_BLAME_ENABLED)
+
+    @classmethod
+    def on_pkg_setting_changed(cls):
+        # This variable can be elimited once targeting ST4+ only, and the latter lambda body inlined.
+        view_is_editor = (
+            # REF: https://github.com/sublimehq/sublime_text/issues/3167
+            lambda view: not view.settings().get("is_widget")
+            if sublime.version().startswith("3")
+            else lambda view: view.element() is None
+        )
+        all_editor_views = [
+            view
+            for window in sublime.windows()
+            for view in window.views()
+            if view_is_editor(view)
+        ]
+        inline_blame_enabled = pkg_settings().get(PKG_SETTINGS_KEY_INLINE_BLAME_ENABLED)
+        for view in all_editor_views:
+            if not inline_blame_enabled:
+                view.erase_phantoms(INLINE_BLAME_PHANTOM_SET_KEY)
+            # Do a dummy modification to the view's settings to induce the ViewEventListener applicability check to happen again.
+            view.settings().set(cls.__name__, "")
+            view.settings().erase(cls.__name__)
 
     def __init__(self, view):
         super().__init__(view)
@@ -27,6 +59,8 @@ class BlameInlineListener(BaseBlame, sublime_plugin.ViewEventListener):
         self.delay_seconds = (
             pkg_settings().get(PKG_SETTINGS_KEY_INLINE_BLAME_DELAY) / 1000
         )
+        # Show it immediately for the initially selected line.
+        self.show_inline_blame()
 
     def extra_cli_args(self, line_num):
         args = ["-L", "{0},{0}".format(line_num), "--date=relative"]
