@@ -1,4 +1,6 @@
 [
   {"keys": ["ctrl+alt+b"],       "command": "blame"},
-  {"keys": ["ctrl+alt+shift+b"], "command": "blame_show_all"}
+  {"keys": ["ctrl+alt+shift+b"], "command": "blame_show_all"},
+
+  //{"keys": ["f8"], "command": "toggle_inline_git_blame"},
 ]

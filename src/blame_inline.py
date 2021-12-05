@@ -14,6 +14,19 @@ from .templates import blame_inline_phantom_css, blame_inline_phantom_html_templ
 INLINE_BLAME_PHANTOM_SET_KEY = "git-blame-inline"
 
 
+class ToggleInlineGitBlame(sublime_plugin.TextCommand):
+    # Overrides begin ------------------------------------------------------------------
+
+    def run(self, edit):
+        settings = pkg_settings()
+        settings.set(
+            PKG_SETTINGS_KEY_INLINE_BLAME_ENABLED,
+            not settings.get(PKG_SETTINGS_KEY_INLINE_BLAME_ENABLED),
+        )
+
+    # Overrides end --------------------------------------------------------------------
+
+
 class BlameInlineListener(BaseBlame, sublime_plugin.ViewEventListener):
 
     pkg_setting_callback_added = False
