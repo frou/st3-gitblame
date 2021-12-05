@@ -35,8 +35,9 @@ class BlameInlineListener(BaseBlame, sublime_plugin.ViewEventListener):
     def _view(self):
         return self.view
 
-    def _phantom_set(self):
-        return self.phantom_set
+    def handle_phantom_close_button(self):
+        # Inline Blame phantoms close automatically when appropriate.
+        pass
 
     def run(self, edit):
         # Unlike the other BaseBlame subclasses, we are reactive, not a sublime_plugin.Command

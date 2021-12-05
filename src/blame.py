@@ -117,8 +117,8 @@ class Blame(BaseBlame, sublime_plugin.TextCommand):
     def _view(self):
         return self.view
 
-    def _phantom_set(self):
-        return self.phantom_set
+    def handle_phantom_close_button(self):
+        self.phantom_set.update([])
 
     def extra_cli_args(self, line_num, sha_skip_list):
         args = ["-L", "{0},{0}".format(line_num)]

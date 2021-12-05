@@ -119,8 +119,7 @@ class BaseBlame(metaclass=ABCMeta):
                 sha_skip_list=sha_skip_list,
             )
         elif url.path == "close":
-            # Erase all phantoms
-            self._phantom_set().update([])
+            self.handle_phantom_close_button()
         else:
             self.communicate_error(
                 "No handler for URL path '{0}' in phantom".format(url.path)
@@ -154,7 +153,7 @@ class BaseBlame(metaclass=ABCMeta):
         ...
 
     @abstractmethod
-    def _phantom_set(self):
+    def handle_phantom_close_button(self):
         ...
 
     @abstractmethod

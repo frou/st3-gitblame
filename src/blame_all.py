@@ -85,17 +85,13 @@ class BlameShowAll(BaseBlame, sublime_plugin.TextCommand):
     def _view(self):
         return self.view
 
-    def _phantom_set(self):
-        return self.phantom_set
-
     def extra_cli_args(self, **kwargs):
         return []
 
     # ------------------------------------------------------------
 
-    def handle_phantom_button(self, href):
-        if href == "close":
-            self.view.run_command("blame_erase_all")
+    def handle_phantom_close_button(self):
+        self.view.run_command("blame_erase_all")
 
     def phantom_region(self, line_number):
         line_begins_pt = self.view.text_point(line_number - 1, 0)
