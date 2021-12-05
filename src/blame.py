@@ -12,7 +12,7 @@ from .templates import blame_phantom_css, blame_phantom_html_template
 
 class Blame(BaseBlame, sublime_plugin.TextCommand):
 
-    # Overrides --------------------------------------------------
+    # Overrides begin ------------------------------------------------------------------
 
     def __init__(self, view):
         super().__init__(view)
@@ -126,7 +126,7 @@ class Blame(BaseBlame, sublime_plugin.TextCommand):
             args.extend(["--ignore-rev", skipped_sha])
         return args
 
-    # ------------------------------------------------------------
+    # Overrides end --------------------------------------------------------------------
 
     def phantom_exists_for_region(self, region):
         return any(p.region == region for p in self.phantom_set.phantoms)
@@ -134,7 +134,7 @@ class Blame(BaseBlame, sublime_plugin.TextCommand):
 
 class BlameInsertCommitDescription(sublime_plugin.TextCommand):
 
-    # Overrides --------------------------------------------------
+    # Overrides begin ------------------------------------------------------------------
 
     def run(self, edit, desc, scratch_view_name):
         view = self.view
@@ -143,3 +143,5 @@ class BlameInsertCommitDescription(sublime_plugin.TextCommand):
         view.insert(edit, 0, desc)
         view.set_name(scratch_view_name)
         view.set_read_only(True)
+
+    # Overrides end --------------------------------------------------------------------

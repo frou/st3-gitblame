@@ -18,6 +18,22 @@ class BlameInlineListener(BaseBlame, sublime_plugin.ViewEventListener):
 
     pkg_setting_callback_added = False
 
+    # Overrides begin ------------------------------------------------------------------
+
+    def __init__(self, view):
+        super().__init__(view)
+        self.phantom_set = sublime.PhantomSet(view, INLINE_BLAME_PHANTOM_SET_KEY)
+        self.timer = None
+        self.delay_seconds = (
+            pkg_settings().get(PKG_SETTINGS_KEY_INLINE_BLAME_DELAY) / 1000
+        )
+        # Show it immediately for the initially selected line.
+        self.show_inline_blame()
+
+    def run(self, edit):
+        # Unlike the other BaseBlame subclasses, we are reactive, not a sublime_plugin.Command
+        pass
+
     @classmethod
     def is_applicable(cls, view_settings):
         if not cls.pkg_setting_callback_added:
@@ -28,6 +44,27 @@ class BlameInlineListener(BaseBlame, sublime_plugin.ViewEventListener):
             cls.pkg_setting_callback_added = True
 
         return cls.determine_enablement(view_settings)
+
+    def on_selection_modified_async(self):
+        self.show_inline_blame_handler()
+
+    def on_post_save_async(self):
+        # Redisplay the blame after the file is saved, because there will be
+        # no call to on_selection_modified_async after save.
+        self.show_inline_blame_handler()
+
+    def extra_cli_args(self, line_num):
+        args = ["-L", "{0},{0}".format(line_num), "--date=relative"]
+        return args
+
+    def _view(self):
+        return self.view
+
+    def handle_phantom_close_button(self):
+        # Inline Blame phantoms close automatically when appropriate.
+        pass
+
+    # Overrides end --------------------------------------------------------------------
 
     @classmethod
     def determine_enablement(cls, view_settings):
@@ -61,30 +98,12 @@ class BlameInlineListener(BaseBlame, sublime_plugin.ViewEventListener):
             view.settings().set(cls.__name__, "")
             view.settings().erase(cls.__name__)
 
-    def __init__(self, view):
-        super().__init__(view)
-        self.phantom_set = sublime.PhantomSet(view, INLINE_BLAME_PHANTOM_SET_KEY)
-        self.timer = None
-        self.delay_seconds = (
-            pkg_settings().get(PKG_SETTINGS_KEY_INLINE_BLAME_DELAY) / 1000
-        )
-        # Show it immediately for the initially selected line.
-        self.show_inline_blame()
-
-    def extra_cli_args(self, line_num):
-        args = ["-L", "{0},{0}".format(line_num), "--date=relative"]
-        return args
-
-    def _view(self):
-        return self.view
-
-    def handle_phantom_close_button(self):
-        # Inline Blame phantoms close automatically when appropriate.
-        pass
-
-    def run(self, edit):
-        # Unlike the other BaseBlame subclasses, we are reactive, not a sublime_plugin.Command
-        pass
+    def show_inline_blame_handler(self):
+        self.view.erase_phantoms(INLINE_BLAME_PHANTOM_SET_KEY)
+        if self.timer:
+            self.timer.cancel()
+        self.timer = threading.Timer(self.delay_seconds, self.show_inline_blame)
+        self.timer.start()
 
     def show_inline_blame(self):
         if self.view.is_dirty():
@@ -144,21 +163,6 @@ class BlameInlineListener(BaseBlame, sublime_plugin.ViewEventListener):
     def maybe_insert_phantoms(self, phantoms):
         if not self.view.is_dirty():
             self.phantom_set.update(phantoms)
-
-    def show_inline_blame_handler(self):
-        self.view.erase_phantoms(INLINE_BLAME_PHANTOM_SET_KEY)
-        if self.timer:
-            self.timer.cancel()
-        self.timer = threading.Timer(self.delay_seconds, self.show_inline_blame)
-        self.timer.start()
-
-    def on_selection_modified_async(self):
-        self.show_inline_blame_handler()
-
-    def on_post_save_async(self):
-        # Redisplay the blame after the file is saved, because there will be
-        # no call to on_selection_modified_async after save.
-        self.show_inline_blame_handler()
 
 
 class ToggleInlineGitBlame(sublime_plugin.TextCommand):

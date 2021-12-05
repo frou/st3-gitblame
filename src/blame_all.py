@@ -16,7 +16,7 @@ class BlameShowAll(BaseBlame, sublime_plugin.TextCommand):
 
     HORIZONTAL_SCROLL_DELAY_MS = 100
 
-    # Overrides --------------------------------------------------
+    # Overrides begin ------------------------------------------------------------------
 
     def __init__(self, view):
         super().__init__(view)
@@ -88,10 +88,10 @@ class BlameShowAll(BaseBlame, sublime_plugin.TextCommand):
     def extra_cli_args(self, **kwargs):
         return []
 
-    # ------------------------------------------------------------
-
     def handle_phantom_close_button(self):
         self.view.run_command("blame_erase_all")
+
+    # Overrides end --------------------------------------------------------------------
 
     def phantom_region(self, line_number):
         line_begins_pt = self.view.text_point(line_number - 1, 0)
@@ -116,36 +116,39 @@ class BlameShowAll(BaseBlame, sublime_plugin.TextCommand):
 
 class BlameEraseAll(sublime_plugin.TextCommand):
 
-    # Overrides --------------------------------------------------
+    # Overrides begin ------------------------------------------------------------------
 
     def run(self, edit):
-        """Erases the blame results."""
         sublime.status_message("The git blame result is cleared.")
         self.view.erase_phantoms(PHANTOM_KEY_ALL)
         self.view.settings().erase(VIEW_SETTING_PHANTOM_ALL_DISPLAYED)
         self.view.run_command("blame_restore_rulers")
 
+    # Overrides end --------------------------------------------------------------------
+
 
 class BlameEraseAllListener(sublime_plugin.ViewEventListener):
 
-    # Overrides --------------------------------------------------
+    # Overrides begin ------------------------------------------------------------------
 
     @classmethod
     def is_applicable(cls, settings):
-        """Checks if the blame_erase_all command is applicable."""
         return settings.get(VIEW_SETTING_PHANTOM_ALL_DISPLAYED, False)
 
     def on_modified_async(self):
-        """Automatically erases the blame results to prevent mismatches."""
         self.view.run_command("blame_erase_all")
+
+    # Overrides end --------------------------------------------------------------------
 
 
 class BlameRestoreRulers(sublime_plugin.TextCommand):
 
-    # Overrides --------------------------------------------------
+    # Overrides begin ------------------------------------------------------------------
 
     def run(self, edit):
         self.view.settings().set(
             VIEW_SETTING_RULERS,
             self.view.settings().get(VIEW_SETTING_RULERS_PREV),
         )
+
+    # Overrides end --------------------------------------------------------------------
