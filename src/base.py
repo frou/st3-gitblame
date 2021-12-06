@@ -37,12 +37,12 @@ class BaseBlame(metaclass=ABCMeta):
         cli_args.extend(["--", os.path.basename(path)])
         return self.run_git(path, cli_args)
 
-    def get_commit_text(self, sha, path):
+    def get_commit_fulltext(self, sha, path):
         cli_args = ["show", "--no-color", sha]
         return self.run_git(path, cli_args)
 
-    def get_commit_message_first_line(self, sha, path):
-        cli_args = ["show", sha, "--pretty=format:%s", "--no-patch"]
+    def get_commit_message_subject(self, sha, path):
+        cli_args = ["show", "--no-color", sha, "--pretty=format:%s", "--no-patch"]
         return self.run_git(path, cli_args)
 
     @classmethod
@@ -97,7 +97,7 @@ class BaseBlame(metaclass=ABCMeta):
         elif url.path == "show":
             sha = querystring["sha"][0]
             try:
-                desc = self.get_commit_text(sha, self._view().file_name())
+                desc = self.get_commit_fulltext(sha, self._view().file_name())
             except Exception as e:
                 self.communicate_error(e)
                 return

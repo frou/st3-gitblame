@@ -144,7 +144,7 @@ class BlameInlineListener(BaseBlame, sublime_plugin.ViewEventListener):
         # Uncommitted changes have only zeros in sha
         if blame["sha"] != "00000000":
             try:
-                summary = self.get_commit_message_first_line(
+                summary = self.get_commit_message_subject(
                     blame["sha"], self.view.file_name()
                 )
             except Exception:
