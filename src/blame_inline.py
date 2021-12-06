@@ -30,10 +30,6 @@ class BlameInlineListener(BaseBlame, sublime_plugin.ViewEventListener):
         # Show it immediately for the initially selected line.
         self.show_inline_blame()
 
-    def run(self, edit):
-        # Unlike the other BaseBlame subclasses, we are reactive, not a sublime_plugin.Command
-        pass
-
     @classmethod
     def is_applicable(cls, view_settings):
         if not cls.pkg_setting_callback_added:
