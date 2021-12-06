@@ -18,7 +18,7 @@ class BlameInlineListener(BaseBlame, sublime_plugin.ViewEventListener):
 
     pkg_setting_callback_added = False
 
-    # Overrides begin ------------------------------------------------------------------
+    # Overrides (ViewEventListener) ----------------------------------------------------
 
     def __init__(self, view):
         super().__init__(view)
@@ -49,6 +49,8 @@ class BlameInlineListener(BaseBlame, sublime_plugin.ViewEventListener):
         # no call to on_selection_modified_async after save.
         self.show_inline_blame_handler()
 
+    # Overrides (BaseBlame) ------------------------------------------------------------
+
     def extra_cli_args(self, line_num):
         args = ["-L", "{0},{0}".format(line_num), "--date=relative"]
         return args
@@ -57,10 +59,11 @@ class BlameInlineListener(BaseBlame, sublime_plugin.ViewEventListener):
         return self.view
 
     def close_by_user_request(self):
-        # Inline Blame phantoms do not have a user-accessible close UI.
+        # Inline Blame phantoms doesn't have a user-accessible close UI.
         raise NotImplementedError()
 
     def recurse(self, *args, **kwargs):
+        # Inline Blame doesn't need to rerun itself.
         raise NotImplementedError()
 
     # Overrides end --------------------------------------------------------------------

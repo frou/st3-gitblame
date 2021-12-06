@@ -12,7 +12,7 @@ from .templates import blame_phantom_css, blame_phantom_html_template
 
 class Blame(BaseBlame, sublime_plugin.TextCommand):
 
-    # Overrides begin ------------------------------------------------------------------
+    # Overrides (TextCommand) ----------------------------------------------------------
 
     def __init__(self, view):
         super().__init__(view)
@@ -113,6 +113,8 @@ class Blame(BaseBlame, sublime_plugin.TextCommand):
             )
 
         self.phantom_set.update(phantoms)
+
+    # Overrides (BaseBlame) ------------------------------------------------------------
 
     def _view(self):
         return self.view

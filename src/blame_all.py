@@ -16,7 +16,7 @@ class BlameShowAll(BaseBlame, sublime_plugin.TextCommand):
 
     HORIZONTAL_SCROLL_DELAY_MS = 100
 
-    # Overrides begin ------------------------------------------------------------------
+    # Overrides (TextCommand) ----------------------------------------------------------
 
     def __init__(self, view):
         super().__init__(view)
@@ -82,6 +82,8 @@ class BlameShowAll(BaseBlame, sublime_plugin.TextCommand):
         # Bring the phantoms into view without the user needing to manually scroll left.
         self.horizontal_scroll_to_limit(left=True)
 
+    # Overrides (BaseBlame) ------------------------------------------------------------
+
     def _view(self):
         return self.view
 
@@ -92,6 +94,7 @@ class BlameShowAll(BaseBlame, sublime_plugin.TextCommand):
         self.view.run_command("blame_erase_all")
 
     def recurse(self, *args, **kwargs):
+        # BlameAll doesn't need to rerun itself.
         raise NotImplementedError()
 
     # Overrides end --------------------------------------------------------------------
