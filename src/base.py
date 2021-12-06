@@ -63,6 +63,7 @@ class BaseBlame(metaclass=ABCMeta):
         m = re.match(pattern, line)
         return m.groupdict() if m else {}
 
+    # @todo Add a test for the `parse_line_with_relative_date` function in test_parsing.py
     @classmethod
     def parse_line_with_relative_date(cls, line):
         """
