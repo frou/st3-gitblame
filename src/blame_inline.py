@@ -42,9 +42,11 @@ class BlameInlineListener(BaseBlame, sublime_plugin.ViewEventListener):
         return cls.determine_enablement(view_settings)
 
     def on_selection_modified_async(self):
+        self.close_by_user_request()
         self.rerun()
 
     def on_post_save_async(self):
+        self.close_by_user_request()
         # When the file view goes from having unsaved changes to having no unsaved
         # changes, it becomes eligible for Inline Blame to be shown again. Act on that
         # fact now, rather than waiting for the next time the caret gets moved.
@@ -62,7 +64,6 @@ class BlameInlineListener(BaseBlame, sublime_plugin.ViewEventListener):
         self.view.erase_phantoms(INLINE_BLAME_PHANTOM_SET_KEY)
 
     def rerun(self, **kwargs):
-        self.close_by_user_request()
         if self.timer:
             self.timer.cancel()
         self.timer = threading.Timer(self.delay_seconds, self.show_inline_blame)
