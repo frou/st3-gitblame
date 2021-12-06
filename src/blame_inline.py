@@ -53,18 +53,16 @@ class BlameInlineListener(BaseBlame, sublime_plugin.ViewEventListener):
     # Overrides (BaseBlame) ------------------------------------------------------------
 
     def extra_cli_args(self, line_num):
-        args = ["-L", "{0},{0}".format(line_num), "--date=relative"]
-        return args
+        return ["-L", "{0},{0}".format(line_num), "--date=relative"]
 
     def _view(self):
         return self.view
 
     def close_by_user_request(self):
-        # Inline Blame phantoms doesn't have a user-accessible close UI.
-        raise NotImplementedError()
+        self.view.erase_phantoms(INLINE_BLAME_PHANTOM_SET_KEY)
 
     def rerun(self, **kwargs):
-        self.view.erase_phantoms(INLINE_BLAME_PHANTOM_SET_KEY)
+        self.close_by_user_request()
         if self.timer:
             self.timer.cancel()
         self.timer = threading.Timer(self.delay_seconds, self.show_inline_blame)

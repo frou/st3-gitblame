@@ -94,8 +94,7 @@ class BlameShowAll(BaseBlame, sublime_plugin.TextCommand):
         self.view.run_command("blame_erase_all")
 
     def rerun(self, **kwargs):
-        # BlameAll rerunning itself doesn't make sense.
-        raise NotImplementedError()
+        self.run(None)
 
     # Overrides end --------------------------------------------------------------------
 
