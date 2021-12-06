@@ -42,12 +42,12 @@ class BlameInlineListener(BaseBlame, sublime_plugin.ViewEventListener):
         return cls.determine_enablement(view_settings)
 
     def on_selection_modified_async(self):
-        self.show_inline_blame_handler()
+        self.restart_timer()
 
     def on_post_save_async(self):
         # Redisplay the blame after the file is saved, because there will be
         # no call to on_selection_modified_async after save.
-        self.show_inline_blame_handler()
+        self.restart_timer()
 
     # Overrides (BaseBlame) ------------------------------------------------------------
 
@@ -93,14 +93,14 @@ class BlameInlineListener(BaseBlame, sublime_plugin.ViewEventListener):
             if view_is_editor(view)
         ]
         for view in all_editor_views:
-            ToggleInlineGitBlame.erase_customization(view)
+            ToggleInlineGitBlame.erase_viewlevel_customization(view)
             if not pkg_settings().get(PKG_SETTINGS_KEY_INLINE_BLAME_ENABLED):
                 view.erase_phantoms(INLINE_BLAME_PHANTOM_SET_KEY)
             # Do a dummy modification to the view's settings to induce the ViewEventListener applicability check to happen again.
             view.settings().set(cls.__name__, "")
             view.settings().erase(cls.__name__)
 
-    def show_inline_blame_handler(self):
+    def restart_timer(self):
         self.view.erase_phantoms(INLINE_BLAME_PHANTOM_SET_KEY)
         if self.timer:
             self.timer.cancel()
@@ -186,5 +186,5 @@ class ToggleInlineGitBlame(sublime_plugin.TextCommand):
     # Overrides end --------------------------------------------------------------------
 
     @classmethod
-    def erase_customization(cls, view):
+    def erase_viewlevel_customization(cls, view):
         view.settings().erase(cls.VIEW_SETTINGS_KEY_INLINE_BLAME_ENABLED)
