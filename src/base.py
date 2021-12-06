@@ -146,6 +146,10 @@ class BaseBlame(metaclass=ABCMeta):
             # persisted in the console too.
             print(user_msg)  # noqa: T001
 
+    @classmethod
+    def phantom_set_key(cls):
+        return "git-blame" + cls.__name__
+
     # ------------------------------------------------------------
 
     @abstractmethod

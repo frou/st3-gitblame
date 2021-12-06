@@ -16,7 +16,7 @@ class Blame(BaseBlame, sublime_plugin.TextCommand):
 
     def __init__(self, view):
         super().__init__(view)
-        self.phantom_set = sublime.PhantomSet(view, "git-blame")
+        self.phantom_set = sublime.PhantomSet(view, self.phantom_set_key())
 
     def run(self, edit, prevving=False, fixed_row_num=None, sha_skip_list=[]):
         if not self.has_suitable_view():

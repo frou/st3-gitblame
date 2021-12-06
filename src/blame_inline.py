@@ -11,8 +11,6 @@ from .settings import (
 )
 from .templates import blame_inline_phantom_css, blame_inline_phantom_html_template
 
-INLINE_BLAME_PHANTOM_SET_KEY = "git-blame-inline"
-
 
 class BlameInlineListener(BaseBlame, sublime_plugin.ViewEventListener):
 
@@ -22,7 +20,7 @@ class BlameInlineListener(BaseBlame, sublime_plugin.ViewEventListener):
 
     def __init__(self, view):
         super().__init__(view)
-        self.phantom_set = sublime.PhantomSet(view, INLINE_BLAME_PHANTOM_SET_KEY)
+        self.phantom_set = sublime.PhantomSet(view, self.phantom_set_key())
         self.timer = None
         self.delay_seconds = (
             pkg_settings().get(PKG_SETTINGS_KEY_INLINE_BLAME_DELAY) / 1000
@@ -61,7 +59,7 @@ class BlameInlineListener(BaseBlame, sublime_plugin.ViewEventListener):
         return self.view
 
     def close_by_user_request(self):
-        self.view.erase_phantoms(INLINE_BLAME_PHANTOM_SET_KEY)
+        self.view.erase_phantoms(self.phantom_set_key())
 
     def rerun(self, **kwargs):
         if self.timer:
@@ -98,7 +96,7 @@ class BlameInlineListener(BaseBlame, sublime_plugin.ViewEventListener):
         for view in all_editor_views:
             ToggleInlineGitBlame.erase_viewlevel_customization(view)
             if not pkg_settings().get(PKG_SETTINGS_KEY_INLINE_BLAME_ENABLED):
-                view.erase_phantoms(INLINE_BLAME_PHANTOM_SET_KEY)
+                view.erase_phantoms(cls.phantom_set_key())
             # Do a dummy modification to the view's settings to induce the ViewEventListener applicability check to happen again.
             view.settings().set(cls.__name__, "")
             view.settings().erase(cls.__name__)
@@ -176,7 +174,7 @@ class ToggleInlineGitBlame(sublime_plugin.TextCommand):
     def run(self, edit):
         enabled = not BlameInlineListener.determine_enablement(self.view.settings())
         if not enabled:
-            self.view.erase_phantoms(INLINE_BLAME_PHANTOM_SET_KEY)
+            self.view.erase_phantoms(BlameInlineListener.phantom_set_key())
         self.view.settings().set(self.VIEW_SETTINGS_KEY_INLINE_BLAME_ENABLED, enabled)
 
     # Overrides end --------------------------------------------------------------------

@@ -4,8 +4,6 @@ import sublime_plugin
 from .base import BaseBlame
 from .templates import blame_all_phantom_css, blame_all_phantom_html_template
 
-PHANTOM_KEY_ALL = "git-blame-all"
-
 VIEW_SETTING_PHANTOM_ALL_DISPLAYED = "git-blame-all-displayed"
 
 VIEW_SETTING_RULERS = "rulers"
@@ -20,7 +18,7 @@ class BlameShowAll(BaseBlame, sublime_plugin.TextCommand):
 
     def __init__(self, view):
         super().__init__(view)
-        self.phantom_set = sublime.PhantomSet(self.view, PHANTOM_KEY_ALL)
+        self.phantom_set = sublime.PhantomSet(self.view, self.phantom_set_key())
         self.pattern = None
 
     def run(self, edit):
@@ -28,7 +26,7 @@ class BlameShowAll(BaseBlame, sublime_plugin.TextCommand):
             self.tell_user_to_save()
             return
 
-        self.view.erase_phantoms(PHANTOM_KEY_ALL)
+        self.view.erase_phantoms(self.phantom_set_key())
         phantoms = []  # type: list[sublime.Phantom] # type: ignore[misc]
 
         # If they are currently shown, toggle them off and return.
@@ -125,7 +123,7 @@ class BlameEraseAll(sublime_plugin.TextCommand):
 
     def run(self, edit):
         sublime.status_message("The git blame result is cleared.")
-        self.view.erase_phantoms(PHANTOM_KEY_ALL)
+        self.view.erase_phantoms(BlameShowAll.phantom_set_key())
         self.view.settings().erase(VIEW_SETTING_PHANTOM_ALL_DISPLAYED)
         self.view.run_command("blame_restore_rulers")
 
