@@ -93,8 +93,8 @@ class BlameShowAll(BaseBlame, sublime_plugin.TextCommand):
     def close_by_user_request(self):
         self.view.run_command("blame_erase_all")
 
-    def recurse(self, *args, **kwargs):
-        # BlameAll doesn't need to rerun itself.
+    def rerun(self, **kwargs):
+        # BlameAll rerunning itself doesn't make sense.
         raise NotImplementedError()
 
     # Overrides end --------------------------------------------------------------------

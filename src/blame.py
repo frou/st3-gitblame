@@ -128,7 +128,7 @@ class Blame(BaseBlame, sublime_plugin.TextCommand):
             args.extend(["--ignore-rev", skipped_sha])
         return args
 
-    def recurse(self, *args, **kwargs):
+    def rerun(self, **kwargs):
         self.run(None, **kwargs)
 
     # Overrides end --------------------------------------------------------------------

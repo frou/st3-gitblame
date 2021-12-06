@@ -42,12 +42,13 @@ class BlameInlineListener(BaseBlame, sublime_plugin.ViewEventListener):
         return cls.determine_enablement(view_settings)
 
     def on_selection_modified_async(self):
-        self.restart_timer()
+        self.rerun()
 
     def on_post_save_async(self):
-        # Redisplay the blame after the file is saved, because there will be
-        # no call to on_selection_modified_async after save.
-        self.restart_timer()
+        # When the file view goes from having unsaved changes to having no unsaved
+        # changes, it becomes eligible for Inline Blame to be shown again. Act on that
+        # fact now, rather than waiting for the next time the caret gets moved.
+        self.rerun()
 
     # Overrides (BaseBlame) ------------------------------------------------------------
 
@@ -62,9 +63,12 @@ class BlameInlineListener(BaseBlame, sublime_plugin.ViewEventListener):
         # Inline Blame phantoms doesn't have a user-accessible close UI.
         raise NotImplementedError()
 
-    def recurse(self, *args, **kwargs):
-        # Inline Blame doesn't need to rerun itself.
-        raise NotImplementedError()
+    def rerun(self, **kwargs):
+        self.view.erase_phantoms(INLINE_BLAME_PHANTOM_SET_KEY)
+        if self.timer:
+            self.timer.cancel()
+        self.timer = threading.Timer(self.delay_seconds, self.show_inline_blame)
+        self.timer.start()
 
     # Overrides end --------------------------------------------------------------------
 
@@ -99,13 +103,6 @@ class BlameInlineListener(BaseBlame, sublime_plugin.ViewEventListener):
             # Do a dummy modification to the view's settings to induce the ViewEventListener applicability check to happen again.
             view.settings().set(cls.__name__, "")
             view.settings().erase(cls.__name__)
-
-    def restart_timer(self):
-        self.view.erase_phantoms(INLINE_BLAME_PHANTOM_SET_KEY)
-        if self.timer:
-            self.timer.cancel()
-        self.timer = threading.Timer(self.delay_seconds, self.show_inline_blame)
-        self.timer.start()
 
     def show_inline_blame(self):
         if self.view.is_dirty():

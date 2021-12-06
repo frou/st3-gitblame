@@ -113,7 +113,7 @@ class BaseBlame(metaclass=ABCMeta):
             sha_skip_list = querystring.get("skip", [])
             if sha not in sha_skip_list:
                 sha_skip_list.append(sha)
-            self.recurse(
+            self.rerun(
                 prevving=True,
                 fixed_row_num=int(row_num),
                 sha_skip_list=sha_skip_list,
@@ -161,5 +161,5 @@ class BaseBlame(metaclass=ABCMeta):
         ...
 
     @abstractmethod
-    def recurse(self, *args, **kwargs):
+    def rerun(self, **kwargs):
         ...
