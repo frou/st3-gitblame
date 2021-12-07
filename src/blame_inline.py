@@ -107,22 +107,22 @@ class BlameInlineListener(BaseBlame, sublime_plugin.ViewEventListener):
             return
 
         phantoms = []
-        sels = self.view.sel()
-        if len(sels) < 1:
-            return
 
+        sels = self.view.sel()
         # @todo Support showing inline blame for multiple carets?
         # @body Maybe with a sanity check that there aren't too many (more than 10?)
-        line = self.view.line(sels[0])
-        if line.size() < 2:
-            # avoid weird behaviour of regions on empty lines
-            # < 2 is to check for newline character
+        if len(sels) != 1:
             return
-        pos = line.end()
-        row, _ = self.view.rowcol(line.begin())
-        anchor = sublime.Region(pos, pos)
+        sel0 = sels[0]
+
+        phantom_pos, caret_line_num = self.calculate_positions(sel0)
+        if not phantom_pos:
+            return
+
         try:
-            blame_output = self.get_blame_text(self.view.file_name(), line_num=row + 1)
+            blame_output = self.get_blame_text(
+                self.view.file_name(), line_num=caret_line_num
+            )
         except Exception:
             return
         blame = next(
@@ -152,12 +152,36 @@ class BlameInlineListener(BaseBlame, sublime_plugin.ViewEventListener):
             summary=summary,
         )
         phantom = sublime.Phantom(
-            anchor, body, sublime.LAYOUT_INLINE, self.handle_phantom_button
+            sublime.Region(phantom_pos),
+            body,
+            sublime.LAYOUT_INLINE,
+            self.handle_phantom_button,
         )
         phantoms.append(phantom)
 
         # Dispatch back onto the main thread to serialize a final is_dirty check.
         sublime.set_timeout(lambda: self.maybe_insert_phantoms(phantoms), 0)
+
+    def calculate_positions(self, user_selection):
+        selection_goes_backwards = user_selection.a > user_selection.b
+
+        row, _ = self.view.rowcol(
+            user_selection.begin() if selection_goes_backwards else user_selection.end()
+        )
+        caret_line_num = row + 1
+
+        # Quantise the arbitrary user selection to line(s)
+        selection = self.view.line(user_selection)
+        if selection.size() <= 1:
+            # Not worth showing a blame phantom for an empty line.
+            return (None, caret_line_num)
+
+        if selection_goes_backwards:
+            phantom_pos = self.view.line(selection.begin()).end()
+        else:
+            phantom_pos = selection.end()
+
+        return (phantom_pos, caret_line_num)
 
     def maybe_insert_phantoms(self, phantoms):
         if not self.view.is_dirty():
