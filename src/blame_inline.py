@@ -72,7 +72,7 @@ class BlameInlineListener(BaseBlame, sublime_plugin.ViewEventListener):
     @classmethod
     def determine_enablement(cls, view_settings):
         enabled = view_settings.get(
-            ToggleInlineGitBlame.VIEW_SETTINGS_KEY_INLINE_BLAME_ENABLED
+            BlameToggleInline.VIEW_SETTINGS_KEY_INLINE_BLAME_ENABLED
         )
         if enabled is None:
             enabled = pkg_settings().get(PKG_SETTINGS_KEY_INLINE_BLAME_ENABLED)
@@ -94,7 +94,7 @@ class BlameInlineListener(BaseBlame, sublime_plugin.ViewEventListener):
             if view_is_editor(view)
         ]
         for view in all_editor_views:
-            ToggleInlineGitBlame.erase_viewlevel_customization(view)
+            BlameToggleInline.erase_viewlevel_customization(view)
             if not pkg_settings().get(PKG_SETTINGS_KEY_INLINE_BLAME_ENABLED):
                 view.erase_phantoms(cls.phantom_set_key())
             # Do a dummy modification to the view's settings to induce the ViewEventListener applicability check to happen again.
@@ -164,7 +164,7 @@ class BlameInlineListener(BaseBlame, sublime_plugin.ViewEventListener):
             self.phantom_set.update(phantoms)
 
 
-class ToggleInlineGitBlame(sublime_plugin.TextCommand):
+class BlameToggleInline(sublime_plugin.TextCommand):
 
     # Might as well reuse the same settings key, but at the view-level.
     VIEW_SETTINGS_KEY_INLINE_BLAME_ENABLED = PKG_SETTINGS_KEY_INLINE_BLAME_ENABLED

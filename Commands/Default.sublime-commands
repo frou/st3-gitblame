@@ -1,9 +1,5 @@
 [
   {
-    "caption": "Git Blame: Toggle Inline Blame",
-    "command": "toggle_inline_git_blame"
-  },
-  {
     "caption": "Git Blame: Show",
     "command": "blame"
   },
@@ -14,6 +10,14 @@
   {
     "caption": "Git Blame: Erase All",
     "command": "blame_erase_all"
+  },
+  {
+    "caption": "Git Blame: Toggle Inline Blame",
+    "command": "blame_toggle_inline"
+  },
+  {
+    "caption": "Git Blame: Instadiff",
+    "command": "blame_instadiff"
   },
   {
     "caption": "Git Blame: Settings",
