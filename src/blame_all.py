@@ -4,10 +4,9 @@ import sublime_plugin
 from .base import BaseBlame
 from .templates import blame_all_phantom_css, blame_all_phantom_html_template
 
-VIEW_SETTING_PHANTOM_ALL_DISPLAYED = "git-blame-all-displayed"
-
-VIEW_SETTING_RULERS = "rulers"
-VIEW_SETTING_RULERS_PREV = "rulers_prev"
+VIEW_SETTINGS_KEY_PHANTOM_ALL_DISPLAYED = "git-blame-all-displayed"
+VIEW_SETTINGS_KEY_RULERS = "rulers"  # A stock ST setting
+VIEW_SETTINGS_KEY_RULERS_PREV = "rulers_prev"  # Made up by us
 
 
 class BlameShowAll(BaseBlame, sublime_plugin.TextCommand):
@@ -30,9 +29,9 @@ class BlameShowAll(BaseBlame, sublime_plugin.TextCommand):
         phantoms = []  # type: list[sublime.Phantom] # type: ignore[misc]
 
         # If they are currently shown, toggle them off and return.
-        if self.view.settings().get(VIEW_SETTING_PHANTOM_ALL_DISPLAYED, False):
+        if self.view.settings().get(VIEW_SETTINGS_KEY_PHANTOM_ALL_DISPLAYED, False):
             self.phantom_set.update(phantoms)
-            self.view.settings().erase(VIEW_SETTING_PHANTOM_ALL_DISPLAYED)
+            self.view.settings().erase(VIEW_SETTINGS_KEY_PHANTOM_ALL_DISPLAYED)
             self.view.run_command("blame_restore_rulers")
             # Workaround a visible empty space sometimes remaining in the viewport.
             self.horizontal_scroll_to_limit(left=False)
@@ -75,7 +74,7 @@ class BlameShowAll(BaseBlame, sublime_plugin.TextCommand):
             phantoms.append(phantom)
 
         self.phantom_set.update(phantoms)
-        self.view.settings().set(VIEW_SETTING_PHANTOM_ALL_DISPLAYED, True)
+        self.view.settings().set(VIEW_SETTINGS_KEY_PHANTOM_ALL_DISPLAYED, True)
         self.store_rulers()
         # Bring the phantoms into view without the user needing to manually scroll left.
         self.horizontal_scroll_to_limit(left=True)
@@ -102,10 +101,10 @@ class BlameShowAll(BaseBlame, sublime_plugin.TextCommand):
 
     def store_rulers(self):
         self.view.settings().set(
-            VIEW_SETTING_RULERS_PREV,
-            self.view.settings().get(VIEW_SETTING_RULERS),
+            VIEW_SETTINGS_KEY_RULERS_PREV,
+            self.view.settings().get(VIEW_SETTINGS_KEY_RULERS),
         )
-        self.view.settings().set(VIEW_SETTING_RULERS, [])
+        self.view.settings().set(VIEW_SETTINGS_KEY_RULERS, [])
 
     def horizontal_scroll_to_limit(self, *, left):
         x = 0.0 if left else self.view.layout_extent()[0]
@@ -124,7 +123,7 @@ class BlameEraseAll(sublime_plugin.TextCommand):
     def run(self, edit):
         sublime.status_message("The git blame result is cleared.")
         self.view.erase_phantoms(BlameShowAll.phantom_set_key())
-        self.view.settings().erase(VIEW_SETTING_PHANTOM_ALL_DISPLAYED)
+        self.view.settings().erase(VIEW_SETTINGS_KEY_PHANTOM_ALL_DISPLAYED)
         self.view.run_command("blame_restore_rulers")
 
     # Overrides end --------------------------------------------------------------------
@@ -136,7 +135,7 @@ class BlameEraseAllListener(sublime_plugin.ViewEventListener):
 
     @classmethod
     def is_applicable(cls, settings):
-        return settings.get(VIEW_SETTING_PHANTOM_ALL_DISPLAYED, False)
+        return settings.get(VIEW_SETTINGS_KEY_PHANTOM_ALL_DISPLAYED, False)
 
     def on_modified_async(self):
         self.view.run_command("blame_erase_all")
@@ -150,8 +149,8 @@ class BlameRestoreRulers(sublime_plugin.TextCommand):
 
     def run(self, edit):
         self.view.settings().set(
-            VIEW_SETTING_RULERS,
-            self.view.settings().get(VIEW_SETTING_RULERS_PREV),
+            VIEW_SETTINGS_KEY_RULERS,
+            self.view.settings().get(VIEW_SETTINGS_KEY_RULERS_PREV),
         )
 
     # Overrides end --------------------------------------------------------------------
