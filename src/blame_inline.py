@@ -123,37 +123,30 @@ class BlameInlineListener(BaseBlame, sublime_plugin.ViewEventListener):
             blame_output = self.get_blame_text(
                 self.view.file_name(), line_num=caret_line_num
             )
-        except Exception:
+        except Exception:  # Don't want to spam Console on failures.
             return
-        blame = next(
-            (
-                self.parse_line_with_relative_date(line)
-                for line in blame_output.splitlines()
-            ),
-            None,
-        )
-        if not blame:
+
+        blame = self.parse_line_with_relative_date(blame_output)
+        if not blame or blame["sha"] == "00000000":  # All zeros means uncommited change
             return
-        summary = ""
-        # Uncommitted changes have only zeros in sha
-        if blame["sha"] != "00000000":
-            try:
-                summary = self.get_commit_message_subject(
-                    blame["sha"], self.view.file_name()
-                )
-            except Exception:
-                return
-        body = blame_inline_phantom_html_template.format(
-            css=blame_inline_phantom_css,
-            author=blame["author"],
-            date=blame["relative_date"],
-            qs_sha_val=blame["sha"],
-            summary_separator=" · " if summary else "",
-            summary=summary,
-        )
+
+        try:
+            summary = self.get_commit_message_subject(
+                blame["sha"], self.view.file_name()
+            )
+        except Exception:  # Don't want to spam Console on failures.
+            return
+
         phantom = sublime.Phantom(
             sublime.Region(phantom_pos),
-            body,
+            blame_inline_phantom_html_template.format(
+                css=blame_inline_phantom_css,
+                author=blame["author"],
+                date=blame["relative_date"],
+                qs_sha_val=blame["sha"],
+                summary_separator=" · " if summary else "",
+                summary=summary,
+            ),
             sublime.LAYOUT_INLINE,
             self.handle_phantom_button,
         )
