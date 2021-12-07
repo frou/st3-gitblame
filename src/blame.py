@@ -68,14 +68,10 @@ class Blame(BaseBlame, sublime_plugin.TextCommand):
                 )
                 return
             sha = blame["sha"]
+            sha_normalised = blame["sha_normalised"]
             author = blame["author"]
             date = blame["date"]
             time = blame["time"]
-
-            # The SHA output by `git blame` may have a leading caret to indicate that it
-            # is a "boundary commit". That needs to be stripped before passing the SHA
-            # back to git CLI commands for other purposes.
-            sha_normalised = sha.strip("^")
 
             if sha_skip_list:
                 recently_skipped_sha = sha_skip_list[-1]

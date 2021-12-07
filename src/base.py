@@ -61,7 +61,7 @@ class BaseBlame(metaclass=ABCMeta):
             """
         # re's module-level functions like match(...) internally cache the compiled form of pattern strings.
         m = re.match(pattern, line)
-        return m.groupdict() if m else {}
+        return cls.postprocess_parse_result(m)
 
     # @todo Add a test for the `parse_line_with_relative_date` function in test_parsing.py
     @classmethod
@@ -83,7 +83,19 @@ class BaseBlame(metaclass=ABCMeta):
             """
         # re's module-level functions like match(...) internally cache the compiled form of pattern strings.
         m = re.match(pattern, line)
-        return m.groupdict() if m else {}
+        return cls.postprocess_parse_result(m)
+
+    @classmethod
+    def postprocess_parse_result(cls, match):
+        if match:
+            d = match.groupdict()
+            # The SHA output by `git blame` may have a leading caret to indicate that it
+            # is a "boundary commit". That needs to be stripped before passing the SHA
+            # back to git CLI commands for other purposes.
+            d["sha_normalised"] = d["sha"].strip("^")
+            return d
+        else:
+            return {}
 
     def handle_phantom_button(self, href):
         url = urlparse(href)
