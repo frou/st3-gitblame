@@ -6,9 +6,6 @@ import sublime_plugin
 from .base import BaseBlame
 from .templates import blame_phantom_css, blame_phantom_html_template
 
-# @todo Make a command to open the latest diff ("CommitDescription") for the current line in a single keystroke.
-# @body Currently it takes a keystroke and then a mouse click on "Show"
-
 
 class Blame(BaseBlame, sublime_plugin.TextCommand):
 
