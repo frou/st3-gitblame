@@ -149,14 +149,14 @@ class BaseBlame(metaclass=ABCMeta):
         if isinstance(e, subprocess.CalledProcessError):
             user_msg += "\n\n{0}".format(e.output.decode())
 
-        print()  # noqa: T001
+        print()  # noqa: T201
         if modal:
             sublime.error_message(user_msg)
         else:
             sublime.status_message(user_msg)
             # Unlike with the error dialog, a status message is not automatically
             # persisted in the console too.
-            print(user_msg)  # noqa: T001
+            print(user_msg)  # noqa: T201
 
     @classmethod
     def phantom_set_key(cls):
