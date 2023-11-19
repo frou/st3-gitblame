@@ -42,6 +42,7 @@ class BaseBlame(metaclass=ABCMeta):
         return self.run_git(path, cli_args)
 
     def get_commit_message_subject(self, sha, path):
+        if sha == '00000000': return ''
         cli_args = ["show", "--no-color", sha, "--pretty=format:%s", "--no-patch"]
         return self.run_git(path, cli_args)
 

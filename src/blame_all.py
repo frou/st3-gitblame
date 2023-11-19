@@ -4,6 +4,12 @@ import sublime_plugin
 from .base import BaseBlame
 from .templates import blame_all_phantom_css, blame_all_phantom_html_template
 
+from .settings import pkg_settings
+from .settings import PKG_SETTINGS_BLAME_ALL_MESSAGE_MAX_LEN
+from .settings import PKG_SETTINGS_BLAME_ALL_DISPLAY_AUTHOR
+from .settings import PKG_SETTINGS_BLAME_ALL_DISPLAY_DATE
+from .settings import PKG_SETTINGS_BLAME_ALL_DISPLAY_TIME
+
 VIEW_SETTINGS_KEY_PHANTOM_ALL_DISPLAYED = "git-blame-all-displayed"
 VIEW_SETTINGS_KEY_RULERS = "rulers"  # A stock ST setting
 VIEW_SETTINGS_KEY_RULERS_PREV = "rulers_prev"  # Made up by us
@@ -59,14 +65,30 @@ class BlameShowAll(BaseBlame, sublime_plugin.TextCommand):
             line_number = int(blame["line_number"])
             author = blame["author"]
 
+            message_len = pkg_settings().get(PKG_SETTINGS_BLAME_ALL_MESSAGE_MAX_LEN)
+            message = ""
+            if message_len > 0:
+                message = self.get_commit_message_subject(blame["sha"], self.view.file_name())
+                message.strip()
+                if len(message) > message_len: message = message[0:message_len].strip()
+                message = message + '&nbsp;' * (message_len - len(message))
+                message = "&nbsp;&nbsp;" + message
+
+            display_author = pkg_settings().get(PKG_SETTINGS_BLAME_ALL_DISPLAY_AUTHOR)
+            display_date = pkg_settings().get(PKG_SETTINGS_BLAME_ALL_DISPLAY_DATE)
+            display_time = pkg_settings().get(PKG_SETTINGS_BLAME_ALL_DISPLAY_TIME)
+            sha = blame["sha"]
+            if sha == '00000000': sha = "&nbsp;" * 8
+            else: sha = '<a href="show?sha={sha}">{sha}</a>'.format(sha=sha)
             phantom = sublime.Phantom(
                 self.phantom_region(line_number),
                 blame_all_phantom_html_template.format(
                     css=blame_all_phantom_css,
-                    sha=blame["sha"],
-                    author=author + "&nbsp;" * (max_author_len - len(author)),
-                    date=blame["date"],
-                    time=blame["time"],
+                    sha=sha,
+                    message=message,
+                    author="&nbsp;&nbsp;" + author + "&nbsp;" * (max_author_len - len(author)) if display_author else "",
+                    date="&nbsp;&nbsp;" + blame["date"] if display_date else "",
+                    time="&nbsp;&nbsp;" + blame["time"] if display_time else "",
                 ),
                 sublime.LAYOUT_INLINE,
                 self.handle_phantom_button,
