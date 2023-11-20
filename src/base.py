@@ -11,6 +11,10 @@ from .settings import PKG_SETTINGS_KEY_CUSTOMBLAMEFLAGS, pkg_settings
 
 
 class BaseBlame(metaclass=ABCMeta):
+    def __init__(self, *args, **kwargs):
+        super(BaseBlame, self).__init__(*args, **kwargs)
+        self.message_map = {}
+
     def run_git(self, view_file_path, cli_args):
         if sys.platform == "win32":
             startup_info = subprocess.STARTUPINFO()
@@ -43,8 +47,11 @@ class BaseBlame(metaclass=ABCMeta):
 
     def get_commit_message_subject(self, sha, path):
         if sha == '00000000': return ''
+        if sha in self.message_map:
+            return self.message_map[sha]
         cli_args = ["show", "--no-color", sha, "--pretty=format:%s", "--no-patch"]
-        return self.run_git(path, cli_args)
+        self.message_map[sha] = self.run_git(path, cli_args)
+        return self.message_map[sha]
 
     @classmethod
     def parse_line(cls, line):
