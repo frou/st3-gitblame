@@ -68,7 +68,7 @@ class BlameShowAll(BaseBlame, sublime_plugin.TextCommand):
             message_len = pkg_settings().get(PKG_SETTINGS_BLAME_ALL_MESSAGE_MAX_LEN)
             message = ""
             if message_len > 0:
-                message = self.get_commit_message_subject(blame["sha"], self.view.file_name())
+                message = self.get_commit_message_subject(blame["sha"].strip('^'), self.view.file_name())
                 message.strip()
                 if len(message) > message_len: message = message[0:message_len].strip()
                 message = message + '&nbsp;' * (message_len - len(message))
