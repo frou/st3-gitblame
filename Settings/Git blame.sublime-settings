@@ -7,6 +7,10 @@
     //     ["-C", "-C"]
     //
     "custom_blame_flags": [],
+    "blame_all_message_max_len": 40,
+    "blame_all_display_author": true,
+    "blame_all_display_date": true,
+    "blame_all_display_time": true,
     "inline_blame_enabled": false,
     "inline_blame_delay": 300
 }
