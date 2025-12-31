@@ -114,6 +114,7 @@ class BaseBlame(metaclass=ABCMeta):
                 self.communicate_error(e)
                 return
 
+            # @todo (Optionally?) show the diff using Tab-Multi-Select rather than over the top of the current Group?
             buf = self._view().window().new_file()
             buf.run_command(
                 "blame_insert_commit_description",
