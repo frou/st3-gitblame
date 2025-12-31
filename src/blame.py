@@ -137,7 +137,7 @@ class BlameInsertCommitDescription(sublime_plugin.TextCommand):
     def run(self, edit, desc, scratch_view_name):
         view = self.view
         view.set_scratch(True)
-        view.assign_syntax("Packages/Diff/Diff.sublime-syntax")
+        view.assign_syntax("Packages/Git Formats/Git Log.sublime-syntax")
         view.insert(edit, 0, desc)
         view.set_name(scratch_view_name)
         view.set_read_only(True)
