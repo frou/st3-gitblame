@@ -28,7 +28,7 @@ class BaseBlame(metaclass=ABCMeta):
             cwd=os.path.dirname(os.path.realpath(view_file_path)),
             startupinfo=startup_info,
             stderr=subprocess.STDOUT,
-        ).decode()
+        ).decode(errors="replace")
 
     def get_blame_text(self, path, **kwargs):
         cli_args = ["blame", "--show-name", "--minimal", "-w"]
