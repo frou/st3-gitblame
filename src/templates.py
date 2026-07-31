@@ -57,7 +57,7 @@ blame_all_phantom_html_template = """
         <style>{css}</style>
         <div class="phantom">
             <span class="message">
-                {sha}&nbsp;&nbsp;{author}&nbsp;&nbsp;{date}&nbsp;&nbsp;{time}
+                {sha}{author}{message}{date}{time}
                 <a class="close" href="close">\u00D7</a>
             </span>
         </div>
