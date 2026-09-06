@@ -49,7 +49,7 @@ class BaseBlame(metaclass=ABCMeta):
     def parse_line(cls, line):
         pattern = r"""(?x)
             ^   (?P<sha>\^?\w+)
-            \s+ (?P<file>[\S ]+)
+            \s+ (?P<file>[\S ]+?)
             \s+
             \(  (?P<author>.+?)
             \s+ (?P<date>\d{4}-\d{2}-\d{2})
@@ -73,7 +73,7 @@ class BaseBlame(metaclass=ABCMeta):
         """
         pattern = r"""(?x)
             ^   (?P<sha>\^?\w+)
-            \s+ (?P<file>[\S ]+)
+            \s+ (?P<file>[\S ]+?)
             \s+
             \(  (?P<author>.+?)
             \s+ (?P<relative_date>\d+.+ago)
@@ -92,7 +92,9 @@ class BaseBlame(metaclass=ABCMeta):
             # The SHA output by `git blame` may have a leading caret to indicate that it
             # is a "boundary commit". That needs to be stripped before passing the SHA
             # back to git CLI commands for other purposes.
+            # I should be accessing this in some of the places I currently access "sha"?
             d["sha_normalised"] = d["sha"].strip("^")
+            d["uncommited"] = d["sha"] == "00000000"
             return d
         else:
             return {}

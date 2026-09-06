@@ -51,6 +51,7 @@ As well as via keyboard shortcuts, this package's commands are also made availab
 @body Because of the layout of the package (single "plugin", `boot.py`, and the result of the code in `src/`) it's recommended to use https://packagecontrol.io/packages/AutomaticPackageReloader so that changes you make during development get picked up without needing to restart ST.
 @body Try to format the Python code using https://github.com/psf/black.
 @body Be mindful of ST API versions https://www.sublimetext.com/docs/api_reference.html. We support ST3 (build 3211+) for now, but may go ST4 exclusive in the future.
+@body Try things out with the ST word_wrap setting both enabled and disabled, because phantoms can look/behave differently.
 -->
 
 ![Screenshot](https://raw.githubusercontent.com/frou/st3-gitblame/master/docs/screenshot-palette.png)

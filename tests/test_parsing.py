@@ -68,6 +68,20 @@ class TestParsing(unittest.TestCase):
                     "timezone": "+0000",
                 },
             ),
+            # REF: https://github.com/frou/st3-gitblame/issues/72
+            (
+                r"""f0f0f0f thing.sh (Smith, Bob (External) 2017-02-19 22:23:17 +0200 2) ayy""",
+                {
+                    "author": "Smith, Bob (External)",
+                    "date": "2017-02-19",
+                    "file": "thing.sh",
+                    "line_number": "2",
+                    "sha": "f0f0f0f",
+                    "sha_normalised": "f0f0f0f",
+                    "time": "22:23:17",
+                    "timezone": "+0200",
+                },
+            ),
         ]
         for cli_output_line, expected_result in samples:
             self.assertEqual(

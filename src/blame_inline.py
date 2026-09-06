@@ -127,7 +127,7 @@ class BlameInlineListener(BaseBlame, sublime_plugin.ViewEventListener):
             return
 
         blame = self.parse_line_with_relative_date(blame_output)
-        if not blame or blame["sha"] == "00000000":  # All zeros means uncommited change
+        if not blame or blame["uncommited"]:
             return
 
         try:
